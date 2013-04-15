@@ -7,11 +7,14 @@
   (:use ring.middleware.stacktrace)
   (:use ring.util.response)
   (:use queryizer.middleware)
+  (:use ring.middleware.file)
+  (:use ring.middleware.file-info))
 
+(def production?
+  (= "production" (get (System/getenv) "APP_ENV")))
 
-
-
-)
+(def development?
+  (not production?))
 
 (defn view-layout [& content]
   (html
@@ -20,7 +23,8 @@
       [:head
         [:meta {:http-equiv "Content-type"
                 :content "text/html; charset=utf-8"}]
-        [:title "queryizer"]]
+        [:title "queryizer"]
+        [:link {:href "/queryizer.css" :rel "stylesheet" :type "text/css"}]]
       [:body content])))
 
 (defn view-input [& [a b]]
@@ -64,16 +68,22 @@
        :body ""}
       (handler req))))
 
-
 (def app
   (-> #'handler
+    (wrap-file "public")
+    (wrap-file-info)
     (wrap-request-logging)
-    (wrap-reload '[queryizer.middleware queryizer.core])
-    (wrap-stacktrace)))
+    (wrap-if development? wrap-reload '[queryizer.middleware queryizer.core])
+    (wrap-bounce-favicon)
+    (wrap-exception-logging)
+    (wrap-if production?  wrap-failsafe)
+    (wrap-if development? wrap-stacktrace)))
+
 
 
 (defn -main [& args]
-	(run-jetty #'queryizer.core/app {:port 8080 :join? true})
-	(println "hello world!"))
+	(let [port (Integer/parseInt (get (System/getenv) "PORT" "8080"))]
+	(run-jetty #'queryizer.core/app {:port port :join? true})
+	(println "hello world!")))
 
 
