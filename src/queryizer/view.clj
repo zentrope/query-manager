@@ -2,7 +2,7 @@
   (:use compojure.core)
   (:use hiccup.core)
   (:use hiccup.page-helpers)
-  (:use queryizer.controller))
+  (:use queryizer.controller ))
 
 (defn view-layout [& content]
   (html
@@ -23,9 +23,10 @@
 
 (defn view-output [query]
   (view-layout
-    [:h2 "here is your query"]
-    [:p queryizer.controller/myquery]
-    [:a.action {:href "/"} "Enter another?"]))
+    [:h2 "Here is your result"]
+    [:p (queryizer.controller/myquery query)]
+    [:a.action {:href "/"} "Enter another?"] [:br]
+    [:a.action {:href "http://www.benglasser.com"} "Ben Glasser"]))
 
 
 (defroutes app

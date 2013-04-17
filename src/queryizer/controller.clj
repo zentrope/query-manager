@@ -6,11 +6,14 @@
 
 (defdb db (mysql {:db "te"
 	              :user "root"
-	              :password "services"}))
+	              :password "services"
+	              :host "localhost"
+	              :port "3306"}))
 
 (defentity unix
 	(table :unix)
 	(database db))
 
-(defn myquery []
-	(select* unix))
+(defn myquery [query]
+	(str "here is your query: " query)
+	(str (exec-raw [query] :results)))
