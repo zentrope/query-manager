@@ -8,9 +8,9 @@
      [ring/ring-jetty-adapter "0.2.5"]
      [compojure "0.4.0"]
      [hiccup "0.2.6"]
-     ;;[org.clojure/java.jdbc "0.0.6"]         ;; jdbc 
      [mysql/mysql-connector-java "5.1.6"]    ;; mysql driver
-     [korma "0.3.0-RC5"]]
+     [korma "0.3.0-RC5"]
+     [org.apache.derby/derby "10.9.1.0"]]
   :dev-dependencies
     [[lein-run "1.0.0-SNAPSHOT"]]
   :main

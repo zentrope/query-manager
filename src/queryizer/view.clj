@@ -4,6 +4,7 @@
   (:use hiccup.page-helpers)
   (:use queryizer.controller ))
 
+
 (defn view-layout [& content]
   (html
     (doctype :xhtml-strict)
@@ -11,7 +12,7 @@
       [:head
         [:meta {:http-equiv "Content-type"
                 :content "text/html; charset=utf-8"}]
-        [:title "adder"]]
+        [:title "Queryizer"]]
       [:body content])))
 
 (defn view-input []
@@ -19,15 +20,19 @@
     [:h2 "Enter query"]
     [:form {:method "post" :action "/"}
       [:input.math {:type "text" :name "query"}] [:br]
-      [:input.action {:type "submit" :value "Enter"}]]))
+      [:input.action {:type "submit" :value "Enter"}]]
+      [:h2 "Available queries"]
+      ;;(for 
+      ;;  [elem queryizer.controller/available-queries] 
+      ;;    ([:p (get elem :id)] [:br]))
+      ))
+
 
 (defn view-output [query]
   (view-layout
     [:h2 "Here is your result"]
-    [:p (queryizer.controller/myquery query)]
-    [:a.action {:href "/"} "Enter another?"] [:br]
-    [:a.action {:href "http://www.benglasser.com"} "Ben Glasser"]))
-
+    [:p (queryizer.controller/run-query query)]
+    [:a.action {:href "/"} "Enter another?"] [:br]))
 
 (defroutes app
   (GET "/" []

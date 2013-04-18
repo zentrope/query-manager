@@ -14,6 +14,9 @@
 	(table :unix)
 	(database db))
 
-(defn myquery [query]
-	(str "here is your query: " query)
+(defn run-query [query]
 	(str (exec-raw [query] :results)))
+
+(def available-queries
+	(read-string 
+		(slurp "resources/queries")))
