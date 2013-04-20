@@ -1,0 +1,20 @@
+1	2013-02-15 17:04:49	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+2	2013-02-15 17:10:26	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+3	2013-02-25 16:15:08	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+4	2013-02-27 09:36:33	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+5	2013-03-15 20:04:26	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+6	2013-03-20 08:34:34	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+7	2013-03-25 15:46:25	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+8	2013-04-15 18:57:45	1	1	1	The Security Audit Log component is shutting down due to a normal application stop request.
+9	2013-04-17 08:33:58	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+10	2013-04-17 17:52:35	1	1	1	The Security Audit Log component has initialized with the following categories enabled:\
+
+11	2013-04-17 17:56:40	1	1	1	The Security Audit Log component is shutting down due to a normal application stop request.

@@ -1,0 +1,1 @@
+2	PDXBGlasserD.tripwire.com	windowsServer	urn:te:ac1f0246-0000-013c-ded0-5c2080010000:USR.49b5bfd0-f36a-487c-851f-ac44274c2388	Microsoft	Windows 7	6.1	-9223372036854774467

@@ -1,0 +1,447 @@
+-9223372036854775808	KEYMGR	com.tripwire.space.core.persistence.StringKeyManager	[MISSING RESOURCE: KEYMGR.typeName]
+-9223372036854775806	com.tripwire.space.core.persistence.IdentifiedMap	com.tripwire.space.core.persistence.IdentifiedMap$Mapping	[MISSING RESOURCE: com.tripwire.space.core.persistence.IdentifiedMap.typeName]
+-9223372036854775805	com.tripwire.space.core.SchemaVersion	com.tripwire.space.core.SchemaVersion$Mapping	[MISSING RESOURCE: com.tripwire.space.core.SchemaVersion.typeName]
+-9223372036854775804	AssObjs	com.tripwire.space.core.log.AssociatedObject$Mapping	[MISSING RESOURCE: AssObjs.typeName]
+-9223372036854775803	LMUsrnme	com.tripwire.space.core.log.LogMessageUsername	[MISSING RESOURCE: LMUsrnme.typeName]
+-9223372036854775802	com.tripwire.space.core.group.PersistentGroupable	com.tripwire.space.core.group.PersistentGroupable$Mapping	Persistent Groupable
+-9223372036854775801	com.tripwire.space.core.scheduler.ScheduledTaskGroupable	com.tripwire.space.core.scheduler.ScheduledTaskGroupable$Mapping	Task Groupable
+-9223372036854775799	tasksLnk	com.tripwire.space.core.group.Link$Mapping	[MISSING RESOURCE: tasksLnk.typeName]
+-9223372036854775798	RolePermissionLink	com.tripwire.space.core.security.auth.RolePermissionLink$Mapping	[MISSING RESOURCE: RolePermissionLink.typeName]
+-9223372036854775797	UserGroupLink	com.tripwire.space.core.security.auth.UserGroupLink$Mapping	[MISSING RESOURCE: UserGroupLink.typeName]
+-9223372036854775796	com.tripwire.space.core.log.LogMessage	com.tripwire.space.core.log.LogMessage$Mapping	System
+-9223372036854775795	com.tripwire.space.core.log.ChangeLogMessage	com.tripwire.space.core.log.ChangeLogMessage$Mapping	Change
+-9223372036854775794	UserRoleLink	com.tripwire.space.core.security.auth.UserRoleLink$Mapping	[MISSING RESOURCE: UserRoleLink.typeName]
+-9223372036854775793	tasksACLS	com.tripwire.space.core.security.auth.Acl$Mapping	[MISSING RESOURCE: tasksACLS.typeName]
+-9223372036854775792	ORefs	com.tripwire.space.core.persistence.PersistentReference$Mapping	[MISSING RESOURCE: ORefs.typeName]
+-9223372036854775791	com.tripwire.space.core.scheduler.ScheduledTaskGroup	com.tripwire.space.core.scheduler.ScheduledTaskGroup$Mapping	Task Group
+-9223372036854775790	com.tripwire.space.core.scheduler.ScheduledTask	com.tripwire.space.core.scheduler.ScheduledTask$Mapping	Task
+-9223372036854775789	com.tripwire.space.core.log.LogArchiveTask	com.tripwire.space.core.log.LogArchiveTask$Mapping	Archive Log Task
+-9223372036854775788	com.tripwire.space.core.log.NodeChangeLogMessage	com.tripwire.space.core.log.NodeChangeLogMessage$Mapping	Node Change
+-9223372036854775787	com.tripwire.space.core.log.RuleChangeLogMessage	com.tripwire.space.core.log.RuleChangeLogMessage$Mapping	Rule Change
+-9223372036854775786	com.tripwire.space.core.log.RadiusLogMessage	com.tripwire.space.core.log.RadiusLogMessage$Mapping	RADIUS
+-9223372036854775785	com.tripwire.space.core.log.ResponseLogMessage	com.tripwire.space.core.log.ResponseLogMessage$Mapping	Action
+-9223372036854775784	com.tripwire.space.core.log.SecurityLogMessage	com.tripwire.space.core.log.SecurityLogMessage$Mapping	Security
+-9223372036854775783	com.tripwire.space.core.log.UnknownLogMessage	com.tripwire.space.core.log.UnknownLogMessage$Mapping	Unknown
+-9223372036854775782	com.tripwire.space.core.log.SystemLogMessage	com.tripwire.space.core.log.SystemLogMessage$Mapping	System
+-9223372036854775781	com.tripwire.space.core.log.TacacsLogMessage	com.tripwire.space.core.log.TacacsLogMessage$Mapping	TACACS+
+-9223372036854775780	com.tripwire.space.core.log.TaskLogMessage	com.tripwire.space.core.log.TaskLogMessage$Mapping	Task Run
+-9223372036854775779	com.tripwire.space.core.log.BaselineLogMessage	com.tripwire.space.core.log.BaselineLogMessage$Mapping	Baseline
+-9223372036854775778	com.tripwire.space.core.log.ElementCheckLogMessage	com.tripwire.space.core.log.ElementCheckLogMessage$Mapping	Element Check
+-9223372036854775777	com.tripwire.space.core.log.TestLoginLogMessage	com.tripwire.space.core.log.TestLoginLogMessage$Mapping	Test Login
+-9223372036854775776	com.tripwire.space.core.log.JobLogMessage	com.tripwire.space.core.log.JobLogMessage$Mapping	Job
+-9223372036854775775	com.tripwire.space.core.log.NodeUpgradeLogMessage	com.tripwire.space.core.log.NodeUpgradeLogMessage$Mapping	Push Upgrade
+-9223372036854775774	com.tripwire.space.core.log.StopTaskLogMessage	com.tripwire.space.core.log.StopTaskLogMessage$Mapping	Task Stop
+-9223372036854775773	com.tripwire.space.core.conformance.remediator.executor.RemediatorLogMessage	com.tripwire.space.core.conformance.remediator.executor.RemediatorLogMessage$Mapping	Remediator
+-9223372036854775772	com.tripwire.space.core.log.SignAgentCertificateLogMessage	com.tripwire.space.core.log.SignAgentCertificateLogMessage$Mapping	Agent CSR
+-9223372036854775771	com.tripwire.space.core.conformance.remediator.workflow.WorkOrderHistoryLogMessage	com.tripwire.space.core.conformance.remediator.workflow.WorkOrderHistoryLogMessage$Mapping	Remediation Work Order
+-9223372036854775770	com.tripwire.space.core.asset.AssetManagerChangeLogMessage	com.tripwire.space.core.asset.AssetManagerChangeLogMessage$Mapping	Asset View Change
+-9223372036854775769	AuditAccessType	com.tripwire.space.core.log.audit.AuditAccessType	[MISSING RESOURCE: AuditAccessType.typeName]
+-9223372036854775768	AuditAppType	com.tripwire.space.core.log.audit.AuditApplicationType	[MISSING RESOURCE: AuditAppType.typeName]
+-9223372036854775767	AuditEventType	com.tripwire.space.core.log.audit.AuditEventType	[MISSING RESOURCE: AuditEventType.typeName]
+-9223372036854775766	com.tripwire.space.core.log.audit.AuditEventLogMessage	com.tripwire.space.core.log.audit.AuditEventLogMessage$Mapping	Audit Event
+-9223372036854775765	com.tripwire.space.core.conformance.PolicyScoreChangeLogMessage	com.tripwire.space.core.conformance.PolicyScoreChangeLogMessage$Mapping	Policy Score Change
+-9223372036854775764	com.tripwire.space.core.service.StationRegisterLogMessage	com.tripwire.space.core.service.StationRegisterLogMessage$Mapping	Agent Discovery
+-9223372036854775763	com.tripwire.space.core.conformance.PolicyTestLogMessage	com.tripwire.space.core.conformance.PolicyTestLogMessage$Mapping	Policy Test
+-9223372036854775762	com.tripwire.space.core.log.SoapClientLogMessage	com.tripwire.space.core.log.SoapClientLogMessage$Mapping	SOAP Client
+-9223372036854775761	com.tripwire.space.core.security.license.LicensedFeature	com.tripwire.space.core.security.license.LicensedFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.LicensedFeature.typeName]
+-9223372036854775760	com.tripwire.space.core.security.auth.ObjectAcl	com.tripwire.space.core.security.auth.ObjectAcl$Mapping	Access Control
+-9223372036854775759	com.tripwire.space.core.group.UniqueName	com.tripwire.space.core.group.UniqueName$Mapping	[MISSING RESOURCE: com.tripwire.space.core.group.UniqueName.typeName]
+-9223372036854775752	CLASSES	com.tripwire.space.core.persistence.PersistentClassMap	[MISSING RESOURCE: CLASSES.typeName]
+-9223372036854775751	ATTRIBS	com.tripwire.space.core.element.attribute.Attributes$Mapping	[MISSING RESOURCE: ATTRIBS.typeName]
+-9223372036854775750	CONTENTS	com.tripwire.space.core.element.Content$Mapping	[MISSING RESOURCE: CONTENTS.typeName]
+-9223372036854775749	com.tripwire.space.core.properties.CustomType	com.tripwire.space.core.properties.CustomType$Mapping	Custom Property
+-9223372036854775748	CVLnks_Vers	com.tripwire.space.core.properties.CustomValueLinks	[MISSING RESOURCE: CVLnks_Vers.typeName]
+-9223372036854775747	com.tripwire.space.core.element.ElementVersion	com.tripwire.space.core.element.ElementVersion$Mapping	Version
+-9223372036854775744	ENAMES	com.tripwire.space.core.element.PersistentElementName$Mapping	[MISSING RESOURCE: ENAMES.typeName]
+-9223372036854775743	CVLnks_ELEMS	com.tripwire.space.core.properties.CustomValueLinks	[MISSING RESOURCE: CVLnks_ELEMS.typeName]
+-9223372036854775742	ELEMS	com.tripwire.space.core.element.Element$Mapping	Element
+-9223372036854775741	com.tripwire.space.core.node.NodeGroupable	com.tripwire.space.core.node.NodeGroupable$Mapping	Node Groupable
+-9223372036854775739	nodesLnk	com.tripwire.space.core.group.Link$Mapping	[MISSING RESOURCE: nodesLnk.typeName]
+-9223372036854775738	nodesACLS	com.tripwire.space.core.security.auth.Acl$Mapping	[MISSING RESOURCE: nodesACLS.typeName]
+-9223372036854775737	CVLnks_Node	com.tripwire.space.core.properties.CustomValueLinks	[MISSING RESOURCE: CVLnks_Node.typeName]
+-9223372036854775736	com.tripwire.space.core.node.Node	com.tripwire.space.core.node.Node$Mapping	Node
+-9223372036854775735	com.tripwire.space.core.rule.RuleGroupable	com.tripwire.space.core.rule.RuleGroupable$Mapping	Rule Groupable
+-9223372036854775733	rulesLnk	com.tripwire.space.core.group.Link$Mapping	[MISSING RESOURCE: rulesLnk.typeName]
+-9223372036854775732	rulesACLS	com.tripwire.space.core.security.auth.Acl$Mapping	[MISSING RESOURCE: rulesACLS.typeName]
+-9223372036854775731	com.tripwire.space.core.rule.Rule	com.tripwire.space.core.rule.Rule$Mapping	Rule
+-9223372036854775729	com.tripwire.space.core.element.CompactVersionsTask	com.tripwire.space.core.element.CompactVersionsTask$Mapping	Compact Versions Task
+-9223372036854775728	com.tripwire.space.core.element.ApprovalTemplate	com.tripwire.space.core.element.ApprovalTemplate$Mapping	Promotion Approval Template
+-9223372036854775727	com.tripwire.space.core.node.NodeGroup	com.tripwire.space.core.node.NodeGroup$Mapping	Node Group
+-9223372036854775726	solarisServer	com.tripwire.space.core.node.ServerNode$Mapping	Solaris Server
+-9223372036854775725	windowsServer	com.tripwire.space.core.node.ServerNode$Mapping	Windows Server
+-9223372036854775724	linuxServer	com.tripwire.space.core.node.ServerNode$Mapping	Linux Server
+-9223372036854775723	aixServer	com.tripwire.space.core.node.ServerNode$Mapping	AIX Server
+-9223372036854775722	hpuxServer	com.tripwire.space.core.node.ServerNode$Mapping	HPUX Server
+-9223372036854775721	i5osServer	com.tripwire.space.core.node.ServerNode$Mapping	i5/OS Server
+-9223372036854775720	macosxServer	com.tripwire.space.core.node.ServerNode$Mapping	Mac OS X Server
+-9223372036854775719	com.tripwire.space.core.node.NodeIp	com.tripwire.space.core.node.NodeIp$Mapping	[MISSING RESOURCE: com.tripwire.space.core.node.NodeIp.typeName]
+-9223372036854775718	com.tripwire.space.core.security.license.FsiFeature	com.tripwire.space.core.security.license.FsiFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.FsiFeature.typeName]
+-9223372036854775716	com.tripwire.space.core.security.license.FsiPolicyFeature	com.tripwire.space.core.security.license.FsiPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.FsiPolicyFeature.typeName]
+-9223372036854775714	com.tripwire.space.core.security.license.FsiRemediationFeature	com.tripwire.space.core.security.license.FsiRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.FsiRemediationFeature.typeName]
+-9223372036854775712	com.tripwire.space.core.security.license.I5OsFeature	com.tripwire.space.core.security.license.I5OsFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.I5OsFeature.typeName]
+-9223372036854775710	com.tripwire.space.core.security.license.I5OsPolicyFeature	com.tripwire.space.core.security.license.I5OsPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.I5OsPolicyFeature.typeName]
+-9223372036854775708	com.tripwire.space.core.security.license.I5OsRemediationFeature	com.tripwire.space.core.security.license.I5OsRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.I5OsRemediationFeature.typeName]
+-9223372036854775706	DelegatingNode	com.tripwire.space.core.node.DelegatingNode$Mapping	[MISSING RESOURCE: DelegatingNode.typeName]
+-9223372036854775705	com.tripwire.space.core.asset.SmartNodeGroup	com.tripwire.space.core.asset.SmartNodeGroup$Mapping	Smart Node Group
+-9223372036854775704	com.tripwire.space.core.rule.RuleGroup	com.tripwire.space.core.rule.RuleGroup$Mapping	Rule Group
+-9223372036854775703	com.tripwire.space.core.rule.ScheduledRuleTask	com.tripwire.space.core.rule.ScheduledRuleTask$Mapping	Rule Task
+-9223372036854775702	com.tripwire.space.core.rule.ScheduledBaselineRuleTask	com.tripwire.space.core.rule.ScheduledBaselineRuleTask$Mapping	Baseline Rule Task
+-9223372036854775701	com.tripwire.space.core.rule.ScheduledCheckRuleTask	com.tripwire.space.core.rule.ScheduledCheckRuleTask$Mapping	Check Rule Task
+-9223372036854775700	ElementSummary	com.tripwire.space.core.rule.ElementSummary$Mapping	[MISSING RESOURCE: ElementSummary.typeName]
+-9223372036854775699	LastRuleRunStatus	com.tripwire.space.core.rule.LastRuleRunStatus$Mapping	[MISSING RESOURCE: LastRuleRunStatus.typeName]
+-9223372036854775698	OutOfSyncPair	com.tripwire.space.core.rule.OutOfSyncNodeRule$Mapping	[MISSING RESOURCE: OutOfSyncPair.typeName]
+-9223372036854775697	com.tripwire.space.core.email.SmtpEmailServer	com.tripwire.space.core.email.SmtpEmailServer$Mapping	SMTP E-mail Server
+-9223372036854775696	com.tripwire.space.core.variables.StringVariable	com.tripwire.space.core.variables.StringVariable$Mapping	Variable
+-9223372036854775695	com.tripwire.space.core.responses.ResponseGroupable	com.tripwire.space.core.responses.ResponseGroupable$Mapping	Action Groupable
+-9223372036854775693	responsesLnk	com.tripwire.space.core.group.OrderedLink$Mapping	[MISSING RESOURCE: responsesLnk.typeName]
+-9223372036854775692	responsesACLS	com.tripwire.space.core.security.auth.Acl$Mapping	[MISSING RESOURCE: responsesACLS.typeName]
+-9223372036854775691	RespLnks	com.tripwire.space.core.responses.ResponseLinks	[MISSING RESOURCE: RespLnks.typeName]
+-9223372036854775690	com.tripwire.space.core.responses.Response	com.tripwire.space.core.responses.Response$Mapping	Action
+-9223372036854775689	com.tripwire.space.core.responses.ResponseGroup	com.tripwire.space.core.responses.ResponseGroup$Mapping	Action Group
+-9223372036854775688	com.tripwire.space.core.responses.EmailResponse	com.tripwire.space.core.responses.EmailResponse$Mapping	E-mail Action
+-9223372036854775687	com.tripwire.space.core.responses.OutsideMaintWindowResponse	com.tripwire.space.core.responses.OutsideMaintWindowResponse$Mapping	Change Window Action
+-9223372036854775686	com.tripwire.space.core.responses.RunReportResponse	com.tripwire.space.core.responses.RunReportResponse$Mapping	Run Report Action
+-9223372036854775685	com.tripwire.space.core.responses.RunRuleResponse	com.tripwire.space.core.responses.RunRuleResponse$Mapping	Run Rule Action
+-9223372036854775684	com.tripwire.space.core.responses.RunTaskResponse	com.tripwire.space.core.responses.RunTaskResponse$Mapping	Run Task Action
+-9223372036854775683	com.tripwire.space.core.responses.SetCustomValueResponse	com.tripwire.space.core.responses.SetCustomValueResponse$Mapping	Set Custom Value Action
+-9223372036854775682	com.tripwire.space.core.responses.SetSeverityResponse	com.tripwire.space.core.responses.SetSeverityResponse$Mapping	Severity Override Action
+-9223372036854775681	com.tripwire.space.core.responses.SnmpEventResponse	com.tripwire.space.core.responses.SnmpEventResponse$Mapping	SNMP Action
+-9223372036854775680	com.tripwire.space.core.responses.SyslogResponse	com.tripwire.space.core.responses.SyslogResponse$Mapping	Syslog Action
+-9223372036854775679	com.tripwire.space.core.responses.snmp.TripwireUsmAgent	com.tripwire.space.core.responses.snmp.TripwireUsmAgent$Mapping	[MISSING RESOURCE: com.tripwire.space.core.responses.snmp.TripwireUsmAgent.typeName]
+-9223372036854775678	com.tripwire.space.core.responses.UpdateResponse	com.tripwire.space.core.responses.UpdateResponse$Mapping	Update Baseline Action
+-9223372036854775677	com.tripwire.space.core.responses.ApplyTagResponse	com.tripwire.space.core.responses.ApplyTagResponse$Mapping	Tag Action
+-9223372036854775676	com.tripwire.space.core.responses.TagToApplyReference	com.tripwire.space.core.responses.TagToApplyReference$Mapping	[MISSING RESOURCE: com.tripwire.space.core.responses.TagToApplyReference.typeName]
+-9223372036854775675	SevScopedRsp	com.tripwire.space.core.responses.SeverityScopedResponse$Mapping	Severity Range Conditional Action
+-9223372036854775674	TmRngRsp	com.tripwire.space.core.responses.TimeRangeResponse$Mapping	Time Range Conditional Action
+-9223372036854775673	TmWin	com.tripwire.space.core.responses.TimeWindow$Mapping	[MISSING RESOURCE: TmWin.typeName]
+-9223372036854775672	com.tripwire.space.core.responses.PolicyTestPredicateResponse	com.tripwire.space.core.responses.PolicyTestPredicateResponse$Mapping	Policy Test Result Conditional Action
+-9223372036854775671	com.tripwire.space.core.responses.PolicyTestPredicateResponse$Event	com.tripwire.space.core.responses.PolicyTestPredicateResponse$Event$Mapping	[MISSING RESOURCE: com.tripwire.space.core.responses.PolicyTestPredicateResponse$Event.typeName]
+-9223372036854775670	com.tripwire.space.core.responses.PromoteByReferenceResponse	com.tripwire.space.core.responses.PromoteByReferenceResponse$Mapping	Promote-By-Reference Action
+-9223372036854775669	com.tripwire.space.core.responses.PromoteByMatchResponse	com.tripwire.space.core.responses.PromoteByMatchResponse$Mapping	Promote-By-Match Action
+-9223372036854775668	com.tripwire.space.core.responses.PromoteVersionResponse	com.tripwire.space.core.responses.PromoteVersionResponse$Mapping	Promote Specific Versions Action
+-9223372036854775667	CondRsp	com.tripwire.space.core.responses.ConditionalResponse$Mapping	Conditional Action
+-9223372036854775666	com.tripwire.space.core.responses.AttributesConditionalResponse	com.tripwire.space.core.responses.AttributesConditionalResponse$Mapping	Attributes Conditional Action
+-9223372036854775665	com.tripwire.space.core.responses.AuditTrailConditionalResponse	com.tripwire.space.core.responses.AuditTrailConditionalResponse$Mapping	Audit Trail Conditional Action
+-9223372036854775664	com.tripwire.space.core.responses.ContentConditionalResponse	com.tripwire.space.core.responses.ContentConditionalResponse$Mapping	Content Conditional Action
+-9223372036854775663	com.tripwire.space.core.responses.CustomValuesConditionalResponse	com.tripwire.space.core.responses.CustomValuesConditionalResponse$Mapping	Custom Properties Conditional Action
+-9223372036854775662	com.tripwire.space.core.responses.ElementNameConditionalResponse	com.tripwire.space.core.responses.ElementNameConditionalResponse$Mapping	Element Name Conditional Action
+-9223372036854775661	com.tripwire.space.core.responses.PackageConditionalResponse	com.tripwire.space.core.responses.PackageConditionalResponse$Mapping	Package Conditional Action
+-9223372036854775660	ChangeTypeRsp	com.tripwire.space.core.responses.ChangeTypePredicateResponse$Mapping	Change Type Conditional Action
+-9223372036854775659	com.tripwire.space.core.responses.TagConditionalResponse	com.tripwire.space.core.responses.TagConditionalResponse$Mapping	Tag Conditional Action
+-9223372036854775658	ByRefRsp	com.tripwire.space.core.responses.ByReferencePredicateResponse$Mapping	By-Reference Conditional Action
+-9223372036854775657	ByMatchRsp	com.tripwire.space.core.responses.ByMatchPredicateResponse$Mapping	By-Match Conditional Action
+-9223372036854775656	RefNodeRsp	com.tripwire.space.core.responses.ByReferenceAttributesPredicateResponse$Mapping	By-Reference Attributes Conditional Action
+-9223372036854775655	com.tripwire.space.core.security.license.License	com.tripwire.space.core.security.license.License$Mapping	License
+-9223372036854775654	com.tripwire.space.core.job.JobGroupable	com.tripwire.space.core.job.JobGroupable$Mapping	Job Groupable
+-9223372036854775652	jobsLnk	com.tripwire.space.core.group.Link$Mapping	Jobs Links
+-9223372036854775651	jobsACLS	com.tripwire.space.core.security.auth.Acl$Mapping	Jobs ACLs
+-9223372036854775650	com.tripwire.space.core.job.Job	com.tripwire.space.core.job.Job$Mapping	Job
+-9223372036854775649	com.tripwire.space.core.job.JobGroup	com.tripwire.space.core.job.JobGroup$Mapping	Job Group
+-9223372036854775648	com.tripwire.space.core.job.ByMatchJob	com.tripwire.space.core.job.ByMatchJob$Mapping	By Match Job
+-9223372036854775647	com.tripwire.space.core.job.ByReferenceJob	com.tripwire.space.core.job.ByReferenceJob$Mapping	By Reference Job
+-9223372036854775646	JobRuleLnks	com.tripwire.space.core.job.JobRuleLinks	Job-Rule Links
+-9223372036854775645	jnElems	com.tripwire.space.core.job.JobNodeElements	[MISSING RESOURCE: jnElems.typeName]
+-9223372036854775644	JobNodeLnks	com.tripwire.space.core.job.JobNodeInfo$Mapping	Job-Node Links
+-9223372036854775643	com.tripwire.space.core.persistence.PersistentName	com.tripwire.space.core.persistence.PersistentName$Mapping	[MISSING RESOURCE: com.tripwire.space.core.persistence.PersistentName.typeName]
+-9223372036854775642	com.tripwire.space.core.persistence.SavedSearch	com.tripwire.space.core.persistence.SavedSearch$Mapping	Saved Search
+-9223372036854775641	com.tripwire.space.core.security.login.LoginStrategyDescriptor	com.tripwire.space.core.security.login.LoginStrategyDescriptor$Mapping	Login Strategy Descriptor
+-9223372036854775640	com.tripwire.space.core.security.auth.Password	com.tripwire.space.core.security.auth.Password$Mapping	Password
+-9223372036854775639	com.tripwire.space.core.security.auth.AuthPrincipal	com.tripwire.space.core.security.auth.AuthPrincipal$Mapping	Auth Principal
+-9223372036854775638	com.tripwire.space.core.security.auth.Role	com.tripwire.space.core.security.auth.Role$Mapping	Role
+-9223372036854775637	com.tripwire.space.core.security.auth.UserGroup	com.tripwire.space.core.security.auth.UserGroup$Mapping	User Group
+-9223372036854775636	com.tripwire.space.core.security.auth.User	com.tripwire.space.core.security.auth.User$Mapping	User
+-9223372036854775635	com.tripwire.space.core.security.auth.ObjectPermission	com.tripwire.space.core.security.auth.ObjectPermission$Mapping	Permission
+-9223372036854775634	UsrLnks	com.tripwire.space.core.security.auth.UserElementLinks	[MISSING RESOURCE: UsrLnks.typeName]
+-9223372036854775633	com.tripwire.space.core.security.license.TestingFeature	com.tripwire.space.core.security.license.TestingFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.TestingFeature.typeName]
+-9223372036854775632	com.tripwire.space.core.security.license.TestingPolicyFeature	com.tripwire.space.core.security.license.TestingPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.TestingPolicyFeature.typeName]
+-9223372036854775631	com.tripwire.space.core.security.license.VMWareESXFeature	com.tripwire.space.core.security.license.VMWareESXFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.VMWareESXFeature.typeName]
+-9223372036854775630	com.tripwire.space.core.security.license.VMWareESXPolicyFeature	com.tripwire.space.core.security.license.VMWareESXPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.VMWareESXPolicyFeature.typeName]
+-9223372036854775629	com.tripwire.space.core.security.license.TestingRemediationFeature	com.tripwire.space.core.security.license.TestingRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.TestingRemediationFeature.typeName]
+-9223372036854775628	com.tripwire.space.core.security.license.VMWareESXRemediationFeature	com.tripwire.space.core.security.license.VMWareESXRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.VMWareESXRemediationFeature.typeName]
+-9223372036854775627	com.tripwire.space.core.security.license.NodeFeature	com.tripwire.space.core.security.license.NodeFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.NodeFeature.typeName]
+-9223372036854775626	com.tripwire.space.core.element.state.SeverityRange	com.tripwire.space.core.element.state.SeverityRange$Mapping	Severity Range
+-9223372036854775625	com.tripwire.space.core.element.pkg.InstallationPackage	com.tripwire.space.core.element.pkg.InstallationPackage$Mapping	Installation Package
+-9223372036854775624	com.tripwire.space.core.element.pkg.PersistentPackageCatalogueEntry	com.tripwire.space.core.element.pkg.PersistentPackageCatalogueEntry$Mapping	Persistent Package Catalogue Entry
+-9223372036854775623	com.tripwire.space.core.properties.CustomBooleanValue	com.tripwire.space.core.properties.CustomBooleanValue$Mapping	[MISSING RESOURCE: com.tripwire.space.core.properties.CustomBooleanValue.typeName]
+-9223372036854775622	com.tripwire.space.core.properties.CustomBooleanType	com.tripwire.space.core.properties.CustomBooleanType$Mapping	Yes/No
+-9223372036854775621	com.tripwire.space.core.properties.CustomCpeNameValue	com.tripwire.space.core.properties.CustomCpeNameValue$Mapping	[MISSING RESOURCE: com.tripwire.space.core.properties.CustomCpeNameValue.typeName]
+-9223372036854775620	com.tripwire.space.core.properties.CustomCpeNameType	com.tripwire.space.core.properties.CustomCpeNameType$Mapping	CPE Name
+-9223372036854775619	com.tripwire.space.core.properties.CustomDateValue	com.tripwire.space.core.properties.CustomDateValue$Mapping	[MISSING RESOURCE: com.tripwire.space.core.properties.CustomDateValue.typeName]
+-9223372036854775618	com.tripwire.space.core.properties.CustomDateType	com.tripwire.space.core.properties.CustomDateType$Mapping	Date
+-9223372036854775617	com.tripwire.space.core.properties.CustomNumericValue	com.tripwire.space.core.properties.CustomNumericValue$Mapping	[MISSING RESOURCE: com.tripwire.space.core.properties.CustomNumericValue.typeName]
+-9223372036854775616	com.tripwire.space.core.properties.CustomNumericType	com.tripwire.space.core.properties.CustomNumericType$Mapping	Number
+-9223372036854775615	com.tripwire.space.core.properties.CustomStringValue	com.tripwire.space.core.properties.CustomStringValue$Mapping	[MISSING RESOURCE: com.tripwire.space.core.properties.CustomStringValue.typeName]
+-9223372036854775614	com.tripwire.space.core.properties.CustomSelectType	com.tripwire.space.core.properties.CustomSelectType$Mapping	Selection
+-9223372036854775613	com.tripwire.space.core.properties.CustomStringType	com.tripwire.space.core.properties.CustomStringType$Mapping	Text
+-9223372036854775612	BenchmarkCpeLnks	com.tripwire.space.core.conformance.scap.BenchmarkCpeLinks	[MISSING RESOURCE: BenchmarkCpeLnks.typeName]
+-9223372036854775611	com.tripwire.space.core.conformance.PolicyTestGroupable	com.tripwire.space.core.conformance.PolicyTestGroupable$Mapping	Policy Test Groupable
+-9223372036854775609	policyLnk	com.tripwire.space.core.group.WeightedLink$Mapping	[MISSING RESOURCE: policyLnk.typeName]
+-9223372036854775608	policyACLS	com.tripwire.space.core.security.auth.Acl$Mapping	[MISSING RESOURCE: policyACLS.typeName]
+-9223372036854775607	com.tripwire.space.core.conformance.PolicyTest	com.tripwire.space.core.conformance.PolicyTest$Mapping	Policy Test
+-9223372036854775606	VersionTestRules	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: VersionTestRules.typeName]
+-9223372036854775605	com.tripwire.space.core.conformance.remediator.RemediatorAffectedElementName	com.tripwire.space.core.conformance.remediator.RemediatorAffectedElementName$Mapping	Remediator Affected Element Name
+-9223372036854775604	com.tripwire.space.core.conformance.remediator.Remediator	com.tripwire.space.core.conformance.remediator.Remediator$Mapping	Remediator
+-9223372036854775603	com.tripwire.space.core.conformance.VersionTest	com.tripwire.space.core.conformance.VersionTest$Mapping	Test
+-9223372036854775602	com.tripwire.space.core.conformance.AttributeTest	com.tripwire.space.core.conformance.AttributeTest$Mapping	Attribute Test
+-9223372036854775601	com.tripwire.space.core.conformance.ContentTest	com.tripwire.space.core.conformance.ContentTest$Mapping	Content Test
+-9223372036854775600	com.tripwire.space.core.conformance.ExistenceTest	com.tripwire.space.core.conformance.ExistenceTest$Mapping	Existence Test
+-9223372036854775599	com.tripwire.space.core.conformance.PolicyTestGroup	com.tripwire.space.core.conformance.PolicyTestGroup$Mapping	Policy Test Group
+-9223372036854775598	com.tripwire.space.core.conformance.ScoringRange	com.tripwire.space.core.conformance.ScoringRange$Mapping	Scoring Range
+-9223372036854775597	PolicyNodes	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicyNodes.typeName]
+-9223372036854775596	com.tripwire.space.core.conformance.Policy	com.tripwire.space.core.conformance.Policy$Mapping	Policy
+-9223372036854775595	PolicyTestResult	com.tripwire.space.core.conformance.PolicyTestResult$Mapping	Policy Test Result
+-9223372036854775594	VersionTestResult	com.tripwire.space.core.conformance.VersionTestResult$Mapping	[MISSING RESOURCE: VersionTestResult.typeName]
+-9223372036854775593	ExcludedNodes	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: ExcludedNodes.typeName]
+-9223372036854775592	LastPolicyTestResult	com.tripwire.space.core.conformance.LastPolicyTestResult$Mapping	[MISSING RESOURCE: LastPolicyTestResult.typeName]
+-9223372036854775591	LastVersionTestResult	com.tripwire.space.core.conformance.LastVersionTestResult$Mapping	[MISSING RESOURCE: LastVersionTestResult.typeName]
+-9223372036854775590	com.tripwire.space.core.conformance.PolicyScore	com.tripwire.space.core.conformance.PolicyScore$Mapping	[MISSING RESOURCE: com.tripwire.space.core.conformance.PolicyScore.typeName]
+-9223372036854775589	PolicyRescore	com.tripwire.space.core.conformance.DefaultPolicyScoreUpdater$RescoreData$Mapping	[MISSING RESOURCE: PolicyRescore.typeName]
+-9223372036854775588	com.tripwire.space.core.batch.RunIdentifier	com.tripwire.space.core.batch.RunIdentifier$Mapping	Run Identifier
+-9223372036854775587	com.tripwire.space.core.conformance.remediator.executor.RemediatorRunId	com.tripwire.space.core.conformance.remediator.executor.RemediatorRunId$Mapping	Remediation Run
+-9223372036854775586	com.tripwire.space.core.conformance.remediator.workflow.RemediationEntry	com.tripwire.space.core.conformance.remediator.workflow.RemediationEntry$Mapping	Remediation Entry
+-9223372036854775585	com.tripwire.space.core.util.PersistentSequenceGenerator	com.tripwire.space.core.util.PersistentSequenceGenerator$Mapping	[MISSING RESOURCE: com.tripwire.space.core.util.PersistentSequenceGenerator.typeName]
+-9223372036854775584	com.tripwire.space.core.conformance.remediator.workflow.RemediationWorkOrder	com.tripwire.space.core.conformance.remediator.workflow.RemediationWorkOrder$Mapping	Remediation Work Order
+-9223372036854775583	WorkOrderReports	com.tripwire.space.core.conformance.remediator.workflow.WorkOrderReports	[MISSING RESOURCE: WorkOrderReports.typeName]
+-9223372036854775582	com.tripwire.space.core.conformance.remediator.workflow.PostRemediationCommand	com.tripwire.space.core.conformance.remediator.workflow.PostRemediationCommand$Mapping	Post-Remediation Service Command
+-9223372036854775581	WaiverGrantor	com.tripwire.space.core.conformance.waiver.WaiverGrantors	[MISSING RESOURCE: WaiverGrantor.typeName]
+-9223372036854775580	WaiverResponsible	com.tripwire.space.core.conformance.waiver.WaiverResponsibles	[MISSING RESOURCE: WaiverResponsible.typeName]
+-9223372036854775579	com.tripwire.space.core.conformance.waiver.PolicyWaiver	com.tripwire.space.core.conformance.waiver.PolicyWaiver$Mapping	Policy Waiver
+-9223372036854775578	WaiverTestNode	com.tripwire.space.core.conformance.waiver.WaiverTestNodeMapping	[MISSING RESOURCE: WaiverTestNode.typeName]
+-9223372036854775577	com.tripwire.space.core.conformance.scap.ScapBenchmark	com.tripwire.space.core.conformance.scap.ScapBenchmark$Mapping	Benchmark
+-9223372036854775576	com.tripwire.space.core.conformance.PolicyTestExpressionNode	com.tripwire.space.core.conformance.PolicyTestExpressionNode$Mapping	Policy Test Expression Node
+-9223372036854775575	com.tripwire.space.core.conformance.PolicyTestScapReference	com.tripwire.space.core.conformance.PolicyTestScapReference$Mapping	[MISSING RESOURCE: com.tripwire.space.core.conformance.PolicyTestScapReference.typeName]
+-9223372036854775574	com.tripwire.space.core.conformance.VersionTestResultsEvaluator	com.tripwire.space.core.conformance.VersionTestResultsEvaluator$Mapping	Version Test Results Evaluator
+-9223372036854775573	com.tripwire.space.core.conformance.OvalVariableTest	com.tripwire.space.core.conformance.OvalVariableTest$Mapping	OVAL Variable Test
+-9223372036854775572	com.tripwire.space.core.conformance.scap.ScapCceDefinition	com.tripwire.space.core.conformance.scap.ScapCceDefinition$Mapping	CCE Entry
+-9223372036854775571	CceParameter	com.tripwire.space.core.conformance.scap.ScapCceDefinition$ParameterMapping	[MISSING RESOURCE: CceParameter.typeName]
+-9223372036854775570	CceMechanism	com.tripwire.space.core.conformance.scap.ScapCceDefinition$TechnicalMechanismMapping	[MISSING RESOURCE: CceMechanism.typeName]
+-9223372036854775569	com.tripwire.space.core.homepage.HomePage	com.tripwire.space.core.homepage.HomePage$Mapping	Home Page
+-9223372036854775568	com.tripwire.space.core.homepage.HomePageWidget	com.tripwire.space.core.homepage.HomePageWidget$Mapping	Home Page Widget
+-9223372036854775567	com.tripwire.space.core.homepage.AlertWidget	com.tripwire.space.core.homepage.AlertWidget$Mapping	Alert Widget
+-9223372036854775566	com.tripwire.space.core.homepage.EmbeddedReportWidget	com.tripwire.space.core.homepage.EmbeddedReportWidget$Mapping	Embedded Report Widget
+-9223372036854775565	com.tripwire.space.core.homepage.HtmlContentWidget	com.tripwire.space.core.homepage.HtmlContentWidget$Mapping	Html Content Widget
+-9223372036854775564	com.tripwire.space.core.homepage.ReportListWidget	com.tripwire.space.core.homepage.ReportListWidget$Mapping	Report List Widget
+-9223372036854775563	com.tripwire.space.core.homepage.ShortcutWidget	com.tripwire.space.core.homepage.ShortcutWidget$Mapping	Shortcut Widget
+-9223372036854775562	com.tripwire.space.core.homepage.RemediationWorkOrderWidget	com.tripwire.space.core.homepage.RemediationWorkOrderWidget$Mapping	Remediation Work Order Widget
+-9223372036854775561	com.tripwire.space.core.homepage.TLCEventWidget	com.tripwire.space.core.homepage.TLCEventWidget$Mapping	TLC Event Widget
+-9223372036854775560	com.tripwire.space.core.homepage.FailingTestWidget	com.tripwire.space.core.homepage.FailingTestWidget$Mapping	Failing Test Widget
+-9223372036854775559	com.tripwire.space.core.homepage.ScapWidget	com.tripwire.space.core.homepage.ScapWidget$Mapping	SCAP Widget
+-9223372036854775558	AlertReadTime	com.tripwire.space.core.homepage.alert.UserAlertReadTime$Mapping	[MISSING RESOURCE: AlertReadTime.typeName]
+-9223372036854775557	com.tripwire.space.core.homepage.AlertGenerator	com.tripwire.space.core.homepage.AlertGenerator$Mapping	Alert Generator
+-9223372036854775556	com.tripwire.space.core.homepage.alert.WaiverExpirationAlertGenerator	com.tripwire.space.core.homepage.alert.WaiverExpirationAlertGenerator$Mapping	Policy Waiver Expiration Alert Generator
+-9223372036854775555	com.tripwire.space.core.homepage.alert.DiscoveredNodeAlertGenerator	com.tripwire.space.core.homepage.alert.DiscoveredNodeAlertGenerator$Mapping	Node Discovery Alert Generator
+-9223372036854775554	com.tripwire.space.core.homepage.alert.NodeErrorAlertGenerator	com.tripwire.space.core.homepage.alert.NodeErrorAlertGenerator$Mapping	Node Error Alert Generator
+-9223372036854775553	com.tripwire.space.core.homepage.alert.PolicyScoreChangeAlertGenerator	com.tripwire.space.core.homepage.alert.PolicyScoreChangeAlertGenerator$Mapping	Policy Score Change Alert Generator
+-9223372036854775552	com.tripwire.space.core.homepage.alert.RemediationMessageAlertGenerator	com.tripwire.space.core.homepage.alert.RemediationMessageAlertGenerator$Mapping	Remediation Message Alert Generator
+-9223372036854775551	com.tripwire.space.core.homepage.alert.VcNodeChangeAlertGenerator	com.tripwire.space.core.homepage.alert.VcNodeChangeAlertGenerator$Mapping	VI Node Change Alert Generator
+-9223372036854775550	com.tripwire.space.core.homepage.CustomerCenterHomePage	com.tripwire.space.core.homepage.CustomerCenterHomePage$Mapping	Customer Center Home Page
+-9223372036854775549	PROMTCH	com.tripwire.space.core.command.SavedPromoteMatch$Mapping	[MISSING RESOURCE: PROMTCH.typeName]
+-9223372036854775548	ComponentInstalls	com.tripwire.space.core.plugin.ComponentInstallation$Mapping	[MISSING RESOURCE: ComponentInstalls.typeName]
+-9223372036854775547	com.tripwire.space.core.plugin.PlugInComponent	com.tripwire.space.core.plugin.PlugInComponent$Mapping	Plug In Component
+-9223372036854775546	com.tripwire.space.core.report.ReportGroupable	com.tripwire.space.core.report.ReportGroupable$Mapping	Report Groupable
+-9223372036854775544	reportsLnk	com.tripwire.space.core.group.Link$Mapping	[MISSING RESOURCE: reportsLnk.typeName]
+-9223372036854775543	com.tripwire.space.core.report.ReportGroup	com.tripwire.space.core.report.ReportGroup$Mapping	Report Group
+-9223372036854775542	com.tripwire.space.core.report.Report	com.tripwire.space.core.report.Report$Mapping	Report
+-9223372036854775541	HP_UserHomePages	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: HP_UserHomePages.typeName]
+-9223372036854775540	HP_WidgetReports	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: HP_WidgetReports.typeName]
+-9223372036854775539	HP_WorkflowWgtOwners	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: HP_WorkflowWgtOwners.typeName]
+-9223372036854775538	HP_WorkflowWgtOwnerG	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: HP_WorkflowWgtOwnerG.typeName]
+-9223372036854775537	HP_WorkflowWgtCreators	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: HP_WorkflowWgtCreators.typeName]
+-9223372036854775104	com.tripwire.space.core.group.PurgeUnlinkedTask	com.tripwire.space.core.group.PurgeUnlinkedTask$Mapping	Clear Unlinked Groups Task
+-9223372036854775068	com.tripwire.space.core.security.license.DataMartFeature	com.tripwire.space.core.security.license.DataMartFeature$Mapping	[MISSING RESOURCE: com.tripwire.space.core.security.license.DataMartFeature.typeName]
+-9223372036854775045	com.tripwire.ipdevice.core.CustomNodeType	com.tripwire.ipdevice.core.CustomNodeType$Mapping	Custom Node Type
+-9223372036854775044	passport	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Nortel Passport
+-9223372036854775043	nokia_ipso	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Nokia IPSO
+-9223372036854775042	cisco_pix7	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco PIX 7
+-9223372036854775041	alteonwebos	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Nortel Alteon
+-9223372036854775040	cisco_pix	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco PIX
+-9223372036854775039	alcatel	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Alcatel OmniSwitch 6/7/8xxx
+-9223372036854775038	extreme	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Extreme
+-9223372036854775037	f5_bigip	com.tripwire.ipdevice.core.ScriptedNode$Mapping	F5 BigIP
+-9223372036854775036	foundry	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Foundry Device
+-9223372036854775035	marconi_asx	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Marconi ASX/TNX
+-9223372036854775034	cisco_vpn	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco VPN
+-9223372036854775033	hp_procurve	com.tripwire.ipdevice.core.ScriptedNode$Mapping	HP ProCurve M
+-9223372036854775032	cisco_catos	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco CatOS
+-9223372036854775031	vmware_esx	com.tripwire.ipdevice.core.ScriptedNode$Mapping	VMware ESX Server
+-9223372036854775030	cat_1900	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco Catalyst 1900/2820 Switch
+-9223372036854775029	hp_xlgl	com.tripwire.ipdevice.core.ScriptedNode$Mapping	HP ProCurve XL
+-9223372036854775028	netscreen	com.tripwire.ipdevice.core.ScriptedNode$Mapping	NetScreen
+-9223372036854775027	unix	com.tripwire.ipdevice.core.ScriptedNode$Mapping	UNIX System
+-9223372036854775026	cisco_ios	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Cisco IOS
+-9223372036854775025	juniper_m	com.tripwire.ipdevice.core.ScriptedNode$Mapping	Juniper M/T-Series
+-9223372036854775024	passport_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nortel Passport Configuration Rule
+-9223372036854775023	f5_bigip_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	F5 BigIP Configuration Rule
+-9223372036854775022	cisco_ios_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco IOS Configuration Rule
+-9223372036854775021	cisco_pix_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco PIX Configuration Rule
+-9223372036854775020	nokia_ipso_cp41_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nokia IPSO Check Point 4.1 Rule
+-9223372036854775019	netscreen_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	NetScreen Configuration Rule
+-9223372036854775018	unix_file	com.tripwire.ipdevice.core.ScriptedRule$Mapping	UNIX File Rule
+-9223372036854775017	alteonwebos_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nortel Alteon Configuration Rule
+-9223372036854775016	juniper_m_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Juniper M/T-Series Configuration Rule
+-9223372036854775015	nokia_ipso_cpng_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nokia IPSO Check Point NG Rule
+-9223372036854775014	extreme_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Extreme Configuration Rule
+-9223372036854775013	cisco_pix7_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco PIX 7 Configuration Rule
+-9223372036854775012	cat_1900_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco Catalyst 1900/2820 Configuration Rule
+-9223372036854775011	status_check	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Status Check Rule
+-9223372036854775010	nokia_ipso_iss_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nokia IPSO ISS RealSecure Rule
+-9223372036854775009	vmware_esx_file	com.tripwire.ipdevice.core.ScriptedRule$Mapping	VMware ESX File Rule
+-9223372036854775008	cisco_catos_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco CatOS Configuration Rule
+-9223372036854775007	alcatel_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Alcatel OmniSwitch 6/7/8xxx Configuration Rule
+-9223372036854775006	command_validation_rule	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Command Output Validation Rule
+-9223372036854775005	generic_rule	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Custom File Rule
+-9223372036854775004	marconi_asx_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Marconi ASX/TNX Configuration Rule
+-9223372036854775003	nokia_ipso_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nokia IPSO Configuration Rule
+-9223372036854775002	hp_xlgl_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	HP ProCurve XL Configuration Rule
+-9223372036854775001	foundry_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Foundry Configuration Rule
+-9223372036854775000	ios_access_lists_rule	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco IOS Access Lists Rule
+-9223372036854774999	nokia_ipso_cpngx_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Nokia IPSO Check Point NGX Rule
+-9223372036854774998	cisco_vpn_rule	com.tripwire.ipdevice.core.ScriptedRule$Mapping	Cisco VPN Configuration Rule
+-9223372036854774997	hp_procurve_config	com.tripwire.ipdevice.core.ScriptedRule$Mapping	HP ProCurve M Configuration Rule
+-9223372036854774996	passport_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Nortel Passport Restore Configuration Action
+-9223372036854774995	f5_bigip_config_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	F5 BigIP Restore Configuration Action
+-9223372036854774994	cisco_ios_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Cisco IOS Restore Configuration Action
+-9223372036854774993	cisco_pix_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Cisco PIX Restore Configuration Action
+-9223372036854774992	netscreen_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	NetScreen Restore Configuration Action
+-9223372036854774991	unix_file_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	UNIX Restore File Action
+-9223372036854774990	alteonwebos_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Nortel Alteon Restore Configuration Action
+-9223372036854774989	juniper_m_config_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Juniper M/T-Series Restore Configuration Action
+-9223372036854774988	extreme_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Extreme Restore Configuration Action
+-9223372036854774987	cat_1900_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Cisco Catalyst 1900/2820 Restore Configuration Action
+-9223372036854774986	vmware_esx_file_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	VMware ESX Restore File Action
+-9223372036854774985	cisco_catos_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Cisco CatOS Restore Configuration Action
+-9223372036854774984	alcatel_config_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Alcatel OmniSwitch 6/7/8xxx Restore Configuration Action
+-9223372036854774983	command_response	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Run Command Action
+-9223372036854774982	marconi_asx_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Marconi ASX/TNX Restore Configuration Action
+-9223372036854774981	foundry_restoreConfig	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	Foundry Restore Configuration Action
+-9223372036854774980	hp_procurve_config_restore	com.tripwire.ipdevice.core.ScriptedResponse$Mapping	HP ProCurve M Restore Configuration Action
+-9223372036854774979	com.tripwire.ipdevice.core.NdiFeature	com.tripwire.ipdevice.core.NdiFeature$Mapping	[MISSING RESOURCE: com.tripwire.ipdevice.core.NdiFeature.typeName]
+-9223372036854774977	com.tripwire.ipdevice.core.NdiPolicyFeature	com.tripwire.ipdevice.core.NdiPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.ipdevice.core.NdiPolicyFeature.typeName]
+-9223372036854774975	com.tripwire.ipdevice.core.NdiRemediationFeature	com.tripwire.ipdevice.core.NdiRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.ipdevice.core.NdiRemediationFeature.typeName]
+-9223372036854774970	com.tripwire.si.core.rule.ActiveRule	com.tripwire.si.core.rule.ActiveRule$Mapping	[MISSING RESOURCE: com.tripwire.si.core.rule.ActiveRule.typeName]
+-9223372036854774969	com.tripwire.si.core.rule.CommandExecutionRuleBase	com.tripwire.si.core.rule.CommandExecutionRuleBase$Mapping	[MISSING RESOURCE: com.tripwire.si.core.rule.CommandExecutionRuleBase.typeName]
+-9223372036854774968	com.tripwire.si.core.rule.CommandExecutionRule	com.tripwire.si.core.rule.CommandExecutionRule$Mapping	Command Output Capture Rule
+-9223372036854774967	com.tripwire.si.core.rule.RemoteCommandExecutionRule	com.tripwire.si.core.rule.RemoteCommandExecutionRule$Mapping	VMware ESX Service Console Rule
+-9223372036854774966	com.tripwire.si.core.log.LogTransferRule	com.tripwire.si.core.log.LogTransferRule$Mapping	Log Transfer Rule
+-9223372036854774965	Cans	com.tripwire.si.core.rule.CriteriaAttributeNameSet$Mapping	[MISSING RESOURCE: Cans.typeName]
+-9223372036854774964	com.tripwire.si.core.rule.PersistentCriteria	com.tripwire.si.core.rule.PersistentCriteria$Mapping	Criteria Set
+-9223372036854774963	com.tripwire.si.core.rule.CanonicalCriteria	com.tripwire.si.core.rule.CanonicalCriteria$Mapping	Criteria Set
+-9223372036854774962	com.tripwire.si.core.rule.PersistentStartPoint	com.tripwire.si.core.rule.PersistentStartPoint$Mapping	Start Point
+-9223372036854774961	com.tripwire.si.core.rule.PersistentStopPoint	com.tripwire.si.core.rule.PersistentStopPoint$Mapping	Stop Point
+-9223372036854774960	com.tripwire.si.core.rule.ElementSpecifierRule	com.tripwire.si.core.rule.ElementSpecifierRule$Mapping	[MISSING RESOURCE: com.tripwire.si.core.rule.ElementSpecifierRule.typeName]
+-9223372036854774958	com.tripwire.si.core.gp.RsopRule	com.tripwire.si.core.gp.RsopRule$Mapping	Windows RSoP Rule
+-9223372036854774956	com.tripwire.si.core.gp.RsopPersistentStartPoint	com.tripwire.si.core.gp.RsopPersistentStartPoint$Mapping	Start Point
+-9223372036854774955	com.tripwire.si.core.fs.posix.PosixFileSystemRule	com.tripwire.si.core.fs.posix.PosixFileSystemRule$Mapping	UNIX File System Rule
+-9223372036854774943	com.tripwire.si.core.fs.registry.WindowsRegistryRule	com.tripwire.si.core.fs.registry.WindowsRegistryRule$Mapping	Windows Registry Rule
+-9223372036854774935	com.tripwire.si.core.fs.windows.WindowsFileSystemRule	com.tripwire.si.core.fs.windows.WindowsFileSystemRule$Mapping	Windows File System Rule
+-9223372036854774917	com.tripwire.si.core.fs.i5os.OS400NameValueRule	com.tripwire.si.core.fs.i5os.OS400NameValueRule$Mapping	i5/OS System Value Rule
+-9223372036854774914	com.tripwire.si.core.fs.i5os.OS400NameValuePersistentStartPoint	com.tripwire.si.core.fs.i5os.OS400NameValuePersistentStartPoint$Mapping	[MISSING RESOURCE: com.tripwire.si.core.fs.i5os.OS400NameValuePersistentStartPoint.typeName]
+-9223372036854774913	com.tripwire.si.core.fs.i5os.IfsFileSystemRule	com.tripwire.si.core.fs.i5os.IfsFileSystemRule$Mapping	i5/OS File System Rule
+-9223372036854774814	com.tripwire.si.core.ds.common.DsiFeature	com.tripwire.si.core.ds.common.DsiFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.ds.common.DsiFeature.typeName]
+-9223372036854774813	com.tripwire.si.core.ds.common.DsiPolicyFeature	com.tripwire.si.core.ds.common.DsiPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.ds.common.DsiPolicyFeature.typeName]
+-9223372036854774812	com.tripwire.si.core.ds.common.DsiRemediationFeature	com.tripwire.si.core.ds.common.DsiRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.ds.common.DsiRemediationFeature.typeName]
+-9223372036854774811	DirectoryServerNode	com.tripwire.si.core.ds.common.DirectoryServerNode$Mapping	LDAP Directory Server
+-9223372036854774810	com.tripwire.si.core.ds.common.DirectoryServerRule	com.tripwire.si.core.ds.common.DirectoryServerRule$Mapping	LDAP Directory Rule
+-9223372036854774808	com.tripwire.si.core.ds.common.DirectoryServerPersistentStartPoint	com.tripwire.si.core.ds.common.DirectoryServerPersistentStartPoint$Mapping	Start Point
+-9223372036854774807	ActiveDirectoryNode	com.tripwire.si.core.ds.ad.ActiveDirectoryNode$Mapping	Active Directory Server
+-9223372036854774806	com.tripwire.si.core.ds.ad.ActiveDirectoryRule	com.tripwire.si.core.ds.ad.ActiveDirectoryRule$Mapping	Active Directory Rule
+-9223372036854774804	SunOneNode	com.tripwire.si.core.ds.sunone.SunOneNode$Mapping	Sun Directory Server
+-9223372036854774803	com.tripwire.si.core.ds.sunone.SunOneRule	com.tripwire.si.core.ds.sunone.SunOneRule$Mapping	Sun Directory Rule
+-9223372036854774801	EdirectoryNode	com.tripwire.si.core.ds.edir.EdirectoryNode$Mapping	Novell eDirectory Server
+-9223372036854774800	com.tripwire.si.core.ds.edir.EdirectoryRule	com.tripwire.si.core.ds.edir.EdirectoryRule$Mapping	eDirectory Rule
+-9223372036854774794	DatabaseServerNode	com.tripwire.si.core.db.common.DatabaseServerNode$Mapping	Database Server
+-9223372036854774793	DatabaseServerRule	com.tripwire.si.core.db.common.DatabaseServerRule$Mapping	Database Metadata Rule
+-9223372036854774791	DatabaseServerQueryRule	com.tripwire.si.core.db.common.DatabaseServerQueryRule$Mapping	Query Rule
+-9223372036854774789	com.tripwire.si.core.db.common.DbiFeature	com.tripwire.si.core.db.common.DbiFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.db.common.DbiFeature.typeName]
+-9223372036854774788	com.tripwire.si.core.db.common.DbiPolicyFeature	com.tripwire.si.core.db.common.DbiPolicyFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.db.common.DbiPolicyFeature.typeName]
+-9223372036854774787	com.tripwire.si.core.db.common.DbiRemediationFeature	com.tripwire.si.core.db.common.DbiRemediationFeature$Mapping	[MISSING RESOURCE: com.tripwire.si.core.db.common.DbiRemediationFeature.typeName]
+-9223372036854774786	OracleDatabaseServerNode	com.tripwire.si.core.db.oracle.OracleDatabaseServerNode$Mapping	Oracle Database Server
+-9223372036854774785	OracleDatabaseServerRule	com.tripwire.si.core.db.oracle.OracleDatabaseServerRule$Mapping	Oracle Metadata Rule
+-9223372036854774783	MsSqlServerNode	com.tripwire.si.core.db.mssql.SqlServerNode$Mapping	Microsoft SQL Server
+-9223372036854774782	MsSqlServerRule	com.tripwire.si.core.db.mssql.SqlServerRule$Mapping	Microsoft SQL Server Metadata Rule
+-9223372036854774780	Db2DatabaseServerNode	com.tripwire.si.core.db.db2.Db2DatabaseServerNode$Mapping	DB2 Database Server
+-9223372036854774779	Db2Rule	com.tripwire.si.core.db.db2.Db2DatabaseServerRule$Mapping	DB2 Metadata Rule
+-9223372036854774777	SybaseDatabaseServerNode	com.tripwire.si.core.db.sybase.SybaseDatabaseServerNode$Mapping	Sybase Server
+-9223372036854774776	SybaseDatabaseServerRule	com.tripwire.si.core.db.sybase.SybaseDatabaseServerRule$Mapping	Sybase Metadata Rule
+-9223372036854774770	com.tripwire.si.core.vi.vmware.VirtualCenterManagedNodeChangeLogMessage	com.tripwire.si.core.vi.vmware.VirtualCenterManagedNodeChangeLogMessage$Mapping	VI Node Change
+-9223372036854774769	VmAddress	com.tripwire.si.core.vi.vmware.VmWareVirtualMachineAddresses	[MISSING RESOURCE: VmAddress.typeName]
+-9223372036854774768	com.tripwire.si.core.vi.vmware.VmWareNodeGroup	com.tripwire.si.core.vi.vmware.VmWareNodeGroup$Mapping	VMware Node Group
+-9223372036854774767	com.tripwire.si.core.vi.vmware.ClusterNodeGroup	com.tripwire.si.core.vi.vmware.ClusterNodeGroup$Mapping	VMware Cluster
+-9223372036854774766	com.tripwire.si.core.vi.vmware.DatacenterNodeGroup	com.tripwire.si.core.vi.vmware.DatacenterNodeGroup$Mapping	VMware Datacenter
+-9223372036854774765	com.tripwire.si.core.vi.vmware.FolderNodeGroup	com.tripwire.si.core.vi.vmware.FolderNodeGroup$Mapping	VMware Folder
+-9223372036854774764	com.tripwire.si.core.vi.vmware.HostNodeGroup	com.tripwire.si.core.vi.vmware.HostNodeGroup$Mapping	Host Group
+-9223372036854774763	com.tripwire.si.core.vi.vmware.ResourcePoolNodeGroup	com.tripwire.si.core.vi.vmware.ResourcePoolNodeGroup$Mapping	VMware Resource Pool
+-9223372036854774762	com.tripwire.si.core.vi.vmware.VirtualMachineNodeGroup	com.tripwire.si.core.vi.vmware.VirtualMachineNodeGroup$Mapping	Virtual Machine Group
+-9223372036854774761	com.tripwire.si.core.vi.vmware.VirtualAppNodeGroup	com.tripwire.si.core.vi.vmware.VirtualAppNodeGroup$Mapping	VMware Virtual App
+-9223372036854774760	com.tripwire.si.core.vi.vmware.VirtualCenterSyncTask	com.tripwire.si.core.vi.vmware.VirtualCenterSyncTask$Mapping	vCenter Sync Task
+-9223372036854774759	com.tripwire.si.core.vi.vmware.VirtualCenterNodeGroup	com.tripwire.si.core.vi.vmware.VirtualCenterNodeGroup$Mapping	VMware vCenter
+-9223372036854774758	com.tripwire.si.core.vi.vmware.VmWareRule	com.tripwire.si.core.vi.vmware.VmWareRule$Mapping	[MISSING RESOURCE: com.tripwire.si.core.vi.vmware.VmWareRule.typeName]
+-9223372036854774756	com.tripwire.si.core.vi.vmware.VmRule	com.tripwire.si.core.vi.vmware.VmRule$Mapping	VMware VM Rule
+-9223372036854774754	com.tripwire.si.core.vi.vmware.VSwitchRule	com.tripwire.si.core.vi.vmware.VSwitchRule$Mapping	VMware vSwitch Rule
+-9223372036854774752	com.tripwire.si.core.vi.vmware.EsxRule	com.tripwire.si.core.vi.vmware.EsxRule$Mapping	VMware ESX Rule
+-9223372036854774750	com.tripwire.si.core.vi.vmware.DVSwitchRule	com.tripwire.si.core.vi.vmware.DVSwitchRule$Mapping	VMware vNetwork Distributed Switch Rule
+-9223372036854774748	com.tripwire.si.core.vi.vmware.VirtualCenterManagedNode	com.tripwire.si.core.vi.vmware.VirtualCenterManagedNode$Mapping	[MISSING RESOURCE: com.tripwire.si.core.vi.vmware.VirtualCenterManagedNode.typeName]
+-9223372036854774747	com.tripwire.si.core.vi.vmware.VmWareEsxManagedNode	com.tripwire.si.core.vi.vmware.VmWareEsxManagedNode$Mapping	[MISSING RESOURCE: com.tripwire.si.core.vi.vmware.VmWareEsxManagedNode.typeName]
+-9223372036854774746	com.tripwire.si.core.vi.vmware.VmWareEsxNode	com.tripwire.si.core.vi.vmware.VmWareEsxNode$Mapping	VMware ESXi
+-9223372036854774745	com.tripwire.si.core.vi.vmware.VmWareUnsupportedEsxNode	com.tripwire.si.core.vi.vmware.VmWareUnsupportedEsxNode$Mapping	Unsupported VMware ESX
+-9223372036854774744	com.tripwire.si.core.vi.vmware.VmWareVSwitchNode	com.tripwire.si.core.vi.vmware.VmWareVSwitchNode$Mapping	VMware vSwitch
+-9223372036854774743	com.tripwire.si.core.vi.vmware.VmWareVirtualMachineNode	com.tripwire.si.core.vi.vmware.VmWareVirtualMachineNode$Mapping	VMware Virtual Machine
+-9223372036854774742	com.tripwire.si.core.vi.vmware.VmWareVirtualMachineTemplateNode	com.tripwire.si.core.vi.vmware.VmWareVirtualMachineTemplateNode$Mapping	VMware Virtual Machine Template
+-9223372036854774741	com.tripwire.si.core.vi.vmware.DistributedVirtualSwitchNode	com.tripwire.si.core.vi.vmware.DistributedVirtualSwitchNode$Mapping	vNetwork Distributed Switch
+-9223372036854774740	com.tripwire.si.core.conformance.WindowsAclAttributeTest	com.tripwire.si.core.conformance.WindowsAclAttributeTest$Mapping	Windows ACL Test
+-9223372036854774739	com.tripwire.si.core.conformance.remediator.CommandLineRemediator	com.tripwire.si.core.conformance.remediator.CommandLineRemediator$Mapping	Command Line Remediator
+-9223372036854774705	com.tripwire.space.reporting.core.responses.ExecResponse	com.tripwire.space.reporting.core.responses.ExecResponse$Mapping	Execution Action
+-9223372036854774704	com.tripwire.si.core.vi.vmware.VmwareEsxConsoleNode	com.tripwire.si.core.vi.vmware.VmwareEsxConsoleNode$Mapping	VMware ESX
+-9223372036854774703	com.tripwire.space.core.report.ReportTask	com.tripwire.space.core.report.ReportTask$Mapping	Report Task
+-9223372036854774702	DashbrdLnks	com.tripwire.space.core.report.DashboardLinks	[MISSING RESOURCE: DashbrdLnks.typeName]
+-9223372036854774701	dashboard_rpt	com.tripwire.space.core.report.Dashboard$Mapping	Dashboard
+-9223372036854774700	com.tripwire.space.core.report.output.ReportOutput	com.tripwire.space.core.report.output.ReportOutput$Mapping	Report Output
+-9223372036854774699	RptItem	com.tripwire.space.core.report.output.ReportItems$Mapping	[MISSING RESOURCE: RptItem.typeName]
+-9223372036854774698	unreconciledchangeaging_rpt	com.tripwire.space.core.report.Report$Mapping	Unreconciled Change Aging
+-9223372036854774697	systemlog_rpt	com.tripwire.space.core.report.Report$Mapping	System Log
+-9223372036854774696	referencenodevariance_rpt	com.tripwire.space.core.report.Report$Mapping	Reference Node Variance
+-9223372036854774695	scoringhistory_rpt	com.tripwire.space.core.report.Report$Mapping	Scoring History
+-9223372036854774694	policyscorecard_rpt	com.tripwire.space.core.report.Report$Mapping	Test Result Summary
+-9223372036854774693	remediationassessment_rpt	com.tripwire.space.core.report.Report$Mapping	Remediation Assessment
+-9223372036854774692	scoring_rpt	com.tripwire.space.core.report.Report$Mapping	Scoring
+-9223372036854774691	detailedwaivers_rpt	com.tripwire.space.core.report.Report$Mapping	Detailed Waivers
+-9223372036854774690	detailedtestresults_rpt	com.tripwire.space.core.report.Report$Mapping	Detailed Test Results
+-9223372036854774689	nodeswithchanges_rpt	com.tripwire.space.core.report.Report$Mapping	Nodes with Changes
+-9223372036854774688	detailedtestinventory_rpt	com.tripwire.space.core.report.Report$Mapping	Detailed Test Inventory
+-9223372036854774687	freqchangednodes_rpt	com.tripwire.space.core.report.Report$Mapping	Frequently Changed Nodes
+-9223372036854774686	detailedchanges_rpt	com.tripwire.space.core.report.Report$Mapping	Detailed Changes
+-9223372036854774685	userrolesall_rpt	com.tripwire.space.core.report.Report$Mapping	User Roles All Object Types
+-9223372036854774684	remediationworkorders_rpt	com.tripwire.space.core.report.Report$Mapping	Remediation Work Orders Details
+-9223372036854774683	frequentlychangedelements_rpt	com.tripwire.space.core.report.Report$Mapping	Frequently Changed Elements
+-9223372036854774682	baselineelements_rpt	com.tripwire.space.core.report.Report$Mapping	Baseline Elements
+-9223372036854774681	deviceinventory_rpt	com.tripwire.space.core.report.Report$Mapping	Device Inventory
+-9223372036854774680	lastnodecheckstatus_rpt	com.tripwire.space.core.report.Report$Mapping	Last Node Check Status
+-9223372036854774679	inventorychange_rpt	com.tripwire.space.core.report.Report$Mapping	Inventory Changes
+-9223372036854774678	changesbyseverity_rpt	com.tripwire.space.core.report.Report$Mapping	Changes by Severity
+-9223372036854774677	changerate_rpt	com.tripwire.space.core.report.Report$Mapping	Change Rate
+-9223372036854774676	systemaccesscontrol_rpt	com.tripwire.space.core.report.Report$Mapping	System Access Control
+-9223372036854774675	unmonitorednodes_rpt	com.tripwire.space.core.report.Report$Mapping	Unmonitored Nodes
+-9223372036854774674	matchstrategydiscrepancy_rpt	com.tripwire.space.core.report.Report$Mapping	Match Strategy Discrepancy
+-9223372036854774673	changesbynodeorgroup_rpt	com.tripwire.space.core.report.Report$Mapping	Changes by Node or Group
+-9223372036854774672	remediationworkordersummary_rpt	com.tripwire.space.core.report.Report$Mapping	Remediation Work Orders Summary
+-9223372036854774671	monitoringpolicy_rpt	com.tripwire.space.core.report.Report$Mapping	Change Audit Coverage
+-9223372036854774670	changewindow_rpt	com.tripwire.space.core.report.Report$Mapping	Change Window
+-9223372036854774669	changeprocesscompliance_rpt	com.tripwire.space.core.report.Report$Mapping	Change Process Compliance
+-9223372036854774668	testresultsbynode_rpt	com.tripwire.space.core.report.Report$Mapping	Test Results By Node
+-9223372036854774667	compliancehistory_rpt	com.tripwire.space.core.report.Report$Mapping	Compliance History
+-9223372036854774666	elements_rpt	com.tripwire.space.core.report.Report$Mapping	Elements
+-9223372036854774665	tasks_rpt	com.tripwire.space.core.report.Report$Mapping	Tasks
+-9223372036854774664	userroles_rpt	com.tripwire.space.core.report.Report$Mapping	User Roles
+-9223372036854774663	missingelements_rpt	com.tripwire.space.core.report.Report$Mapping	Missing Elements
+-9223372036854774662	changesbyruleorgroup_rpt	com.tripwire.space.core.report.Report$Mapping	Changes by Rule or Group
+-9223372036854774661	changedelements_rpt	com.tripwire.space.core.report.Report$Mapping	Changed Elements
+-9223372036854774660	compositechanges_rpt	com.tripwire.space.core.report.Report$Mapping	Composite Changes
+-9223372036854774659	elementcontents_rpt	com.tripwire.space.core.report.Report$Mapping	Element Contents
+-9223372036854774658	changevariance_rpt	com.tripwire.space.core.report.Report$Mapping	Change Variance
+-9223372036854774657	unchangedelements_rpt	com.tripwire.space.core.report.Report$Mapping	Unchanged Elements
+-9223372036854774605	PolicySU_ExpTest	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_ExpTest.typeName]
+-9223372036854774604	PolicySU_ExpTestNode	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_ExpTestNode.typeName]
+-9223372036854774603	PolicySU_Policies	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_Policies.typeName]
+-9223372036854774602	PolicySU_NodePolicies	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_NodePolicies.typeName]
+-9223372036854774601	PolicySU_ExpElems	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_ExpElems.typeName]
+-9223372036854774600	PolicySU_ExpScore	com.tripwire.space.core.persistence.ObjectLinksMapping	[MISSING RESOURCE: PolicySU_ExpScore.typeName]

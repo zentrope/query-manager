@@ -1,0 +1,2 @@
+-9223372036854775065	0	com.tripwire.ipdevice.ui.web.plugin.IPDeviceWebPlugInComponent
+-9223372036854775063	0	com.tripwire.si.ui.web.plugin.ServerIntegrityWebPlugInComponent
