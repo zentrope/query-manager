@@ -1,10 +1,10 @@
 (ns queryizer.core
-  (:use queryizer.view)
-  (:use ring.adapter.jetty))
+  (:require [queryizer.view :as views]
+  	[ring.adapter.jetty :as jetty]))
 
 (defn -main [& args]
 	(let [port (Integer/parseInt (get (System/getenv) "PORT" "8080"))]
-	(run-jetty #'queryizer.view/app {:port port :join? true})
+	(jetty/run-jetty #'views/app {:port port :join? true})
 	(println "good bye!")))
 
 

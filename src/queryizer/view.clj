@@ -2,7 +2,8 @@
   (:use compojure.core)
   (:use hiccup.core)
   (:use hiccup.page-helpers)
-  (:use queryizer.controller ))
+  (:use queryizer.controller )
+  (:require [clojure.data.json :as json]))
 
 
 (defn view-layout [& content]
@@ -21,17 +22,19 @@
     [:form {:method "post" :action "/"}
       [:input.math {:type "text" :name "query"}] [:br]
       [:input.action {:type "submit" :value "Enter"}]]
-      [:h2 "Available queries"]
-      ;;(for 
-      ;;  [elem queryizer.controller/available-queries] 
-      ;;    ([:p (get elem :id)] [:br]))
-      ))
+    [:h2 "Available queries"]
+   (for 
+      [elem queryizer.controller/available-queries] 
+        [:p (:id elem)]
+   )
+  )
+)
 
 
 (defn view-output [query]
   (view-layout
     [:h2 "Here is your result"]
-    [:p (queryizer.controller/run-query query)]
+    [:p (json/write-str (queryizer.controller/run-query query))]
     [:a.action {:href "/"} "Enter another?"] [:br]))
 
 (defroutes app

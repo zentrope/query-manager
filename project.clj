@@ -1,19 +1,19 @@
 (defproject queryizer "0.0.1"
   :description "query stuff"
   :dependencies
-    [[org.clojure/clojure "1.2.0"]
-     [org.clojure/clojure-contrib "1.2.0"]
-     [ring/ring-core "0.2.5"]
-     [ring/ring-devel "0.2.5"]
-     [ring/ring-jetty-adapter "0.2.5"]
-     [compojure "0.4.0"]
-     [hiccup "0.2.6"]
-     [mysql/mysql-connector-java "5.1.6"]    ;; mysql driver
+    [[org.clojure/clojure "1.5.1"]
+     [ring/ring-core "1.2.0-SNAPSHOT"]
+     [ring/ring-devel "1.2.0-SNAPSHOT"]
+     [ring/ring-jetty-adapter "1.2.0-SNAPSHOT"]
+     [compojure/compojure "1.2.0-SNAPSHOT"]
+     [hiccup/hiccup "1.0.3"]
+     [mysql/mysql-connector-java "5.1.24"]    ;; mysql driver
      [korma "0.3.0-RC5"]
-     [org.apache.derby/derby "10.9.1.0"]]
+     [org.clojure/data.json "0.2.2"]]
   :dev-dependencies
     [[lein-run "1.0.0-SNAPSHOT"]]
   :main
-   	queryizer.core)
+   	queryizer.core
+  :profiles {:user {:plugins [[lein-outdated "1.0.0"]]}})
 
 

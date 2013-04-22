@@ -20,3 +20,4 @@
 (def available-queries
 	(read-string 
 		(slurp "resources/queries")))
+
