@@ -1,20 +1,17 @@
 (ns queryizer.view
   (:use compojure.core)
   (:use hiccup.core)
-  (:use hiccup.page-helpers)
   (:use queryizer.controller )
-  (:require [clojure.data.json :as json]))
+  (:require [clojure.data.json :as json] [compojure.handler :as handler]))
 
 
 (defn view-layout [& content]
   (html
-    (doctype :xhtml-strict)
-    (xhtml-tag "en"
-      [:head
+    [:head
         [:meta {:http-equiv "Content-type"
                 :content "text/html; charset=utf-8"}]
         [:title "Queryizer"]]
-      [:body content])))
+      [:body content]))
 
 (defn view-input []
   (view-layout
@@ -32,14 +29,21 @@
 
 
 (defn view-output [query]
+  (let [rows (queryizer.controller/run-query query) 
+        cols (keys (first rows))] 
   (view-layout
     [:h2 "Here is your result"]
-    [:p (json/write-str (queryizer.controller/run-query query))]
-    [:a.action {:href "/"} "Enter another?"] [:br]))
+    [:table 
+      [:tr (for [col cols] [:th (name col)])]
+      (for [row rows] [:tr (for [item (vals row)] [:td item])])]
+    [:a.action {:href "/"} "Enter another?"] [:br])))
 
-(defroutes app
+(defroutes main-routes
   (GET "/" []
     (view-input))
 
   (POST "/" [query]
+    (println "obvious debug statment: " query)
       (view-output query)))
+
+(def app (-> main-routes (handler/site)))
