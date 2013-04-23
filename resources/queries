@@ -92,4 +92,8 @@ SELECT
            k.KM_KEY='nodes' and
            k.KM_ID=g.g_id"}
 
+{:id "showTables"
+   :desc "shows tables in DB"
+   :sql "show tables"}
+
 ]

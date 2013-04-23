@@ -1,8 +1,9 @@
 (ns queryizer.view
   (:use compojure.core)
   (:use hiccup.core)
-  (:use queryizer.controller )
-  (:require [clojure.data.json :as json] [compojure.handler :as handler]))
+  (:use queryizer.controller)
+  (:require [clojure.data.json :as json] 
+            [compojure.handler :as handler]))
 
 
 (defn view-layout [& content]
@@ -13,20 +14,24 @@
         [:title "Queryizer"]]
       [:body content]))
 
+(def query-selection
+    (list [:h2 "Available queries"]
+    (for 
+       [elem queryizer.controller/available-queries] 
+         (list 
+           [:form {:method "post" :action "/"}
+           [:input {:type "hidden" :name "query" :value (:sql elem)}]
+           [:a.action 
+             {:href "javascript:;" :onclick "parentNode.submit();"} 
+             (:id elem)] [:br]]))))
+
 (defn view-input []
   (view-layout
     [:h2 "Enter query"]
     [:form {:method "post" :action "/"}
       [:input.math {:type "text" :name "query"}] [:br]
       [:input.action {:type "submit" :value "Enter"}]]
-    [:h2 "Available queries"]
-   (for 
-      [elem queryizer.controller/available-queries] 
-        [:p (:id elem)]
-   )
-  )
-)
-
+    query-selection))
 
 (defn view-output [query]
   (let [rows (queryizer.controller/run-query query) 
