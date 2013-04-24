@@ -19,11 +19,9 @@
     (for 
        [elem queryizer.controller/available-queries] 
          (list 
-           [:form {:method "post" :action "/"}
-           [:input {:type "hidden" :name "query" :value (:sql elem)}]
-           [:a.action 
-             {:href "javascript:;" :onclick "parentNode.submit();"} 
-             (:id elem)] [:br]]))))
+           [:a 
+             {:href (str "/query/" (:id elem))} 
+             (:id elem)] [:br]))))
 
 (defn view-input []
   (view-layout

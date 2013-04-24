@@ -25,6 +25,6 @@
 	(read-string 
 		(slurp (io/resource "queries"))))
 
-(defn query [id] ))
+(defn query [id] 
 	(:sql (first (filter #(= id (:id % )) available-queries))))
 
