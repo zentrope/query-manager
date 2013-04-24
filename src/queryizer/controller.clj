@@ -25,10 +25,6 @@
 	(read-string 
 		(slurp (io/resource "queries"))))
 
-(defn query [id] 
-	;;(println "QUERY ID: " id)
-	;;(println "QUERY ID: " (:sql (first (filter #(= id (:id % )) available-queries))))
-	;;(println "QUERY ID: " (:sql (first (filter #(= id (:id % )) available-queries))))
-	;;(println "QUERY ID: " (:sql (first (filter #(= id (:id % )) available-queries))))
+(defn query [id] ))
 	(:sql (first (filter #(= id (:id % )) available-queries))))
 
