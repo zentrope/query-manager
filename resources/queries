@@ -16,7 +16,9 @@ SELECT ELEMS.oid AS \"Element OID\", NODEGRPBL.nme AS \"Node Name\",
  LEFT OUTER JOIN SNODE ON SNODE.oid = ELEMS.E_NID
  LEFT OUTER JOIN Grpbl RULEGRPBL ON RULEGRPBL.oid = ELEMS.E_RID
  WHERE ENAMES.EN_OID IS NULL"}
-
+  
+  {:id "tables" 
+   :sql "show tables"} 
 
   {:id "orphan.2"
    :desc "Elements missing latest version."
