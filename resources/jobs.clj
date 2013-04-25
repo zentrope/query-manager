@@ -1,40 +1,10 @@
-
-
-(ns queryizer.controller
-	(:use korma.db)
-	(:use korma.core)
-	(:require [clojure.java.io :as io]))
-
-(defdb db (mysql {:db "te"
-	              :user "root"
-	              :password "services"
-	              :host "localhost"
-	              :port "3306"}))
-
-(defentity unix
-	(table :unix)
-	(database db))
-
-(def query-finished (promise))
-
-(defn run-query [query]
-	(println "QUERY ID: " query)
-	(exec-raw [query] :results))
-
-(def available-queries
-	(read-string 
-		(slurp (io/resource "queries"))))
-
-(defn query [id] 
-	(:sql (first (filter #(= id (:id % )) available-queries))))
-
 ;;
 ;; Atoms are thread-safe mutable variables
 ;;
  
 (def ^:private jobs (atom {}))
  
-(defn- run-a-query
+(defn- run-query
 "Runs the query and associates a new status and results with the job map."
 [job]
 (assoc job :status :done :results (exec-raw [(:query job)] :results)))
@@ -47,7 +17,7 @@
 (defn- run-job
 "Runs the job in a thread."
 [job]
-(doto (Thread. (fn [] (update-jobs (run-a-query job))))
+(doto (Thread. (fn [] (update-jobs (run-query job))))
 (.setName (str "job-runner-" (:id job)))
 (.start)))
  

@@ -23,6 +23,15 @@
              {:href (str "/query/" (:id elem))} 
              (:id elem)] [:br]))))
 
+(def job-selection
+    (list [:h2 "Available queries"]
+    (for 
+       [elem queryizer.controller/available-queries] 
+         (list 
+           [:a 
+             {:href (str "/jobs/" (:id elem))} 
+             (:id elem)] [:br]))))
+
 (defn view-input []
   (view-layout
     [:h2 "Enter query"]
@@ -41,10 +50,23 @@
       (for [row rows] [:tr (for [item (vals row)] [:td item])])]
     [:a.action {:href "/"} "Enter another?"] [:br])))
 
+(defn view-results []
+  (view-layout
+    [:h2 "Results"]
+    [:p (first (queryizer.controller/list-jobs))]))
+
+(defn view-jobs []
+  (view-layout
+    [:h2 "Jobs"]
+    job-selection))
+
 (defroutes main-routes
   (GET "/" []
     (view-input))
   (GET "/tables" [] (view-output "show tables"))
+  (GET "/results" [] (view-results))
+  (GET "/jobs" [] (view-jobs))
+  (GET "/jobs/:id" [id] (queryizer.controller/submit-job id))
   (GET "/query/:id" [id] (view-output (queryizer.controller/query id)))
   (GET "/tables/:table" [table] (view-output (str "select * from " table)))
   (POST "/" [query]
