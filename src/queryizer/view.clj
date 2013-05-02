@@ -66,7 +66,9 @@
   (GET "/tables" [] (view-output "show tables"))
   (GET "/results" [] (view-results))
   (GET "/jobs" [] (view-jobs))
-  (GET "/jobs/:id" [id] (queryizer.controller/submit-job id))
+  (GET "/jobs/:id" [id] 
+    (queryizer.controller/submit-job (:sql (first (filter #(= id (:id % )) queryizer.controller/available-queries))))
+    (view-results))
   (GET "/query/:id" [id] (view-output (queryizer.controller/query id)))
   (GET "/tables/:table" [table] (view-output (str "select * from " table)))
   (POST "/" [query]
