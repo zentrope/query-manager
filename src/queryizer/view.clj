@@ -41,7 +41,7 @@
 (defroutes main-routes
   (GET "/" []
     (view-input))
-  (GET "/tables" [] (view-output "show tables"))\
+  (GET "/tables" [] (view-output "show tables"))
   (GET "/query/:id" [id] (view-output (queryizer.controller/query id)))
   (GET "/tables/:table" [table] (view-output (str "select * from " table)))
   (POST "/" [query]
