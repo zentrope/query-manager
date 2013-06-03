@@ -18,6 +18,7 @@ SELECT ELEMS.oid AS \"Element OID\", NODEGRPBL.nme AS \"Node Name\",
  WHERE ENAMES.EN_OID IS NULL"}
   
   {:id "tables" 
+   :desc "show tables"
    :sql "show tables"} 
 
   {:id "orphan.2"

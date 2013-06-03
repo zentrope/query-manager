@@ -31,12 +31,9 @@
 
 (defn view-jobs []
   (println "view-jobs")
-  (let [rows (queryizer.controller/list-jobs)
-    cols (keys (first rows))]
     (view-layout
       [:h2 "Current Jobs"]
-      (for [job (list-jobs)] 
-        [:p job]))))
+      [:p (queryizer.controller/list-jobs)]))
 
 (defn view-output [query]
   (let [rows (queryizer.controller/submit-query query)
@@ -59,8 +56,10 @@
 ;;-------
   (GET "/jobs" [] (println "GET jobs")
     (view-jobs))
-  (POST "/jobs/:job" [job] (println "POST jobs")
-    (queryizer.controller/submit-job job)))
+  (GET "/jobs/:job" [job] (println "POST jobs")
+    (queryizer.controller/submit-job 
+      (:sql (first (filter #(= job (:id %)) available-queries))))
+    (view-jobs)))
 
 
 (def app (-> main-routes (handler/site)))
