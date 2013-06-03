@@ -18,7 +18,7 @@
     (for
       [elem queryizer.controller/available-queries]
       (list
-        [:a {:href (str "/query/" (:id elem))}
+        [:a {:href (str "/jobs/" (:id elem))}
         (:id elem)] [:br ]))))
 
 (defn view-input []
@@ -29,8 +29,17 @@
     [:input.action {:type "submit" :value "Enter"}]]
     query-selection))
 
+(defn view-jobs []
+  (println "view-jobs")
+  (let [rows (queryizer.controller/list-jobs)
+    cols (keys (first rows))]
+    (view-layout
+      [:h2 "Current Jobs"]
+      (for [job (list-jobs)] 
+        [:p job]))))
+
 (defn view-output [query]
-  (let [rows (queryizer.controller/run-query query)
+  (let [rows (queryizer.controller/submit-query query)
     cols (keys (first rows))]
     (view-layout
       [:h2 "Here is your result"]
@@ -46,7 +55,13 @@
   (GET "/tables/:table" [table] (view-output (str "select * from " table)))
   (POST "/" [query]
     (println "obvious debug statment: " query)
-    (view-output query)))
+    (view-output query))
+;;-------
+  (GET "/jobs" [] (println "GET jobs")
+    (view-jobs))
+  (POST "/jobs/:job" [job] (println "POST jobs")
+    (queryizer.controller/submit-job job)))
+
 
 (def app (-> main-routes (handler/site)))
 
