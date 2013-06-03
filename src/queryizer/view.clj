@@ -10,10 +10,11 @@
   (html
     [:head [:meta {:http-equiv "Content-type"
     :content "text/html; charset=utf-8"}]
+    [:link {:href "queryizer" :type "text/css" :rel "stylesheet"}]
     [:title "Queryizer"]]
     [:body content]))
 
-;;hyperlinked list of perdefined queries 
+;;hyperlinked list of predefined queries 
 (def query-selection
   (list [:h2 "Available queries"]
     (for
@@ -55,12 +56,13 @@
   (POST "/" [query]
     (println "obvious debug statment: " query)
     (view-output query))
-  
+
 ;;-------These are the asynch parts...
+
 (GET "/jobs" [] (println "GET jobs")
   (view-jobs))
 (GET "/jobs/:job" [job] (println "POST jobs")
-  (queryizer.controller/submit-job (query job))
+  (submit-job (query job))
   (view-jobs)))
 
 

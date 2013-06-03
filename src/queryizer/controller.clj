@@ -34,9 +34,9 @@
 (defn query [id]
   (:sql (first (filter #(= id (:id %)) available-queries))))
 
-(def list-jobs
-  (read-string
-    (slurp (io/resource "jobs"))))
+;;(def list-jobs
+;;  (read-string
+;;    (slurp (io/resource "jobs"))))
 
 ;;-------------------------------------------------------------------
 
