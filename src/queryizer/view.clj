@@ -13,6 +13,7 @@
     [:title "Queryizer"]]
     [:body content]))
 
+;;hyperlinked list of perdefined queries 
 (def query-selection
   (list [:h2 "Available queries"]
     (for
@@ -31,9 +32,10 @@
 
 (defn view-jobs []
   (println "view-jobs")
-    (view-layout
-      [:h2 "Current Jobs"]
-      [:p (queryizer.controller/list-jobs)]))
+  (view-layout
+    [:h2 "Current Jobs"]
+    (for [job (queryizer.controller/list-jobs)]
+      [:p (str job)])))
 
 (defn view-output [query]
   (let [rows (queryizer.controller/submit-query query)
@@ -53,13 +55,13 @@
   (POST "/" [query]
     (println "obvious debug statment: " query)
     (view-output query))
-;;-------
-  (GET "/jobs" [] (println "GET jobs")
-    (view-jobs))
-  (GET "/jobs/:job" [job] (println "POST jobs")
-    (queryizer.controller/submit-job 
-      (:sql (first (filter #(= job (:id %)) available-queries))))
-    (view-jobs)))
+  
+;;-------These are the asynch parts...
+(GET "/jobs" [] (println "GET jobs")
+  (view-jobs))
+(GET "/jobs/:job" [job] (println "POST jobs")
+  (queryizer.controller/submit-job (query job))
+  (view-jobs)))
 
 
 (def app (-> main-routes (handler/site)))
