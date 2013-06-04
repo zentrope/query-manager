@@ -64,6 +64,14 @@
     (.setName (str "job-runner-" (:job job)))
     (.start)))
 
+(defn- long-run-job
+  "Simulates a long running job"
+  [job]
+  (Thread/sleep 60000)
+  (doto (Thread. (fn [] (update-jobs (run-query job))))
+    (.setName (str "job-runner-" (:job job)))
+    (.start)))
+
 (defn- make-id
   "Makes a UUID for uniquely "
   []
@@ -79,6 +87,15 @@
     job {:job id :query query :status :in-progress :results []}]
     (swap! jobs assoc id job)
     (run-job job)
+    job))
+
+(defn long-submit-job
+  "Simulates a long running job"
+  [query]
+  (let [id (make-id)
+    job {:job id :query query :status :in-progress :results []}]
+    (swap! jobs assoc id job)
+    (long-run-job job)
     job))
 
 (defn delete-job

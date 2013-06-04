@@ -24,13 +24,24 @@
         [:a {:href (str "/jobs/" (:id elem))}
         (:id elem)] [:br ]))))
 
+;;hyperlinked list of predefined queries 
+(def long-query-selection
+  (list [:h2 "Long queries"]
+    (for
+      [elem queryizer.controller/available-queries]
+      (list
+        [:a {:href (str "/long/" (:id elem))}
+        (:id elem)] [:br ]))))
+
 (defn view-input []
   (view-layout
     [:h2 "Enter query"]
+
     [:form {:method "post" :action "/"}
     [:input.math {:type "text" :name "query"}] [:br ]
     [:input.action {:type "submit" :value "Enter"}]]
-    query-selection))
+    query-selection
+    long-query-selection))
 
 (defn view-jobs []
   (println "view-jobs")
@@ -64,6 +75,9 @@
   (view-jobs))
 (GET "/jobs/:job" [job] (println "GET jobs")
   (submit-job (query job))
+  (redirect "/jobs"))
+(GET "/long/:job" [job] (println "LONG jobs")
+  (long-submit-job (query job))
   (redirect "/jobs")))
 
 
