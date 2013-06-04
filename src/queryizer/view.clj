@@ -3,7 +3,8 @@
   (:use hiccup.core)
   (:use queryizer.controller)
   (:require [clojure.data.json :as json]
-    [compojure.handler :as handler]))
+    [compojure.handler :as handler]
+    [ring.util.response :refer [redirect]]))
 
 
 (defn view-layout [& content]
@@ -61,9 +62,9 @@
 
 (GET "/jobs" [] (println "GET jobs")
   (view-jobs))
-(GET "/jobs/:job" [job] (println "POST jobs")
+(GET "/jobs/:job" [job] (println "GET jobs")
   (submit-job (query job))
-  (view-jobs)))
+  (redirect "/jobs")))
 
 
 (def app (-> main-routes (handler/site)))

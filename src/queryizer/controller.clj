@@ -1,7 +1,8 @@
 (ns queryizer.controller
   (:use korma.db)
   (:use korma.core)
-  (:require [clojure.java.io :as io]))
+  (:require [clojure.java.io :as io])
+  (:require [ring.util.response :refer [redirect]]))
 
 (defdb db (mysql {:db "te"
   :user "root"
@@ -54,13 +55,13 @@
 (defn- update-jobs
   "Updates our job state with a job."
   [job]
-  (swap! jobs (fn [js] (assoc js (:id job) job))))
+  (swap! jobs (fn [js] (assoc js (:job job) job))))
 
 (defn- run-job
   "Runs the job in a thread."
   [job]
   (doto (Thread. (fn [] (update-jobs (run-query job))))
-    (.setName (str "job-runner-" (:id job)))
+    (.setName (str "job-runner-" (:job job)))
     (.start)))
 
 (defn- make-id
