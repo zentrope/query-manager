@@ -10,7 +10,8 @@
 (defn view-layout [& content]
   (html
     [:head [:meta {:http-equiv "Content-type"
-    :content "text/html; charset=utf-8"}]
+    :content "text/html; charset=utf-8"}] 
+    [:meta {:http-equiv "refresh" :content "5"}]
     [:link {:href "queryizer" :type "text/css" :rel "stylesheet"}]
     [:title "Queryizer"]]
     [:body content]))
@@ -47,7 +48,7 @@
   (println "view-jobs")
   (view-layout
     [:h2 "Current Jobs"]
-    (for [job (queryizer.controller/list-jobs)]
+    (for [job (queryizer.controller/list-jobs)] 
       [:p (str job)])))
 
 (defn view-output [query]
