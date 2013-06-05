@@ -11,8 +11,7 @@
   (html
     [:head [:meta {:http-equiv "Content-type"
     :content "text/html; charset=utf-8"}] 
-    [:meta {:http-equiv "refresh" :content "5"}]
-    [:link {:href "queryizer" :type "text/css" :rel "stylesheet"}]
+    [:link {:href "queryizer.css" :type "text/css" :rel "stylesheet"}]
     [:title "Queryizer"]]
     [:body content]))
 
