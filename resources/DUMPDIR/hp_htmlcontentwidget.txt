@@ -1,4 +1,0 @@
-https://www.tripwire.com/_widget/enterprise.cfm?type=3	104	-9223372036854775077
-https://www.tripwire.com/_widget/enterprise.cfm?type=2	105	-9223372036854775076
-https://www.tripwire.com/_widget/enterprise.cfm	106	-9223372036854775075
-/plugins/console/visitUs.jsp	107	-9223372036854775074

@@ -67,7 +67,7 @@
 (defn- long-run-job
   "Simulates a long running job"
   [job]
-  (Thread/sleep 60000)
+  (Thread/sleep 30000)
   (doto (Thread. (fn [] (update-jobs (run-query job))))
     (.setName (str "job-runner-" (:job job)))
     (.start)))

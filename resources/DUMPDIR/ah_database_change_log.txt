@@ -1,4 +1,0 @@
-1.0.0	tripwire	liquibase/changelog-ah-1.0.xml	2013-02-15 09:04:58	1	EXECUTED	3:971a14bc7a6f19c707299fe528676817	Create Table		\N	${project.version}
-1.0.1	tripwire	liquibase/changelog-ah-1.0.xml	2013-02-15 09:04:58	2	EXECUTED	3:b2fff2e43cad0f3a53087102c14de78c	Create Table, Create Index		\N	${project.version}
-1.0.2	tripwire	liquibase/changelog-ah-1.0.xml	2013-02-15 09:04:58	3	EXECUTED	3:520db5074cd0e8db9fb9edacb95f5bdc	Create Table, Add Primary Key, Create Index		\N	${project.version}
-1.0.3	tripwire	liquibase/changelog-ah-1.0.xml	2013-02-15 09:04:59	4	EXECUTED	3:81d7c49482062200bc9585dc4b94bcbb	Create Table, Add Primary Key, Create Index		\N	${project.version}

@@ -2,6 +2,7 @@
   (:use compojure.core)
   (:use hiccup.core)
   (:use queryizer.controller)
+  (:use ring.middleware.file)
   (:require [clojure.data.json :as json]
     [compojure.handler :as handler]
     [ring.util.response :refer [redirect]]))
@@ -13,7 +14,7 @@
     :content "text/html; charset=utf-8"}] 
     [:link {:href "queryizer.css" :type "text/css" :rel "stylesheet"}]
     [:title "Queryizer"]]
-    [:body content]))
+    [:div {:id "container"} [:body content]]))
 
 ;;hyperlinked list of predefined queries 
 (def query-selection
@@ -59,7 +60,12 @@
       (for [row rows] [:tr (for [item (vals row)] [:td item])])]
       [:a.action {:href "/"} "Enter another?"] [:br ])))
 
+
+
+
+;;Routes------------------------------------------------------------------
 (defroutes main-routes
+
   (GET "/" []
     (view-input))
   (GET "/tables" [] (view-output "show tables"))
@@ -81,5 +87,6 @@
   (redirect "/jobs")))
 
 
-(def app (-> main-routes (handler/site)))
-
+(def app 
+  (-> main-routes (handler/site) 
+   (wrap-file "public")))

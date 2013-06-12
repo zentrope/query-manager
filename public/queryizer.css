@@ -1,6 +1,16 @@
 .math {
-  font-family: Monaco, monospace; }
+	font-family: Monaco, monospace; 
+}
 
 .action {
-  margin-top: 2em; }
+	margin-top: 2em; 
+}
 
+#container {
+	margin-left:auto;
+	margin-right:auto;
+	width:70%;
+	background-color:#E6E6F5;
+	padding:20px;
+	border-radius: 15px;
+}
