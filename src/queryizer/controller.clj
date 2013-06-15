@@ -1,18 +1,22 @@
 (ns queryizer.controller
-  (:use korma.db)
-  (:use korma.core)
+  ;; (:use korma.db)
+  ;; (:use korma.core)
   (:require [clojure.java.io :as io]
             [ring.util.response :refer [redirect]]))
 
-(defdb db (mysql {:db "te"
-                  :user "root"
-                  :password "services"
-                  :host "localhost"
-                  :port "3306"}))
+;; (defdb db (mysql {:db "te"
+;;                   :user "root"
+;;                   :password "services"
+;;                   :host "localhost"
+;;                   :port "3306"}))
 
-(defentity unix
-  (table :unix )
-  (database db))
+;; (defentity unix
+;;   (table :unix )
+;;   (database db))
+
+(defn- exec-raw
+  [& params]
+  (throw (Exception. "Not implemented")))
 
 (defn- make-id
   "Makes a UUID for uniquely identifying jobs."

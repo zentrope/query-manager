@@ -1,6 +1,6 @@
 (ns queryizer.main
   (:gen-class)
-  (:require [queryizer.view :refer [app]]
+  (:require [queryizer.http :refer [app]]
             [clojure.tools.nrepl.server :refer [start-server]]
             [clojure.tools.logging :refer [info]]
             [ring.adapter.jetty :refer [run-jetty]]))
@@ -9,7 +9,7 @@
   [name default-value]
   (Integer/parseInt (get (System/getenv) name default-value)))
 
-(defn- start-httpd
+(defn- start-http
   []
   (let [port (evar "PORT" "8081")]
     (info "Running http on port" port)
@@ -23,6 +23,6 @@
 
 (defn -main
   [& args]
-  (start-httpd)
+  (start-http)
   (start-repl)
   (deref (promise)))

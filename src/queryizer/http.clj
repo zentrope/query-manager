@@ -1,33 +1,31 @@
-(ns queryizer.view
-  (:require [clojure.data.json :as json]
+(ns queryizer.http
+  (:require [queryizer.data :refer [get-db-spec put-db-spec]]
+            [clojure.data.json :as json]
             [compojure.core :refer [defroutes GET POST DELETE PUT]]
             [compojure.handler :as handler]
             [compojure.route :refer [resources not-found]]
-            [ring.util.response :refer [redirect]]
+            [ring.util.response :refer [redirect status response]]
             [hiccup.page :refer [html5 include-js include-css]]))
 
 (defroutes main-routes
 
   ;;---------------------------------------------------------------------------
   ;; DATABASE API
+  ;;
+  ;; For now, any given instance of the app should only have one
+  ;; configured database, so we'll just implement a GET and PUT so
+  ;; client UIs can change it.
+  ;;
   ;;---------------------------------------------------------------------------
-
-  (GET "/qzer/api/db/:id"
-      [id]
-    (json/write-str {:error "not implemented"}))
 
   (GET "/qzer/api/db"
       []
-    (json/write-str []))
+    (json/write-str (get-db-spec)))
 
-  (POST "/qzer/api/db"
-      ;; Should be a version of this to upload a file.
-      [query-id]
-    (json/write-str {:error "not implemented"}))
-
-  (DELETE "/qzer/api/db/:id"
-      [id]
-    (json/write-str {:error "not implemented"}))
+  (PUT "/qzer/api/db"
+      [:as r]
+    (put-db-spec (json/read-str (:body r) :key-fn keyword))
+      (status (response "") 201))
 
   ;;---------------------------------------------------------------------------
   ;; QUERY API
@@ -35,7 +33,9 @@
 
   (GET "/qzer/api/query/:id"
       [id]
-    (json/write-str {:error "not implemented"}))
+    (-> (json/write-str {:error "not implemented"})
+        (response)
+        (status 501)))
 
   (GET "/qzer/api/query"
       []
@@ -71,7 +71,7 @@
     (json/write-str {:error "not implemented"}))
 
   ;;---------------------------------------------------------------------------
-  ;; CLIENT
+  ;; BUILT IN CLIENT
   ;;---------------------------------------------------------------------------
 
   (GET "/"

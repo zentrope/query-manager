@@ -10,10 +10,13 @@
                  [org.clojure/tools.logging "0.2.6"]
                  [ch.qos.logback/logback-classic "1.0.7"]
 
-                 [org.clojure/tools.nrepl "0.2.3"]
+                 [org.clojure/java.jdbc "0.3.0-alpha4"]  ;; jdbc
+                 [mysql/mysql-connector-java "5.1.25"]   ;; mysql driver
+                 [net.sourceforge.jtds/jtds "1.2.4"]     ;; sql-server
+                 [hsqldb/hsqldb "1.8.0.10"]              ;; hsqldb
+                 [postgresql/postgresql "8.4-702.jdbc4"] ;; postgresql
 
-                 [mysql/mysql-connector-java "5.1.25"]    ;; mysql driver
-                 [korma "0.3.0-RC5"]]
+                 [org.clojure/tools.nrepl "0.2.3"]]o
 
   :min-lein-version "2.2.0"
   :main queryizer.main)
