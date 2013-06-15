@@ -1,23 +1,21 @@
 (ns queryizer.controller
   (:use korma.db)
   (:use korma.core)
-  (:require [clojure.java.io :as io])
-  (:require [ring.util.response :refer [redirect]]))
+  (:require [clojure.java.io :as io]
+            [ring.util.response :refer [redirect]]))
 
 (defdb db (mysql {:db "te"
-  :user "root"
-  :password "services"
-  :host "localhost"
-  :port "3306"}))
+                  :user "root"
+                  :password "services"
+                  :host "localhost"
+                  :port "3306"}))
 
 (defentity unix
   (table :unix )
   (database db))
 
-(def query-finished (promise))
-;;mmake UUID for query result
 (defn- make-id
-  "Makes a UUID for uniquely "
+  "Makes a UUID for uniquely identifying jobs."
   []
   (str (java.util.UUID/randomUUID)))
 
@@ -26,7 +24,6 @@
   (let [results (exec-raw [query] :results )]
   (println "QUERY ID: " query) results))
 
-;;reads in "resources/queries"
 (defn available-queries
   []
   (let [query-file (io/as-file "queries")]
@@ -34,13 +31,9 @@
       (read-string (slurp query-file))
       [])))
 
-;;returns sql quesry associated with id
+;;returns sql query associated with id
 (defn query [id]
   (:sql (first (filter #(= id (:id %)) available-queries))))
-
-;;(def list-jobs
-;;  (read-string
-;;    (slurp (io/resource "jobs"))))
 
 ;;-------------------------------------------------------------------
 
