@@ -16,7 +16,7 @@
                  [hsqldb/hsqldb "1.8.0.10"]              ;; hsqldb
                  [postgresql/postgresql "8.4-702.jdbc4"] ;; postgresql
 
-                 [org.clojure/tools.nrepl "0.2.3"]]o
+                 [org.clojure/tools.nrepl "0.2.3"]]
 
   :min-lein-version "2.2.0"
   :main queryizer.main)
