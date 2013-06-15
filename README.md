@@ -1,35 +1,10 @@
-# queryizer
+# Queryizer
 
-FIXME: description
-
-## Installation
-
-Download from http://example.com/FIXME.
-
-## Usage
-
-FIXME: explanation
-
-    $ java -jar queryizer-0.1.0-standalone.jar [args]
-
-## Options
-
-FIXME: listing of options this app accepts.
-
-## Examples
-
-...
-
-### Bugs
-
-...
-
-### Any Other Sections
-### That You Think
-### Might be Useful
+Web app for submitting long-running queries, monitoring their
+progress, and displaying their results.
 
 ## License
 
-Copyright © 2013 FIXME
+Copyright &copy; 2013 Ben Glasser, Keith Irwin
 
 Distributed under the Eclipse Public License, the same as Clojure.

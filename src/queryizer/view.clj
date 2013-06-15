@@ -2,34 +2,36 @@
   (:use compojure.core)
   (:use hiccup.core)
   (:use queryizer.controller)
-  (:use ring.middleware.file)
   (:require [clojure.data.json :as json]
-    [compojure.handler :as handler]
-    [ring.util.response :refer [redirect]]))
-
+            [compojure.handler :as handler]
+            [compojure.route :refer [resources not-found]]
+            [ring.util.response :refer [redirect]]))
 
 (defn view-layout [& content]
   (html
     [:head [:meta {:http-equiv "Content-type"
-    :content "text/html; charset=utf-8"}] 
-    [:link {:href "queryizer.css" :type "text/css" :rel "stylesheet"}]
+    :content "text/html; charset=utf-8"}]
+    [:link {:href "styles.css" :type "text/css" :rel "stylesheet"}]
     [:title "Queryizer"]]
     [:div {:id "container"} [:body content]]))
 
-;;hyperlinked list of predefined queries 
-(def query-selection
-  (list [:h2 "Available queries"]
+;;hyperlinked list of predefined queries
+(defn- query-selection
+  []
+  (list
+   [:h2 "Available queries"]
     (for
-      [elem queryizer.controller/available-queries]
+      [elem (queryizer.controller/available-queries)]
       (list
         [:a {:href (str "/jobs/" (:id elem))}
         (:id elem)] [:br ]))))
 
-;;hyperlinked list of predefined queries 
-(def long-query-selection
+;;hyperlinked list of predefined queries
+(defn- long-query-selection
+  []
   (list [:h2 "Long queries"]
     (for
-      [elem queryizer.controller/available-queries]
+      [elem (queryizer.controller/available-queries)]
       (list
         [:a {:href (str "/long/" (:id elem))}
         (:id elem)] [:br ]))))
@@ -41,14 +43,14 @@
     [:form {:method "post" :action "/"}
     [:input.math {:type "text" :name "query"}] [:br ]
     [:input.action {:type "submit" :value "Enter"}]]
-    query-selection
-    long-query-selection))
+    (query-selection)
+    (long-query-selection)))
 
 (defn view-jobs []
   (println "view-jobs")
   (view-layout
     [:h2 "Current Jobs"]
-    (for [job (queryizer.controller/list-jobs)] 
+    (for [job (queryizer.controller/list-jobs)]
       [:p (str job)])))
 
 (defn view-output [query]
@@ -60,33 +62,37 @@
       (for [row rows] [:tr (for [item (vals row)] [:td item])])]
       [:a.action {:href "/"} "Enter another?"] [:br ])))
 
-
-
-
 ;;Routes------------------------------------------------------------------
 (defroutes main-routes
 
   (GET "/" []
     (view-input))
+
   (GET "/tables" [] (view-output "show tables"))
+
   (GET "/query/:id" [id] (view-output (queryizer.controller/query id)))
+
   (GET "/tables/:table" [table] (view-output (str "select * from " table)))
+
   (POST "/" [query]
     (println "obvious debug statment: " query)
     (view-output query))
 
-;;-------These are the asynch parts...
+  ;;-------These are the asynch parts...
 
-(GET "/jobs" [] (println "GET jobs")
-  (view-jobs))
-(GET "/jobs/:job" [job] (println "GET jobs")
-  (submit-job (query job))
-  (redirect "/jobs"))
-(GET "/long/:job" [job] (println "LONG jobs")
-  (long-submit-job (query job))
-  (redirect "/jobs")))
+  (GET "/jobs" [] (println "GET jobs")
+     (view-jobs))
 
+  (GET "/jobs/:job" [job] (println "GET jobs")
+       (submit-job (query job))
+       (redirect "/jobs"))
+  (GET "/long/:job" [job] (println "LONG jobs")
+       (long-submit-job (query job))
+       (redirect "/jobs"))
 
-(def app 
-  (-> main-routes (handler/site) 
-   (wrap-file "public")))
+  (resources "/")
+  (not-found "<h1>Oops. Try <a href='/'>here</a>."))
+
+(def app
+  (-> main-routes
+      (handler/site)))

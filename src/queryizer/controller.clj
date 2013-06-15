@@ -27,9 +27,12 @@
   (println "QUERY ID: " query) results))
 
 ;;reads in "resources/queries"
-(def available-queries
-  (read-string
-    (slurp (io/resource "queries"))))
+(defn available-queries
+  []
+  (let [query-file (io/as-file "queries")]
+    (if (.exists query-file)
+      (read-string (slurp query-file))
+      [])))
 
 ;;returns sql quesry associated with id
 (defn query [id]
