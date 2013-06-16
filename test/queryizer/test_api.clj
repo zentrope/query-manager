@@ -1,9 +1,42 @@
 (ns queryizer.test-api
-  (:require [clojure.test :refer [deftest is use-fixtures testing]]
+  (:import [java.util UUID])
+  (:require [clojure.java.jdbc :as jdbc]
+            [clojure.test :refer [deftest is use-fixtures testing]]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :refer [write-str read-str]]
             [queryizer.http :refer [app]]
             [queryizer.data :refer [default-spec]]))
+
+;;-----------------------------------------------------------------------------
+;; Database Functions
+;;-----------------------------------------------------------------------------
+
+(def ^:private db {:classname "org.h2.Driver"
+                   :subprotocol "h2:mem"
+                   :subname "test"
+                   :user "sa"
+                   :password ""
+                   :DB_CLOSE_DELAY -1})
+
+(def ^:private statement {:drop "drop table test if exists"
+                          :create (str "create table if not exists test "
+                                       "(id long identity, name varchar(100))")
+                          :insert "insert into test (name) values (?)"
+                          :select "select * from test order by id"})
+
+(defn- create-db
+  [db]
+  (jdbc/db-do-commands db true (:create statement))
+  (doseq [i (range 1 100)]
+    (jdbc/execute! db [(:insert statement) (str (UUID/randomUUID))])))
+
+(defn- data-db
+  [db]
+  (jdbc/query db (:select statement)))
+
+(defn- drop-db
+  [db]
+  (jdbc/db-do-commands db true (:drop statement)))
 
 ;;-----------------------------------------------------------------------------
 ;; Convenience Functions
@@ -62,7 +95,7 @@
     (is (= data default-spec))))
 
 (deftest put-db
-  (let [spec {:user "k" :password "z" :type "postgresql" :host "foo" :port 17}
+  (let [spec {:user "k" :password "z" :subname "test" :subprotocol "postgresql" :host "foo" :port 17}
         r (put! "/qzer/api/db" spec)
         r2 (get! "/qzer/api/db")
         data (jread (:body r2))]

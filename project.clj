@@ -11,14 +11,14 @@
 
                  ;; Logging
                  [org.clojure/tools.logging "0.2.6"]
-                 [ch.qos.logback/logback-classic "1.0.7"]
+                 [ch.qos.logback/logback-classic "1.0.13"]
 
                  ;; Database
-                 [org.clojure/java.jdbc "0.3.0-alpha4"]  ;; jdbc
-                 [mysql/mysql-connector-java "5.1.25"]   ;; mysql
-                 [net.sourceforge.jtds/jtds "1.2.4"]     ;; sql-server
-                 [hsqldb/hsqldb "1.8.0.10"]              ;; hsqldb
-                 [postgresql/postgresql "8.4-702.jdbc4"] ;; postgresql
+                 [org.clojure/java.jdbc "0.3.0-alpha4"]    ;; jdbc
+                 [mysql/mysql-connector-java "5.1.25"]     ;; mysql
+                 [net.sourceforge.jtds/jtds "1.3.1"]       ;; sql-server
+                 [com.h2database/h2 "1.3.172"]             ;; h2 database
+                 [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
 
                  ;; Services
                  [org.clojure/tools.nrepl "0.2.3"]]
