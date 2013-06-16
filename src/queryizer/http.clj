@@ -1,8 +1,9 @@
 (ns queryizer.http
   (:require [queryizer.data :refer [get-db-spec put-db-spec]]
+            [queryizer.sql :as sql]
             [clojure.data.json :as json]
             [compojure.core :refer [defroutes GET POST DELETE PUT]]
-            [compojure.handler :as handler]
+            [compojure.handler :refer [site]]
             [compojure.route :refer [resources not-found]]
             [ring.util.response :refer [redirect status response]]
             [hiccup.page :refer [html5 include-js include-css]]))
@@ -15,7 +16,6 @@
   ;; For now, any given instance of the app should only have one
   ;; configured database, so we'll just implement a GET and PUT so
   ;; client UIs can change it.
-  ;;
   ;;---------------------------------------------------------------------------
 
   (GET "/qzer/api/db"
@@ -29,26 +29,39 @@
 
   ;;---------------------------------------------------------------------------
   ;; QUERY API
+  ;;
+  ;; For getting and putting queries-to-be-run, but not for actually
+  ;; running the queries. Use the /api/job API for that.
   ;;---------------------------------------------------------------------------
 
   (GET "/qzer/api/query/:id"
       [id]
-    (-> (json/write-str {:error "not implemented"})
-        (response)
-        (status 501)))
+    (if-let [query (sql/find id)]
+      (json/write-str query)
+      (status (response "") 404)))
 
   (GET "/qzer/api/query"
       []
-    (json/write-str []))
+    (json/write-str (sql/all)))
+
+  (PUT "/qzer/api/query/:id"
+      [id :as r]
+    (if-let [query (sql/find id)]
+      (let [update (merge query (json/read-str (:body r) :key-fn keyword))]
+        (sql/update! update)
+        (status (response "") 201))
+      (status (response "") 404)))
 
   (POST "/qzer/api/query"
-      ;; Should be a version of this to upload a file.
-      [query-id]
-    (json/write-str {:error "not implemented"}))
+      [:as r]
+    (let [{:keys [sql description]} (json/read-str (:body r) :key-fn keyword)]
+      (sql/create! sql description))
+    (status (response "") 201))
 
   (DELETE "/qzer/api/query/:id"
       [id]
-    (json/write-str {:error "not implemented"}))
+    (sql/delete! id)
+    (status (response "") 201))
 
   ;;---------------------------------------------------------------------------
   ;; JOB API
@@ -92,4 +105,4 @@
 
 (def app
   (-> main-routes
-      (handler/site)))
+      (site)))
