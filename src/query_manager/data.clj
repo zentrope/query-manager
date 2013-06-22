@@ -1,4 +1,4 @@
-(ns queryizer.data
+(ns query-manager.data
   (:require [clojure.tools.logging :refer [info]]))
 
 (def default-spec {:classname "org.h2.Driver"

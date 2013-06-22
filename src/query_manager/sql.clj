@@ -1,4 +1,4 @@
-(ns queryizer.sql
+(ns query-manager.sql
   (:refer-clojure :exclude [replace find])
   (:require [clojure.tools.logging :refer [info]]
             [clojure.string :refer [replace]]))

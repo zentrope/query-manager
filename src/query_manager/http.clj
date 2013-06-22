@@ -1,6 +1,6 @@
-(ns queryizer.http
-  (:require [queryizer.data :refer [get-db-spec put-db-spec]]
-            [queryizer.sql :as sql]
+(ns query-manager.http
+  (:require [query-manager.data :refer [get-db-spec put-db-spec]]
+            [query-manager.sql :as sql]
             [clojure.data.json :as json]
             [compojure.core :refer [defroutes GET POST DELETE PUT]]
             [compojure.handler :refer [site]]
@@ -18,11 +18,11 @@
   ;; client UIs can change it.
   ;;---------------------------------------------------------------------------
 
-  (GET "/qzer/api/db"
+  (GET "/qman/api/db"
       []
     (json/write-str (get-db-spec)))
 
-  (PUT "/qzer/api/db"
+  (PUT "/qman/api/db"
       [:as r]
     (put-db-spec (json/read-str (:body r) :key-fn keyword))
       (status (response "") 201))
@@ -34,17 +34,17 @@
   ;; running the queries. Use the /api/job API for that.
   ;;---------------------------------------------------------------------------
 
-  (GET "/qzer/api/query/:id"
+  (GET "/qman/api/query/:id"
       [id]
     (if-let [query (sql/find id)]
       (json/write-str query)
       (status (response "") 404)))
 
-  (GET "/qzer/api/query"
+  (GET "/qman/api/query"
       []
     (json/write-str (sql/all)))
 
-  (PUT "/qzer/api/query/:id"
+  (PUT "/qman/api/query/:id"
       [id :as r]
     (if-let [query (sql/find id)]
       (let [update (merge query (json/read-str (:body r) :key-fn keyword))]
@@ -52,13 +52,13 @@
         (status (response "") 201))
       (status (response "") 404)))
 
-  (POST "/qzer/api/query"
+  (POST "/qman/api/query"
       [:as r]
     (let [{:keys [sql description]} (json/read-str (:body r) :key-fn keyword)]
       (sql/create! sql description))
     (status (response "") 201))
 
-  (DELETE "/qzer/api/query/:id"
+  (DELETE "/qman/api/query/:id"
       [id]
     (sql/delete! id)
     (status (response "") 201))
@@ -67,19 +67,19 @@
   ;; JOB API
   ;;---------------------------------------------------------------------------
 
-  (GET "/qzer/api/job/:id"
+  (GET "/qman/api/job/:id"
       [id]
     (json/write-str {:error "not implemented"}))
 
-  (GET "/qzer/api/job"
+  (GET "/qman/api/job"
       []
     (json/write-str []))
 
-  (POST "/qzer/api/job/:query-id"
+  (POST "/qman/api/job/:query-id"
       [query-id]
     (json/write-str {:error "not implemented"}))
 
-  (DELETE "/qzer/api/job/:id"
+  (DELETE "/qman/api/job/:id"
       [id]
     (json/write-str {:error "not implemented"}))
 
@@ -89,19 +89,19 @@
 
   (GET "/"
       []
-    (redirect "/qzer"))
+    (redirect "/qman"))
 
-  (GET "/qzer"
+  (GET "/qman"
       []
     (html5 [:head
-            [:title "Long Running Query Manager"]
-            (include-css "styles.css")
-            (include-js "jquery-2.0.2.min.js")
-            (include-js "client.js")]
+            [:title "Query Manager"]
+            (include-css "qman/styles.css")
+            (include-js "qman/jquery-2.0.2.min.js")
+            (include-js "qman/client.js")]
            [:body "Loading..."]))
 
   (resources "/")
-  (not-found "<h1>Oops. Try <a href='/'>here</a>.</h1>"))
+  (not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>"))
 
 (def app
   (-> main-routes

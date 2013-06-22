@@ -1,11 +1,11 @@
-(ns queryizer.test-api
+(ns query-manager.test-api
   (:import [java.util UUID])
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.test :refer [deftest is use-fixtures testing]]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :refer [write-str read-str]]
-            [queryizer.http :refer [app]]
-            [queryizer.data :refer [default-spec]]))
+            [query-manager.http :refer [app]]
+            [query-manager.data :refer [default-spec]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Database Functions
@@ -71,12 +71,12 @@
   ;;
   ;; Restore the default database spec
   ;;
-  (put! "/qzer/api/db" default-spec)
+  (put! "/qman/api/db" default-spec)
   ;;
   ;; Remove any stored queries
   ;;
-  (doseq [q (jread (:body (get! "/qzer/api/query")))]
-    (delete! (str "/qzer/api/query/" (:id q))))
+  (doseq [q (jread (:body (get! "/qman/api/query")))]
+    (delete! (str "/qman/api/query/" (:id q))))
   ;;
   ;; Run the test
   ;;
@@ -89,23 +89,23 @@
 ;;-----------------------------------------------------------------------------
 
 (deftest get-db
-  (let [r (get! "/qzer/api/db")
+  (let [r (get! "/qman/api/db")
         data (jread (:body r))]
     (is (= 200 (:status r)))
     (is (= data default-spec))))
 
 (deftest put-db
   (let [spec {:user "k" :password "z" :subname "test" :subprotocol "postgresql" :host "foo" :port 17}
-        r (put! "/qzer/api/db" spec)
-        r2 (get! "/qzer/api/db")
+        r (put! "/qman/api/db" spec)
+        r2 (get! "/qman/api/db")
         data (jread (:body r2))]
     (is (= 201 (:status r)))
     (is (= spec data))))
 
 (deftest create-and-list-sql
   (let [query {:sql "show tables" :description "List tables."}
-        r1 (post! "/qzer/api/query" query)
-        r2 (get! "/qzer/api/query")
+        r1 (post! "/qman/api/query" query)
+        r2 (get! "/qman/api/query")
         q (first (jread (:body r2)))]
 
     (testing "posting a query"
@@ -117,17 +117,17 @@
       (is (= 200 (:status r2))))
 
     (testing "getting a specific query"
-      (is (= q (jread (:body (get! (str "/qzer/api/query/" (:id q))))))))))
+      (is (= q (jread (:body (get! (str "/qman/api/query/" (:id q))))))))))
 
 (deftest update-sql
   (let [q1 {:sql "show tables" :description "List tables."}
-        r1 (post! "/qzer/api/query" q1)
-        q2 (first (jread (:body (get! "/qzer/api/query"))))
+        r1 (post! "/qman/api/query" q1)
+        q2 (first (jread (:body (get! "/qman/api/query"))))
         q3 (merge q2 {:sql "show other" :description "Test"})
-        r2 (put! (str "/qzer/api/query/" (:id q2)) q3)
-        q4 (jread (:body (get! (str "/qzer/api/query/" (:id q2)))))
-        r3 (delete! (str "/qzer/api/query/" (:id q2)))
-        r4 (get! (str "/qzer/api/query/" (:id q2)))]
+        r2 (put! (str "/qman/api/query/" (:id q2)) q3)
+        q4 (jread (:body (get! (str "/qman/api/query/" (:id q2)))))
+        r3 (delete! (str "/qman/api/query/" (:id q2)))
+        r4 (get! (str "/qman/api/query/" (:id q2)))]
 
     (testing "Create the query."
       (is (= 201 (:status r1))))

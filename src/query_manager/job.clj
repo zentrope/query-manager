@@ -1,4 +1,4 @@
-(ns queryizer.job
+(ns query-manager.job
   "Just a stub for now.")
 
 (def ^:private jobs (atom {}))

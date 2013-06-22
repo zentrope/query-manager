@@ -5,7 +5,7 @@ $(function () {
 
   function notImplementedPage() {
     $("body").html(
-      "<h1>Queryizer App</h1>" +
+      "<h1>Query Manager App</h1>" +
         "<p>Client not yet implemented.</p>");
   }
 

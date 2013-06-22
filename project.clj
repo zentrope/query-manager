@@ -1,4 +1,4 @@
-(defproject queryizer "0.2"
+(defproject query-manager "0.2"
   :description "Submitting, monitoring and viewing the results of long-running queries."
   :dependencies [[org.clojure/clojure "1.5.1"]
 
@@ -24,4 +24,4 @@
                  [org.clojure/tools.nrepl "0.2.3"]]
 
   :min-lein-version "2.2.0"
-  :main queryizer.main)
+  :main query-manager.main)

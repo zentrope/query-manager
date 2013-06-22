@@ -1,6 +1,6 @@
-(ns queryizer.main
+(ns query-manager.main
   (:gen-class)
-  (:require [queryizer.http             :refer [app]]
+  (:require [query-manager.http         :refer [app]]
             [clojure.tools.nrepl.server :refer [start-server]]
             [clojure.tools.logging      :refer [info]]
             [org.httpkit.server         :refer [run-server]]))
