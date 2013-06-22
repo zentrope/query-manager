@@ -1,9 +1,9 @@
 (ns queryizer.main
   (:gen-class)
-  (:require [queryizer.http :refer [app]]
+  (:require [queryizer.http             :refer [app]]
             [clojure.tools.nrepl.server :refer [start-server]]
-            [clojure.tools.logging :refer [info]]
-            [ring.adapter.jetty :refer [run-jetty]]))
+            [clojure.tools.logging      :refer [info]]
+            [org.httpkit.server         :refer [run-server]]))
 
 (defn- evar
   [name default-value]
@@ -13,7 +13,7 @@
   []
   (let [port (evar "PORT" "8081")]
     (info "Running http on port" port)
-    (run-jetty #'app {:port port :join? false})))
+    (run-server #'app {:port port})))
 
 (defn- start-repl
   []

@@ -3,9 +3,9 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Web
-                 [ring/ring-core "1.2.0-SNAPSHOT"]
-                 [ring/ring-jetty-adapter "1.2.0-SNAPSHOT"]
-                 [compojure "1.2.0-SNAPSHOT"]
+                 [http-kit "2.1.4"]
+                 ;; [compojure "1.2.0-SNAPSHOT"]
+                 [compojure "1.1.5"]
                  [hiccup "1.0.3"]
                  [org.clojure/data.json "0.2.2"]
 
