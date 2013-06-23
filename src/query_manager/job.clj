@@ -1,71 +1,100 @@
 (ns query-manager.job
-  "Just a stub for now.")
+  "Experimental at this point. Beware!"
+  (:refer-clojure :exclude [reset!])
+  (:import [java.util.concurrent Executors ThreadFactory]
+           [java.util.concurrent.atomic AtomicLong])
+  (:require [clojure.tools.logging :refer [info error]]))
 
-(def ^:private jobs (atom {}))
+;;-----------------------------------------------------------------------------
+;; Thread machinery
+;;-----------------------------------------------------------------------------
 
-(defn- make-id
-  "Makes a UUID for uniquely identifying jobs."
+(let [id-counter (AtomicLong.)]
+  (defn- id-gen
+    []
+    (.getAndIncrement id-counter)))
+
+(defn- mk-err-handler
   []
-  (str (java.util.UUID/randomUUID)))
+  (proxy [Thread$UncaughtExceptionHandler] []
+    (uncaughtException [thread exception]
+      (error "In thread" (.getName thread) ":" (.getMessage exception)))))
 
-(defn- run-query
-  "Runs the query and associates a new status and results with the job
-   map."
-  [job]
-  (assoc job :status :done :results [{:error "not implemented"}]))
+(defn- mk-thread-factory
+  []
+  (proxy [ThreadFactory] []
+    (newThread [r]
+      (doto (Thread. r)
+        (.setUncaughtExceptionHandler (mk-err-handler))
+        (.setDaemon true) ;; die on JVM shutdown
+        (.setName (str "job-proc-" (id-gen)))))))
 
-(defn- update-jobs
-  "Updates our job state with a job."
-  [job]
-  (swap! jobs (fn [js] (assoc js (:job job) job))))
+(defn- mk-thread-pool
+  [size]
+  (Executors/newFixedThreadPool size (mk-thread-factory)))
 
-(defn- run-job
-  "Runs the job in a thread."
-  [job]
-  (doto (Thread. (fn [] (update-jobs (run-query job))))
-    (.setName (str "job-runner-" (:job job)))
-    (.start)))
+;;-----------------------------------------------------------------------------
+;; Job Machinery
+;;-----------------------------------------------------------------------------
 
-(defn- long-run-job
-  "Simulates a long running job"
-  [job]
-  (Thread/sleep 30000)
-  (run-job job))
+(defn- now
+  []
+  (System/currentTimeMillis))
+
+(let [id (AtomicLong.)]
+  (defn- job-id
+    []
+    (.getAndIncrement id)))
+
+(defn- mk-job
+  [query]
+  {:id (job-id)
+   :started (now)
+   :stopped -1
+   :query query
+   :status :pending
+   :results []})
+
+(defn- mk-runner
+  [jobs job]
+  (fn []
+    (info " - simulating job run:" (:desc (:query job)))
+    (Thread/sleep 2000)
+    (let [update (assoc job :status :done :results [] :stopped (now))]
+      (swap! jobs assoc (:id job) update))
+    (info " - job complete [" (:desc (:query job)) "]")))
 
 ;;-----------------------------------------------------------------------------
 ;; Public API
 ;;-----------------------------------------------------------------------------
 
-(defn submit-job
-  "Creates a job for query, returns it, spawns a background process to
-   actually return the job."
-  [query]
-  (let [id (make-id)
-        job {:job id :query query :status :in-progress :results []}]
-    (swap! jobs assoc id job)
-    (run-job job)
-    job))
+(defn mk-jobs
+  [pool-size]
+  {:pool (mk-thread-pool pool-size)
+   :pool-size pool-size
+   :jobs (atom {})})
 
-(defn long-submit-job
-  "Simulates a long running job"
-  [query]
-  (let [id (make-id)
-        job {:job id :query query :status :in-progress :results []}]
-    (swap! jobs assoc id job)
-    (long-run-job job)
-    job))
+(defn create
+  [jobs query]
+  (let [new-job (mk-job query)
+        runner (mk-runner (:jobs jobs) new-job)]
+    (swap! (:jobs jobs) assoc (:id new-job) new-job)
+    (.submit (:pool jobs) runner)
+    new-job))
 
-(defn delete-job
-  "Delete an existing job."
-  [id]
-  (swap! jobs dissoc id))
+(defn all
+  [jobs]
+  (vals (deref (:jobs jobs))))
 
-(defn get-job
-  [id]
-  "Get the latest about a specific job."
-  (get @jobs id))
+(defn one
+  [jobs id]
+  (get (deref (:jobs jobs)) id))
 
-(defn list-jobs
-  "Get a list of all the jobs."
-  []
-  (vals @jobs))
+(defn delete!
+  [jobs id]
+  (swap! (:jobs jobs) dissoc id))
+
+(defn reset!
+  [jobs]
+  (.shutdownNow (:pool jobs))
+  (mk-jobs (:pool-size jobs)))
