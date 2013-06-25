@@ -32,7 +32,7 @@
 
 (defn- data-db
   [db]
-  (jdbc/query db (:select statement)))
+  (jdbc/query db [(:select statement)]))
 
 (defn- drop-db
   [db]
