@@ -1,6 +1,7 @@
 (ns query-manager.main
   (:gen-class)
-  (:require [query-manager.http         :refer [app]]
+  (:require [query-manager.http         :refer [mk-web-app]]
+            [query-manager.job          :refer [mk-jobs]]
             [clojure.tools.nrepl.server :refer [start-server stop-server]]
             [clojure.tools.logging      :refer [info]]
             [org.httpkit.server         :refer [run-server]]))
@@ -21,7 +22,8 @@
 (defn- start-http
   []
   (let [port (evar "PORT" "8081")
-        http (run-server #'app {:port port})]
+        job-state (mk-jobs 100)
+        http (run-server (mk-web-app job-state) {:port port})]
     (info "Running http on port" port)
     (swap! system-state assoc :http http)))
 

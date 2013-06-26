@@ -78,16 +78,15 @@
 ;;-----------------------------------------------------------------------------
 
 (defn mk-jobs
-  [db pool-size]
+  [pool-size]
   {:pool (mk-thread-pool pool-size)
    :pool-size pool-size
-   :db db
    :jobs (atom {})})
 
 (defn create
-  [jobs query]
+  [jobs db query]
   (let [new-job (mk-job query)
-        runner (mk-runner (:db jobs) (:jobs jobs) new-job)]
+        runner (mk-runner db (:jobs jobs) new-job)]
     (swap! (:jobs jobs) assoc (:id new-job) new-job)
     (.submit (:pool jobs) runner)
     new-job))

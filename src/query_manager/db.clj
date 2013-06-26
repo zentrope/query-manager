@@ -1,5 +1,5 @@
-(ns query-manager.data
-  (:require [clojure.tools.logging :refer [info]]))
+(ns query-manager.db
+  (:refer-clojure :exclude [get put]))
 
 (def default-spec {:classname "org.h2.Driver"
                    :subprotocol "h2:mem"
@@ -8,12 +8,12 @@
                    :password ""
                    :DB_CLOSE_DELAY -1})
 
-(def ^:private conn-spec (atom nil))
+(def ^:private conn-spec (atom default-spec))
 
-(defn put-db-spec
+(defn put
   [spec]
   (reset! conn-spec spec))
 
-(defn get-db-spec
+(defn get
   []
-  (or @conn-spec default-spec))
+  conn-spec)

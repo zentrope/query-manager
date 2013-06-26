@@ -4,8 +4,9 @@
             [clojure.test :refer [deftest is use-fixtures testing]]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :refer [write-str read-str]]
-            [query-manager.http :refer [app]]
-            [query-manager.data :refer [default-spec]]))
+            [query-manager.http :refer [mk-web-app]]
+            [query-manager.job :refer [mk-jobs]]
+            [query-manager.db :refer [default-spec]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Database Functions
@@ -42,25 +43,29 @@
 ;; Convenience Functions
 ;;-----------------------------------------------------------------------------
 
+(defn- app
+  []
+  (mk-web-app (mk-jobs 100)))
+
 (defn- jread
   [string]
   (read-str string :key-fn keyword))
 
 (defn- get!
   [resource & params]
-  (app {:request-method :get :uri resource :params (first params)}))
+  ((app) {:request-method :get :uri resource :params (first params)}))
 
 (defn- put!
   [resource body]
-  (app {:request-method :put :uri resource :body (write-str body)}))
+  ((app) {:request-method :put :uri resource :body (write-str body)}))
 
 (defn- post!
   [resource body]
-  (app {:request-method :post :uri resource :body (write-str body)}))
+  ((app) {:request-method :post :uri resource :body (write-str body)}))
 
 (defn- delete!
   [resource]
-  (app {:request-method :delete :uri resource}))
+  ((app) {:request-method :delete :uri resource}))
 
 ;;-----------------------------------------------------------------------------
 ;; Fixtures
@@ -95,7 +100,8 @@
     (is (= data default-spec))))
 
 (deftest put-db
-  (let [spec {:user "k" :password "z" :subname "test" :subprotocol "postgresql" :host "foo" :port 17}
+  (let [spec {:user "k" :password "z" :subname "test" :subprotocol "postgresql"
+              :host "foo" :port 17}
         r (put! "/qman/api/db" spec)
         r2 (get! "/qman/api/db")
         data (jread (:body r2))]
