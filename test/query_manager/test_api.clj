@@ -43,9 +43,11 @@
 ;; Convenience Functions
 ;;-----------------------------------------------------------------------------
 
-(defn- app
-  []
-  (mk-web-app (mk-jobs 100)))
+(defn- pause
+  [seconds]
+  (Thread/sleep (* seconds 1000)))
+
+(def ^:private app (mk-web-app (mk-jobs 100)))
 
 (defn- jread
   [string]
@@ -53,19 +55,19 @@
 
 (defn- get!
   [resource & params]
-  ((app) {:request-method :get :uri resource :params (first params)}))
+  (app {:request-method :get :uri resource :params (first params)}))
 
 (defn- put!
   [resource body]
-  ((app) {:request-method :put :uri resource :body (write-str body)}))
+  (app {:request-method :put :uri resource :body (write-str body)}))
 
 (defn- post!
   [resource body]
-  ((app) {:request-method :post :uri resource :body (write-str body)}))
+  (app {:request-method :post :uri resource :body (write-str body)}))
 
 (defn- delete!
   [resource]
-  ((app) {:request-method :delete :uri resource}))
+  (app {:request-method :delete :uri resource}))
 
 ;;-----------------------------------------------------------------------------
 ;; Fixtures
@@ -82,6 +84,11 @@
   ;;
   (doseq [q (jread (:body (get! "/qman/api/query")))]
     (delete! (str "/qman/api/query/" (:id q))))
+  ;;
+  ;; Remove any stored jobs
+  ;;
+  (doseq [j (jread (:body (get! "/qman/api/job")))]
+    (delete! (str "/qman/api/job/" (:id j))))
   ;;
   ;; Run the test
   ;;
@@ -145,3 +152,32 @@
     (testing "Verify deleted query is gone."
       (is (= 201 (:status r3)))
       (is (= 404 (:status r4))))))
+
+(deftest create-and-list-job
+  (drop-db db)
+  (create-db db)
+  (let [r1 (post! "/qman/api/query" {:sql (:select statement) :description "Test"})
+        q1 (first (jread (:body (get! "/qman/api/query"))))
+        r2 (post! (str "/qman/api/job/" (:id q1)) [])
+        _ (pause 1)
+        r3 (get! "/qman/api/job")
+        jobs (jread (:body r3))
+        job (first jobs)]
+    (is (= 201 (:status r1)))
+    (is (= 201 (:status r2)))
+    (is (= 200 (:status r3)))
+    (is (= 1 (count jobs)))
+    (is (= "done" (:status job)))
+    (is (= (:select statement) (get-in job [:query :sql])))
+    (is (= "Test" (get-in job [:query :description])))
+    (is (= job (select-keys job [:id :started :stopped :query :status])))))
+
+(deftest create-lots-of-jobs
+  (drop-db db)
+  (create-db db)
+  (let [r1 (post! "/qman/api/query" {:sql (:select statement) :description "Test"})
+        q1 (first (jread (:body (get! "/qman/api/query"))))
+        _ (dotimes [n 5] (post! (str "/qman/api/job/" (:id q1)) []))
+        _ (pause 1)
+        jobs (jread (:body (get! "/qman/api/job")))]
+    (is (= 5 (count jobs)))))

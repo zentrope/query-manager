@@ -1,13 +1,18 @@
 (ns query-manager.http
   (:require [query-manager.db :as db]
             [query-manager.sql :as sql]
+            [query-manager.job :as job]
             [clojure.data.json :as json]
+            [clojure.tools.logging :refer [info]]
             [compojure.core :refer [routes GET POST DELETE PUT]]
             [compojure.handler :refer [site]]
             [compojure.route :refer [resources not-found]]
             [ring.util.response :refer [redirect status response]]
             [hiccup.page :refer [html5 include-js include-css]]))
 
+(defn- jwrite
+  [value]
+  (json/write-str value))
 
 (defn- main-routes
   [jobs]
@@ -38,17 +43,17 @@
 
    (GET "/qman/api/query/:id"
        [id]
-     (if-let [query (sql/find id)]
-       (json/write-str query)
+     (if-let [query (sql/one id)]
+       (jwrite query)
        (status (response "") 404)))
 
    (GET "/qman/api/query"
        []
-     (json/write-str (sql/all)))
+     (jwrite (sql/all)))
 
    (PUT "/qman/api/query/:id"
        [id :as r]
-     (if-let [query (sql/find id)]
+     (if-let [query (sql/one id)]
        (let [update (merge query (json/read-str (:body r) :key-fn keyword))]
          (sql/update! update)
          (status (response "") 201))
@@ -70,20 +75,28 @@
    ;;---------------------------------------------------------------------------
 
    (GET "/qman/api/job/:id"
-       [id]
-     (json/write-str {:error "not implemented"}))
+       [id :as req]
+     (info (:request-method req) (:uri req))
+     (if-let [result (job/one jobs id)]
+       (status (jwrite result) 200)
+       (status (response "") 404)))
 
    (GET "/qman/api/job"
-       []
-     (json/write-str []))
+       [:as req]
+     (info (:request-method req) (:uri req))
+     (status (response (jwrite (job/all jobs))) 200))
 
    (POST "/qman/api/job/:query-id"
-       [query-id]
-     (json/write-str {:error "not implemented"}))
+       [query-id :as req]
+     (info (:request-method req) (:uri req))
+     (job/create jobs @(db/get) (sql/one query-id))
+     (status (response "") 201))
 
    (DELETE "/qman/api/job/:id"
-       [id]
-     (json/write-str {:error "not implemented"}))
+       [id :as req]
+     (info (:request-method req) (:uri req))
+     (job/delete! jobs id)
+     (status (response "") 201))
 
    ;;---------------------------------------------------------------------------
    ;; BUILT-IN CLIENT

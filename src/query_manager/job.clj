@@ -59,7 +59,7 @@
 (defn- mk-runner
   [db jobs job]
   (fn []
-    (info " - job start:" (:desc (:query job)))
+    (info " - job start:" (:description (:query job)))
     (when (:test job)
       (Thread/sleep 2000))
     (try
@@ -69,9 +69,10 @@
         (swap! jobs assoc (:id job) update))
       (catch Throwable t
         (let [update (assoc job :status :failed :stopped (now) :error (str t))]
-          (swap! jobs assoc (:id job) update)))
+          (swap! jobs assoc (:id job) update))
+        (error t))
       (finally
-        (info " - job complete [" (:desc (:query job)) "]")))))
+        (info " - job complete [" (:description (:query job)) "]")))))
 
 ;;-----------------------------------------------------------------------------
 ;; Public API
@@ -93,7 +94,9 @@
 
 (defn all
   [jobs]
-  (vals (deref (:jobs jobs))))
+  (if-let [results (vals (deref (:jobs jobs)))]
+    (map #(dissoc % :results) results)
+    []))
 
 (defn one
   [jobs id]
@@ -101,7 +104,7 @@
 
 (defn delete!
   [jobs id]
-  (swap! (:jobs jobs) dissoc id))
+  (swap! (:jobs jobs) dissoc (Long/parseLong id)))
 
 (defn reset!
   [jobs]

@@ -15,7 +15,7 @@
   []
   (vals @query-db))
 
-(defn find
+(defn one
   [query-id]
   (get @query-db query-id))
 
