@@ -2,3 +2,14 @@ html, body {
   background: #f2f2f2;
   color: #444;
 }
+
+div#container {
+  margin: 0 auto;
+  width: 800px;
+  border: 1px solid silver;
+  padding: 1em;
+  border-radius: 5pt;
+  margin-top: 2em;
+  background: white;
+  text-align: center;
+}

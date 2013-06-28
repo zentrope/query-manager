@@ -1,26 +1,23 @@
 (ns query-manager.main
-  ;;
-  ;; enfocus
-  ;;
-  (:require [enfocus.core :as ef]
-;;            [enfocus.events :as events]
-;;            [enfocus.effects :as effects]
-            [hiccups.runtime :as hiccupsrt])
-  (:require-macros [enfocus.macros :as em]
-                   [hiccups.core :refer [html]]))
+  (:use-macros [dommy.macros :only [sel1 node]])
+  (:require [dommy.core :refer [set-html! html replace! listen!]]))
 
 (defn- not-implemented
   []
-  (html [:h1 "Query Manager App"]
-        [:p "Client not yet implemented."]))
+  (node [:div#container
+         [:h1 "Query Manager App"]
+         [:p "Client not yet implemented."]
+         [:button#test-button "Test"]]))
+
+(defn- noimpl-events
+  []
+  (let [ni (not-implemented)]
+    (listen! ni :click (fn [] (js/alert "Clicked!!")))))
 
 (defn ^:export main
   []
   (.log js/console "Hello.")
-  (em/at js/document ["body"]
-         (em/do->
-          (em/fade-out 1)
-          (em/html-content (not-implemented))
-          (em/fade-in 500))))
+  (replace! (sel1 :body) (noimpl-events))
+  (.log js/console "Goodbye."))
 
 (set! (.-onload js/window) main)
