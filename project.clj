@@ -21,7 +21,18 @@
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
 
                  ;; Services
-                 [org.clojure/tools.nrepl "0.2.3"]]
+                 [org.clojure/tools.nrepl "0.2.3"]
+
+                 ;; ClojureScript
+                 [hiccups "0.2.0"]
+                 [enfocus "1.0.1"]]
+
+  :plugins [[lein-cljsbuild "0.3.2"]]
+
+  :cljsbuild {:builds [{:source-paths ["src-cljs"]
+                        :compiler {:output-to "resources/public/qman/main.js"
+                                   :optimizations :whitespace
+                                   :pretty-print true}}]}
 
   :min-lein-version "2.2.0"
   :main query-manager.main)

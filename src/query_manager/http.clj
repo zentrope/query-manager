@@ -111,8 +111,8 @@
      (html5 [:head
              [:title "Query Manager"]
              (include-css "qman/styles.css")
-             (include-js "qman/jquery-2.0.2.min.js")
-             (include-js "qman/client.js")]
+;;             (include-js "qman/jquery-2.0.2.min.js")
+             (include-js "qman/main.js")]
             [:body "Loading..."]))
 
    (resources "/")
