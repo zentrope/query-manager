@@ -1,5 +1,7 @@
 (ns query-manager.test-api
-  (:import [java.util UUID])
+  (:import [java.util UUID]
+           [org.slf4j LoggerFactory]
+           [ch.qos.logback.classic Level Logger])
   (:require [clojure.java.jdbc :as jdbc]
             [clojure.test :refer [deftest is use-fixtures testing]]
             [clojure.pprint :refer [pprint]]
@@ -28,7 +30,7 @@
 (defn- create-db
   [db]
   (jdbc/db-do-commands db true (:create statement))
-  (doseq [i (range 1 100)]
+  (doseq [i (range 0 100)]
     (jdbc/execute! db [(:insert statement) (str (UUID/randomUUID))])))
 
 (defn- data-db
@@ -73,8 +75,15 @@
 ;; Fixtures
 ;;-----------------------------------------------------------------------------
 
+(defn- mute-logging
+  []
+  (doto (LoggerFactory/getLogger Logger/ROOT_LOGGER_NAME)
+    (.setLevel Level/ERROR)))
+
 (defn clean-test-data
   [test-function]
+  ;;
+  (mute-logging)
   ;;
   ;; Restore the default database spec
   ;;
@@ -172,12 +181,16 @@
     (is (= "Test" (get-in job [:query :description])))
     (is (= job (select-keys job [:id :started :stopped :query :status])))))
 
-(deftest create-lots-of-jobs
+(deftest find-one-job-among-many
   (drop-db db)
   (create-db db)
   (let [r1 (post! "/qman/api/query" {:sql (:select statement) :description "Test"})
         q1 (first (jread (:body (get! "/qman/api/query"))))
         _ (dotimes [n 5] (post! (str "/qman/api/job/" (:id q1)) []))
         _ (pause 1)
-        jobs (jread (:body (get! "/qman/api/job")))]
-    (is (= 5 (count jobs)))))
+        jobs (jread (:body (get! "/qman/api/job")))
+        job (jread (:body (get! "/qman/api/job/3")))]
+    (is (= 5 (count jobs)))
+    (is (> (:stopped job) (:started job)))
+    (is (= 100 (count (:results job))))
+    (is (= 3 (:id job)))))

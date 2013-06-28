@@ -14,6 +14,10 @@
   [value]
   (json/write-str value))
 
+(defn- jread
+  [request]
+  (json/read-str (:body request) :key-fn keyword))
+
 (defn- main-routes
   [jobs]
   (routes
@@ -31,7 +35,7 @@
 
    (PUT "/qman/api/db"
        [:as r]
-     (db/put (json/read-str (:body r) :key-fn keyword))
+     (db/put (jread r))
      (status (response "") 201))
 
    ;;---------------------------------------------------------------------------
@@ -54,14 +58,14 @@
    (PUT "/qman/api/query/:id"
        [id :as r]
      (if-let [query (sql/one id)]
-       (let [update (merge query (json/read-str (:body r) :key-fn keyword))]
+       (let [update (merge query (jread r))]
          (sql/update! update)
          (status (response "") 201))
        (status (response "") 404)))
 
    (POST "/qman/api/query"
        [:as r]
-     (let [{:keys [sql description]} (json/read-str (:body r) :key-fn keyword)]
+     (let [{:keys [sql description]} (jread r)]
        (sql/create! sql description))
      (status (response "") 201))
 
@@ -76,25 +80,21 @@
 
    (GET "/qman/api/job/:id"
        [id :as req]
-     (info (:request-method req) (:uri req))
-     (if-let [result (job/one jobs id)]
-       (status (jwrite result) 200)
+     (if-let [result (job/one jobs (Long/parseLong id))]
+       (status (response (jwrite result)) 200)
        (status (response "") 404)))
 
    (GET "/qman/api/job"
        [:as req]
-     (info (:request-method req) (:uri req))
      (status (response (jwrite (job/all jobs))) 200))
 
    (POST "/qman/api/job/:query-id"
        [query-id :as req]
-     (info (:request-method req) (:uri req))
      (job/create jobs @(db/get) (sql/one query-id))
      (status (response "") 201))
 
    (DELETE "/qman/api/job/:id"
        [id :as req]
-     (info (:request-method req) (:uri req))
      (job/delete! jobs id)
      (status (response "") 201))
 
