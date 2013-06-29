@@ -2,6 +2,7 @@
   (:require [query-manager.db :as db]
             [query-manager.sql :as sql]
             [query-manager.job :as job]
+            [clojure.pprint :refer [pprint]]
             [clojure.data.json :as json]
             [clojure.tools.logging :refer [info]]
             [compojure.core :refer [routes GET POST DELETE PUT]]
@@ -9,6 +10,13 @@
             [compojure.route :refer [resources not-found]]
             [ring.util.response :refer [redirect status response]]
             [hiccup.page :refer [html5 include-js include-css]]))
+
+(defn- sread
+  [stream]
+  (if-not (string? stream)
+    (with-open [r (clojure.java.io/reader stream)]
+      (slurp r))
+    stream))
 
 (defn- jwrite
   [value]
@@ -96,6 +104,18 @@
    (DELETE "/qman/api/job/:id"
        [id :as req]
      (job/delete! jobs id)
+     (status (response "") 201))
+
+   ;;---------------------------------------------------------------------------
+   ;; UTILITIES APIs
+   ;; Mainly so I can learn a few new web techniqes.
+   ;;---------------------------------------------------------------------------
+
+   (POST "/qman/api/dump"
+       [:as request]
+
+     (pprint request)
+     (info "DUMP.body: " (sread (:body request)))
      (status (response "") 201))
 
    ;;---------------------------------------------------------------------------
