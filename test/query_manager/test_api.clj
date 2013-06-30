@@ -8,7 +8,7 @@
             [clojure.data.json :refer [write-str read-str]]
             [query-manager.http :refer [mk-web-app]]
             [query-manager.job :refer [mk-jobs]]
-            [query-manager.db :refer [default-spec]]))
+            [query-manager.db :refer [default-spec specialize]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Database Functions
@@ -113,16 +113,16 @@
   (let [r (get! "/qman/api/db")
         data (jread (:body r))]
     (is (= 200 (:status r)))
-    (is (= data default-spec))))
+    (is (= (specialize default-spec) data))))
 
 (deftest put-db
-  (let [spec {:user "k" :password "z" :subname "test" :subprotocol "postgresql"
+  (let [spec {:user "k" :password "z" :database "test" :type "mysql"
               :host "foo" :port 17}
         r (put! "/qman/api/db" spec)
         r2 (get! "/qman/api/db")
         data (jread (:body r2))]
     (is (= 201 (:status r)))
-    (is (= spec data))))
+    (is (= (specialize spec) data))))
 
 (deftest create-and-list-sql
   (let [query {:sql "show tables" :description "List tables."}

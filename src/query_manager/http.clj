@@ -114,7 +114,7 @@
    (POST "/qman/api/dump"
        [:as request]
 
-     (pprint request)
+;;     (pprint request)
      (info "DUMP.body: " (sread (:body request)))
      (status (response "") 201))
 
