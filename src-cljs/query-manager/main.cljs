@@ -2,7 +2,33 @@
   (:use-macros [dommy.macros :only [sel sel1 node]])
   (:require [dommy.core :refer [set-html! replace! replace-contents!
                                 listen! append!]]
-            [query-manager.net :refer [dump]]))
+            [query-manager.net :refer [dump get-db]]))
+
+;;-----------------------------------------------------------------------------
+;; Status Bar View (Eventually)
+;;-----------------------------------------------------------------------------
+
+(defn- status-template
+  []
+  (node [:div#status-bar
+         [:div#db-info "conn: none"]
+         [:div#loading ""]
+         [:div#mouse-coords
+          "{:x " [:span#mouse-x "0"] " :y " [:span#mouse-y "0"] "}"]]))
+
+(defn- set-db-info
+  [{:keys [type host] :as db}]
+  (replace! (sel1 :#db-info) (node [:div#db-info
+                                    "conn: "
+                                    [:span#db-type type]
+                                    " on "
+                                    [:span#db-host host]])))
+
+;;-----------------------------------------------------------------------------
+
+(defn- keywordize
+  [m]
+  (reduce (fn [a [k v]] (assoc a (keyword k) v)) {} m))
 
 (let [c (atom 0)]
   (defn- counter
@@ -16,14 +42,6 @@
          [:p "Client not yet implemented."]
          [:p [:button#test-button "Test"]]
          [:p.flash "~"]]))
-
-(defn- status-template
-  []
-  (node [:div#status-bar
-         [:div#label "status"]
-         [:div#loading ""]
-         [:div#mouse-coords
-          "{:x " [:span#mouse-x "0"] " :y " [:span#mouse-y "0"] "}"]]))
 
 (defn- loading
   [toggle]
@@ -41,9 +59,13 @@
   (loading true)
   (let [data [{:id "1" :sql "select * from foo" :description "Blah"}]]
 
-    (dump data
-          (fn [_] (loading false) (flash "worked"))
-          (fn [e] (flash (str "Failed: " (:status e) " -> " (:reason e)))))))
+    (get-db (fn [data]
+              (let [db (keywordize (js->clj data))]
+                (.log js/console "data" db)
+                (loading false)
+                (flash (str db))
+                (set-db-info db)))
+            (fn [e] (flash (str "Failed: " (:status e) " -> " (:reason e)))))))
 
 (defn- ni-view
   []

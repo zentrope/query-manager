@@ -53,6 +53,14 @@
 ;; Public
 ;;-----------------------------------------------------------------------------
 
+(defn get-db
+  [success failure]
+  (ajax :uri "/qman/api/db"
+        :method "GET"
+        :on-failure failure
+        :on-success success
+        :type :json))
+
 (defn dump
   [data success failure]
   (ajax :uri "/qman/api/dump"
@@ -60,5 +68,4 @@
         :on-failure failure
         :on-success success
         :data data
-        :type :json
-        :content-type "application/json"))
+        :type :json))

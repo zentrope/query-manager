@@ -38,8 +38,10 @@
    ;; client UIs can change it.
    ;;---------------------------------------------------------------------------
 
-   (GET "/qman/api/db" []
-     (json/write-str (deref (db/get))))
+   (GET "/qman/api/db"
+       []
+     (let [result (jwrite (deref (db/get)))]
+       (status (response result) 200)))
 
    (PUT "/qman/api/db"
        [:as r]

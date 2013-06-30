@@ -33,6 +33,9 @@ div#status-bar {
   font-family: optima, sans-serif;
   padding: 4pt;
   padding-bottom: 1.3em;
+  font-variant: small-caps;
+  font-size: 10pt;
+  height: 1.5em;
 }
 
 div#status-bar div {
@@ -42,6 +45,16 @@ div#status-bar div {
 div#loading {
   position: absolute;
   left: 45%;
+}
+
+div#db-info {
+  position: absolute;
+  left: 10px;
+  font-variant: small-caps;
+}
+
+#db-type, #db-host {
+  color: orange;
 }
 
 div#mouse-coords {
