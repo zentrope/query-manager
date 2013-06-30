@@ -1,5 +1,6 @@
 (ns query-manager.net
-  (:require [goog.net.XhrIo :as xhr]))
+  (:require [goog.net.XhrIo :as xhr]
+            [goog.events :as events]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
