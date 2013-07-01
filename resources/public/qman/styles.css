@@ -18,7 +18,43 @@ div#container {
   background: #f6f6f6;
   text-align: center;
   height: 900px;
+  margin-top: 4em;
   margin-bottom: 4em;
+}
+
+div#title-bar {
+  position: fixed;
+  margin: 0;
+  top: 0px;
+  width: 100%;
+  background: #444;
+  border-bottom: 3px solid slateblue;
+  height: 2.5em;
+  padding-top: 6pt;
+  color: white;
+}
+
+#title-text {
+  font-size: 16pt;
+  font-weight: normal;
+  position: absolute;
+  top: 10px;
+  left: 15px;
+}
+
+#title-clock {
+  position: absolute;
+  top: 6px;
+  right: 15px;
+  font-size: 8pt;
+}
+
+#title-version {
+  position: absolute;
+  bottom: 10px;
+  font-size: 8pt;
+  right: 15px;
+  font-style: italic;
 }
 
 div#status-bar {
