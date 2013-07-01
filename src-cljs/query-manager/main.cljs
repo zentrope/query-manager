@@ -4,6 +4,7 @@
                                 listen! append!]]
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
+            [query-manager.view.dev-area :as dev-area]
             [query-manager.net :refer [dump get-db]]))
 
 ;;-----------------------------------------------------------------------------
@@ -18,8 +19,8 @@
                        (let [orig (or (event-type s) #{})]
                          (assoc s event-type (conj orig f))))))
 
-(defn- add-subs
-  [event-types f]
+(defn- map-subs
+  [f event-types]
   (doseq [e event-types]
     (add-sub e f)))
 
@@ -36,53 +37,31 @@
         (s event)))))
 
 ;;-----------------------------------------------------------------------------
+;; Background Procs
+;;-----------------------------------------------------------------------------
 
 (defn- start-clock
   []
   (js/setTimeout (fn []
-                   (send-event [:clock {:value (now)}])
+                   (send-event [:clock {:value (.getTime (js/Date.))}])
                    (start-clock)) 1000))
 
-(defn- ni-template
-  []
-  (node [:div#container
-         [:h1 "Query Manager App"]
-         [:p "Client not yet implemented."]
-         [:p [:button#test-button "Test"]]
-         [:p.flash "~"]]))
-
-(defn- loading
-  [toggle]
-  (send-event [:loading {:value toggle}]))
-
-(defn- flash
-  [msg]
-  (set-html! (sel1 :.flash) msg))
-
-(defn- fake-action
-  []
-  (loading true)
-  (let [data [{:id "1" :sql "select * from foo" :description "Blah"}]]
-
-    (get-db (fn [data]
-              (let [db (js->clj data :keywordize-keys true)]
-                (loading false)
-                (send-event [:db-change {:value db}])
-                (flash (str db))))
-            (fn [e] (flash (str "Failed: " (:status e) " -> " (:reason e)))))))
-
-(defn- ni-view
-  []
-  (let [ni (ni-template)]
-    (listen! [ni :#test-button] :click fake-action)
-    ni))
+;;-----------------------------------------------------------------------------
 
 (defn main
   []
   (.log js/console "loading")
+
+  ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
-  (append! (sel1 :body) (ni-view))
+  (append! (sel1 :body) (dev-area/dom send-event))
   (append! (sel1 :body) (status-bar/dom))
+
+
+  ;; Register UI events
+  (map-subs status-bar/recv (status-bar/events))
+  (map-subs title-bar/recv (title-bar/events))
+  (map-subs dev-area/recv (dev-area/events))
 
   (listen! (sel1 :body) :mousemove
            (fn [e]
@@ -90,9 +69,7 @@
                    y (.-clientY e)]
                (send-event [:mousemove {:value [x y]}]))))
 
-  (add-subs (status-bar/events) status-bar/recv)
-  (add-subs (title-bar/events) title-bar/recv)
-
+  ;; Start background processes
   (start-clock)
 
   (.log js/console "loaded"))
