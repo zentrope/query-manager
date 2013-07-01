@@ -42,7 +42,11 @@
   []
   template)
 
-(defn send
+(defn events
+  []
+  [:clock])
+
+(defn recv
   [[type event]]
   (case type
     :clock (set-clock! (js/Date. (:value event)))

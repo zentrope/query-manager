@@ -7,15 +7,40 @@
             [query-manager.net :refer [dump get-db]]))
 
 ;;-----------------------------------------------------------------------------
+;; Events
+;;-----------------------------------------------------------------------------
+
+(def ^:private subscribers (atom {}))
+
+(defn- add-sub
+  [event-type f]
+  (swap! subscribers (fn [s]
+                       (let [orig (or (event-type s) #{})]
+                         (assoc s event-type (conj orig f))))))
+
+(defn- add-subs
+  [event-types f]
+  (doseq [e event-types]
+    (add-sub e f)))
 
 (defn- now
   []
   (.getTime (js/Date.)))
 
+(defn- send-event
+  [event]
+  (let [topic (first event)
+        data (assoc (second event) :timestamp (now))]
+    (when-let [subscribers (topic @subscribers)]
+      (doseq [s subscribers]
+        (s event)))))
+
+;;-----------------------------------------------------------------------------
+
 (defn- start-clock
   []
   (js/setTimeout (fn []
-                   (title-bar/send [:clock {:value (now)}])
+                   (send-event [:clock {:value (now)}])
                    (start-clock)) 1000))
 
 (defn- ni-template
@@ -28,7 +53,7 @@
 
 (defn- loading
   [toggle]
-  (status-bar/send [:loading {:value toggle :timestamp (now)}]))
+  (send-event [:loading {:value toggle}]))
 
 (defn- flash
   [msg]
@@ -42,7 +67,7 @@
     (get-db (fn [data]
               (let [db (js->clj data :keywordize-keys true)]
                 (loading false)
-                (status-bar/send [:db-change {:value db :timestamp (now)}])
+                (send-event [:db-change {:value db}])
                 (flash (str db))))
             (fn [e] (flash (str "Failed: " (:status e) " -> " (:reason e)))))))
 
@@ -54,17 +79,22 @@
 
 (defn main
   []
-  (.log js/console "Hello.")
+  (.log js/console "loading")
   (replace-contents! (sel1 :body) (title-bar/dom))
   (append! (sel1 :body) (ni-view))
   (append! (sel1 :body) (status-bar/dom))
 
   (listen! (sel1 :body) :mousemove
            (fn [e]
-             (status-bar/send [:mousemove {:value [(.-clientX e)
-                                                   (.-clientY e)]}])))
+             (let [x (.-clientX e)
+                   y (.-clientY e)]
+               (send-event [:mousemove {:value [x y]}]))))
+
+  (add-subs (status-bar/events) status-bar/recv)
+  (add-subs (title-bar/events) title-bar/recv)
+
   (start-clock)
 
-  (.log js/console "Goodbye."))
+  (.log js/console "loaded"))
 
 (set! (.-onload js/window) main)

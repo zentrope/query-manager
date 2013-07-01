@@ -40,7 +40,11 @@
   []
   template)
 
-(defn send
+(defn events
+  []
+  [:loading :db-change :mousemove])
+
+(defn recv
   [[type event]]
   (case type
     :loading (set-loading! (:value event))
