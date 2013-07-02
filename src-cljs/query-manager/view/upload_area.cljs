@@ -1,7 +1,8 @@
 (ns query-manager.view.upload-area
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-html! set-text! listen!]]
-            [goog.events.FileDropHandler :as dh]))
+  (:require [dommy.core :refer [set-html! set-text! listen! replace-contents!]]
+            [cljs.reader :as reader]
+            [clojure.string :as string]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -13,11 +14,11 @@
           [:p#ua-notice "Events:"]
           [:p "Drop your file here."]
           [:button#text-clear "Clear"]
-          [:pre#text-data {:style {:text-align "left"}}]]]))
+          [:ul#text-data {:style {:text-align "left"}}]]]))
 
 (defn- show-text
   [data]
-  (set-text! (sel1 :#text-data) data))
+  (replace-contents! (sel1 :#text-data) data))
 
 (defn- clear-text
   []
@@ -25,7 +26,16 @@
 
 (defn- on-text-loaded
   [e]
-  (show-text (.-result (.-target e))))
+  (let [source (.-result (.-target e))]
+    (try
+      (let [queries (reader/read-string source)
+            doc (for [q queries] (node [:li (:desc q)]))]
+        (show-text doc)
+        (doseq [q queries]
+          (.log js/console "Q:" (:desc q))))
+      (catch js/Error e
+        (.log js/console "ERROR:" e)
+        (show-text (node [:li "Invalid file format. Sorry!"]))))))
 
 (defn- on-drop
   [e]
