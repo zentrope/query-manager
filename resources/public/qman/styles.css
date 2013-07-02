@@ -6,7 +6,7 @@ html, body {
   font-family: optima, helvetica, sans-serif;
 }
 
-div#container {
+div#container, div#upload-area {
   margin: 0 auto;
   /* width: 800px; */
   border: 1px solid #aaa;
@@ -17,9 +17,19 @@ div#container {
   margin-top: 2em;
   background: #f6f6f6;
   text-align: center;
-  height: 900px;
+  /* height: 900px; */
   margin-top: 4em;
+  margin-bottom: 1em;
+}
+
+div#upload-area {
+  margin-top: 1em;
   margin-bottom: 4em;
+}
+
+div#upload-area:hover {
+  border: 1px dotted #aaa;
+  background: white;
 }
 
 div#title-bar {

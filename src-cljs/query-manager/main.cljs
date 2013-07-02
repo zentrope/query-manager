@@ -5,7 +5,7 @@
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
             [query-manager.view.dev-area :as dev-area]
-            [query-manager.net :refer [dump get-db]]))
+            [query-manager.view.upload-area :as upload-area]))
 
 ;;-----------------------------------------------------------------------------
 ;; Events
@@ -41,10 +41,10 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- start-clock
-  []
+  [broadcast]
   (js/setTimeout (fn []
-                   (send-event [:clock {:value (.getTime (js/Date.))}])
-                   (start-clock)) 1000))
+                   (broadcast [:clock {:value (.getTime (js/Date.))}])
+                   (start-clock broadcast)) 1000))
 
 ;;-----------------------------------------------------------------------------
 
@@ -55,6 +55,7 @@
   ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
   (append! (sel1 :body) (dev-area/dom send-event))
+  (append! (sel1 :body) (upload-area/dom send-event))
   (append! (sel1 :body) (status-bar/dom))
 
 
@@ -62,6 +63,7 @@
   (map-subs status-bar/recv (status-bar/events))
   (map-subs title-bar/recv (title-bar/events))
   (map-subs dev-area/recv (dev-area/events))
+  (map-subs upload-area/recv (upload-area/events))
 
   (listen! (sel1 :body) :mousemove
            (fn [e]
@@ -70,7 +72,7 @@
                (send-event [:mousemove {:value [x y]}]))))
 
   ;; Start background processes
-  (start-clock)
+  (start-clock send-event)
 
   (.log js/console "loaded"))
 
