@@ -11,34 +11,26 @@
 (def ^:private template
   (node [:div#upload-area
          [:div
-          [:p#ua-notice "Events:"]
-          [:p "Drop your file here."]
-          [:button#text-clear "Clear"]
-          [:ul#text-data {:style {:text-align "left"}}]]]))
-
-(defn- show-text
-  [data]
-  (replace-contents! (sel1 :#text-data) data))
+          [:p#upload-doc "Drop your file here."]
+          [:button#text-clear "Clear"]]]))
 
 (defn- clear-text
-  []
-  (set-text! (sel1 :#text-data) ""))
+  [broadcast]
+  (broadcast [:query-change {:value []}])
+  (set-html! (sel1 :#upload-doc) "Drop your file here."))
 
 (defn- on-text-loaded
-  [e]
+  [broadcast e]
   (let [source (.-result (.-target e))]
     (try
-      (let [queries (reader/read-string source)
-            doc (for [q queries] (node [:li (:desc q)]))]
-        (show-text doc)
-        (doseq [q queries]
-          (.log js/console "Q:" (:desc q))))
+      (let [queries (reader/read-string source)]
+        (broadcast [:query-change {:value queries}]))
       (catch js/Error e
         (.log js/console "ERROR:" e)
-        (show-text (node [:li "Invalid file format. Sorry!"]))))))
+        (set-html! (sel1 :#upload-doc) "Invalid file format. Sorry!")))))
 
 (defn- on-drop
-  [e]
+  [broadcast e]
   (.preventDefault e)
   (.stopPropagation e)
   (let [f (aget (.-files (.-dataTransfer e)) 0)
@@ -46,7 +38,7 @@
     (set-html! (sel1 :#ua-notice) desc)
     (if (.-FileReader js/window)
       (let [rdr (js/FileReader.)]
-        (set! (.-onload rdr) on-text-loaded)
+        (set! (.-onload rdr) (partial on-text-loaded broadcast))
         (.readAsText rdr f))
      (.log js/console "no file reader"))))
 
@@ -57,9 +49,9 @@
 
 (defn- mk-template
   [broadcast]
-  (listen! [template :#text-clear] :click clear-text)
+  (listen! [template :#text-clear] :click (partial clear-text broadcast))
   (listen! [template :#upload-area :div] :dragover on-dragover)
-  (listen! [template :#upload-area :div] :drop on-drop)
+  (listen! [template :#upload-area :div] :drop (partial on-drop broadcast))
   template)
 
 ;;-----------------------------------------------------------------------------

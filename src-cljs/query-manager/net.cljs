@@ -61,6 +61,26 @@
         :on-success success
         :type :json))
 
+(defn poke-db
+  [broadcast]
+  (ajax :uri "/qman/api/db"
+        :method "GET"
+        :on-failure (fn [err]
+                      (broadcast [:web-error {:value err}]))
+        :on-success (fn [db]
+                      (broadcast [:db-change {:value (js->clj db :keywordize-keys true)}]))
+        :type :json))
+
+(defn poke-query
+  [broadcast]
+  (ajax :uri "/qman/api/query"
+        :method "GET"
+        :on-failure (fn [err]
+                      (broadcast [:web-error {:value err}]))
+        :on-success (fn [data]
+                      (broadcast [:query-change {:value (js->clj data :keywordize-keys true)}]))
+        :type :json))
+
 (defn dump
   [data success failure]
   (ajax :uri "/qman/api/dump"

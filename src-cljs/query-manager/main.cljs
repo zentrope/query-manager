@@ -1,11 +1,13 @@
 (ns query-manager.main
-  (:use-macros [dommy.macros :only [sel sel1 node]])
-  (:require [dommy.core :refer [set-html! replace! replace-contents!
-                                listen! append!]]
+  (:use-macros [dommy.macros :only [sel1]])
+  (:require [dommy.core :refer [replace-contents! listen! append!]]
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
             [query-manager.view.dev-area :as dev-area]
-            [query-manager.view.upload-area :as upload-area]))
+            [query-manager.view.upload-area :as upload-area]
+            [query-manager.view.query-panel :as query-panel]
+            [query-manager.proc.clock :as clock]
+            [query-manager.net :as net]))
 
 ;;-----------------------------------------------------------------------------
 ;; Events
@@ -37,15 +39,7 @@
         (s event)))))
 
 ;;-----------------------------------------------------------------------------
-;; Background Procs
-;;-----------------------------------------------------------------------------
-
-(defn- start-clock
-  [broadcast]
-  (js/setTimeout (fn []
-                   (broadcast [:clock {:value (.getTime (js/Date.))}])
-                   (start-clock broadcast)) 1000))
-
+;; Main
 ;;-----------------------------------------------------------------------------
 
 (defn main
@@ -55,15 +49,16 @@
   ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
   (append! (sel1 :body) (dev-area/dom send-event))
+  (append! (sel1 :body) (query-panel/dom send-event))
   (append! (sel1 :body) (upload-area/dom send-event))
   (append! (sel1 :body) (status-bar/dom))
-
 
   ;; Register UI events
   (map-subs status-bar/recv (status-bar/events))
   (map-subs title-bar/recv (title-bar/events))
   (map-subs dev-area/recv (dev-area/events))
   (map-subs upload-area/recv (upload-area/events))
+  (map-subs query-panel/recv (query-panel/events))
 
   (listen! (sel1 :body) :mousemove
            (fn [e]
@@ -72,7 +67,11 @@
                (send-event [:mousemove {:value [x y]}]))))
 
   ;; Start background processes
-  (start-clock send-event)
+  (clock/start send-event)
+
+  ;; Init
+  (net/poke-db send-event)
+  (net/poke-query send-event)
 
   (.log js/console "loaded"))
 

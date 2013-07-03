@@ -13,7 +13,7 @@
 
 (defn all
   []
-  (vals @query-db))
+  (or (vals @query-db) []))
 
 (defn one
   [query-id]
