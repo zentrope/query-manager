@@ -1,6 +1,7 @@
 (ns query-manager.view.query-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [listen! replace-contents!]]))
+  (:require [dommy.core :refer [listen! replace-contents!]]
+            [clojure.string :as string]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -10,6 +11,14 @@
   (node [:div#queries.lister
          [:h2 "Queries"]
          [:div#queries-table "Not implemented."]]))
+
+(defn- sql-of
+  [sql]
+  (-> (string/replace sql #"\s+" " ")
+      (subs 0 50)
+      (string/lower-case)
+      (string/trim)
+      (str "...")))
 
 (defn- table-of
   [queries]
@@ -21,7 +30,7 @@
          (for [q queries]
            [:tr
             [:td (:description q)]
-            [:td (subs (:sql q) 0 30)]
+            [:td (sql-of (:sql q))]
             [:td [:button {:id (:id q)} "run"]]])]))
 
 (defn- on-run-button-click

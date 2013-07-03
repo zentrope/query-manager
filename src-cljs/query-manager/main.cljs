@@ -8,8 +8,8 @@
             ;; Views
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
-            [query-manager.view.dev-area :as dev-area]
-            [query-manager.view.upload-area :as upload-area]
+            [query-manager.view.db-panel :as db-panel]
+            [query-manager.view.upload-panel :as upload-panel]
             [query-manager.view.query-panel :as query-panel]
 
             ;; Processes
@@ -28,16 +28,16 @@
 
   ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
-  (append! (sel1 :body) (dev-area/dom event/send-event))
+  (append! (sel1 :body) (db-panel/dom event/send-event))
   (append! (sel1 :body) (query-panel/dom event/send-event))
-  (append! (sel1 :body) (upload-area/dom event/send-event))
+  (append! (sel1 :body) (upload-panel/dom event/send-event))
   (append! (sel1 :body) (status-bar/dom))
 
   ;; Register UI event subscriptions
   (event/map-subs status-bar/recv (status-bar/events))
   (event/map-subs title-bar/recv (title-bar/events))
-  (event/map-subs dev-area/recv (dev-area/events))
-  (event/map-subs upload-area/recv (upload-area/events))
+  (event/map-subs db-panel/recv (db-panel/events))
+  (event/map-subs upload-panel/recv (upload-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
 
   ;; Just for fun, for now.

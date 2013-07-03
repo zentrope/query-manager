@@ -1,4 +1,4 @@
-(ns query-manager.view.upload-area
+(ns query-manager.view.upload-panel
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [set-html! set-text! listen! replace-contents!]]
             [cljs.reader :as reader]
@@ -10,9 +10,9 @@
 
 (def ^:private template
   (node [:div#upload-area
-         [:div
+         [:div#upload-lz
           [:p#upload-doc "Drop your file here."]
-          [:button#text-clear "Clear"]]]))
+          [:button#text-clear "clear"]]]))
 
 (defn- clear-text
   [broadcast]
