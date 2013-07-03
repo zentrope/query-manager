@@ -1,42 +1,22 @@
 (ns query-manager.main
   (:use-macros [dommy.macros :only [sel1]])
   (:require [dommy.core :refer [replace-contents! listen! append!]]
+
+            ;; Events
+            [query-manager.event :as event]
+
+            ;; Views
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
             [query-manager.view.dev-area :as dev-area]
             [query-manager.view.upload-area :as upload-area]
             [query-manager.view.query-panel :as query-panel]
+
+            ;; Processes
             [query-manager.proc.clock :as clock]
+
+            ;; Network
             [query-manager.net :as net]))
-
-;;-----------------------------------------------------------------------------
-;; Events
-;;-----------------------------------------------------------------------------
-
-(def ^:private subscribers (atom {}))
-
-(defn- add-sub
-  [event-type f]
-  (swap! subscribers (fn [s]
-                       (let [orig (or (event-type s) #{})]
-                         (assoc s event-type (conj orig f))))))
-
-(defn- map-subs
-  [f event-types]
-  (doseq [e event-types]
-    (add-sub e f)))
-
-(defn- now
-  []
-  (.getTime (js/Date.)))
-
-(defn- send-event
-  [event]
-  (let [topic (first event)
-        data (assoc (second event) :timestamp (now))]
-    (when-let [subscribers (topic @subscribers)]
-      (doseq [s subscribers]
-        (s event)))))
 
 ;;-----------------------------------------------------------------------------
 ;; Main
@@ -48,30 +28,31 @@
 
   ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
-  (append! (sel1 :body) (dev-area/dom send-event))
-  (append! (sel1 :body) (query-panel/dom send-event))
-  (append! (sel1 :body) (upload-area/dom send-event))
+  (append! (sel1 :body) (dev-area/dom event/send-event))
+  (append! (sel1 :body) (query-panel/dom event/send-event))
+  (append! (sel1 :body) (upload-area/dom event/send-event))
   (append! (sel1 :body) (status-bar/dom))
 
-  ;; Register UI events
-  (map-subs status-bar/recv (status-bar/events))
-  (map-subs title-bar/recv (title-bar/events))
-  (map-subs dev-area/recv (dev-area/events))
-  (map-subs upload-area/recv (upload-area/events))
-  (map-subs query-panel/recv (query-panel/events))
+  ;; Register UI event subscriptions
+  (event/map-subs status-bar/recv (status-bar/events))
+  (event/map-subs title-bar/recv (title-bar/events))
+  (event/map-subs dev-area/recv (dev-area/events))
+  (event/map-subs upload-area/recv (upload-area/events))
+  (event/map-subs query-panel/recv (query-panel/events))
 
-  (listen! (sel1 :body) :mousemove
+  ;; Just for fun, for now.
+  (listen! (sel1 :html) :mousemove
            (fn [e]
              (let [x (.-clientX e)
                    y (.-clientY e)]
-               (send-event [:mousemove {:value [x y]}]))))
+               (event/send-event [:mousemove {:value [x y]}]))))
 
   ;; Start background processes
-  (clock/start send-event)
+  (clock/start event/send-event)
 
   ;; Init
-  (net/poke-db send-event)
-  (net/poke-query send-event)
+  (net/poke-db event/send-event)
+  (net/poke-query event/send-event)
 
   (.log js/console "loaded"))
 
