@@ -31,4 +31,4 @@
         data (assoc (second event) :timestamp (now))]
     (when-let [subscribers (topic @subscribers)]
       (doseq [s subscribers]
-        (s event)))))
+        (s [topic data])))))
