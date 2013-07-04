@@ -67,5 +67,5 @@
   [])
 
 (defn recv
-  [[topic event]]
+  [broadcast [topic event]]
   true)

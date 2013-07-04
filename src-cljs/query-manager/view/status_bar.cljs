@@ -45,7 +45,7 @@
   [:loading :db-change :mousemove])
 
 (defn recv
-  [[type event]]
+  [broadcast [type event]]
   (case type
     :loading (set-loading! (:value event))
     :db-change (set-db-info! (:value event))

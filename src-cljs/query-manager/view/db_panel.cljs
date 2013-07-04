@@ -31,9 +31,9 @@
               [:button#db-edit "edit"])))
 
 (defn- on-update
-  [db]
+  [broadcast db]
   (replace-contents! (sel1 :#database-table) (table-of db))
-  (listen! (sel1 :#db-edit) :click (fn [e] (js/alert "Not implemented."))))
+  (listen! (sel1 :#db-edit) :click (fn [e] (broadcast [:db-form-show {:value db}]))))
 
 (defn- on-error
   [err]
@@ -77,8 +77,8 @@
   [:db-change :net-error])
 
 (defn recv
-  [[topic event]]
+  [broadcast [topic event]]
   (case topic
-    :db-change (on-update (:value event))
+    :db-change (on-update broadcast (:value event))
     :net-error (on-error (:value event))
     true))

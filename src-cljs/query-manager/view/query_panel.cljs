@@ -61,7 +61,7 @@
   [:query-change])
 
 (defn recv
-  [[topic event]]
+  [broadcast [topic event]]
   (case topic
     :query-change (on-query-change (:value event))
     true))

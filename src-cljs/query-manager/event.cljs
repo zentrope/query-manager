@@ -25,10 +25,10 @@
   (doseq [e event-types]
     (add-sub e f)))
 
-(defn send-event
+(defn broadcast
   [event]
   (let [topic (first event)
         data (assoc (second event) :timestamp (now))]
     (when-let [subscribers (topic @subscribers)]
       (doseq [s subscribers]
-        (s [topic data])))))
+        (s broadcast [topic data])))))

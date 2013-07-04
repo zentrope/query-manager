@@ -47,7 +47,7 @@
   [:clock])
 
 (defn recv
-  [[type event]]
+  [broadcast [type event]]
   (case type
     :clock (set-clock! (js/Date. (:value event)))
     true))
