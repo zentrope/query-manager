@@ -113,7 +113,7 @@
   (let [r (get! "/qman/api/db")
         data (jread (:body r))]
     (is (= 200 (:status r)))
-    (is (= (specialize default-spec) data))))
+    (is (= default-spec data))))
 
 (deftest put-db
   (let [spec {:user "k" :password "z" :database "test" :type "mysql"
@@ -122,7 +122,7 @@
         r2 (get! "/qman/api/db")
         data (jread (:body r2))]
     (is (= 201 (:status r)))
-    (is (= (specialize spec) data))))
+    (is (= spec data))))
 
 (deftest create-and-list-sql
   (let [query {:sql "show tables" :description "List tables."}

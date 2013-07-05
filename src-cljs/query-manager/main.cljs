@@ -43,6 +43,9 @@
   (event/map-subs upload-panel/recv (upload-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
 
+  ;; Register non-UI event subscribers
+  (event/map-subs net/recv (net/events))
+
   ;; Just for fun, for now.
   (listen! (sel1 :html) :mousemove
            (fn [e]

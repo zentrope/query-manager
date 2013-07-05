@@ -1,6 +1,6 @@
 (ns query-manager.view.db-form
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-value! listen! show! hide!]]))
+  (:require [dommy.core :refer [set-value! value listen! show! hide!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -17,23 +17,47 @@
                                    [:option {:value "oracle"} "oracle"]
                                    [:option {:value "sqlserver"} "sqlserver"]
                                    [:option {:value "postgresql"} "postgresql"]]]]
-           [:tr [:th "host"] [:td [:input#dbf-host {:type "text"}]]]
-           [:tr [:th "port"] [:td [:input#dbf-port {:type "text"}]]]
            [:tr [:th "database"] [:td [:input#dbf-database {:type "text"}]]]
            [:tr [:th "user"] [:td [:input#dbf-user {:type "text"}]]]
-           [:tr [:th "password"] [:td [:input#dbf-pass {:type "password"}]]]]
+           [:tr [:th "password"] [:td [:input#dbf-pass {:type "password"}]]]
+           [:tr [:th "host"] [:td [:input#dbf-host {:type "text"}]]]
+           [:tr [:th "port"] [:td [:input#dbf-port {:type "text"}]]]]
           [:div.form-buttons
            [:button#dbf-save "save"]
            [:button#dbf-test "test"]
            [:button#dbf-cancel "cancel"]]]]))
 
+(defn- mk-db
+  []
+  {:type (value (sel1 :#dbf-type))
+   :host (value (sel1 :#dbf-host))
+   :port (value (sel1 :#dbf-port))
+   :user (value (sel1 :#dbf-user))
+   :password (value (sel1 :#dbf-pass))
+   :database (value (sel1 :#dbf-database))})
+
+(defn- not-implemented
+  []
+  (fn [e]
+    (js/alert "Not implemented.")))
+
+(defn- on-save
+  [broadcast]
+  (fn [e]
+    (broadcast [:db-save {:value (mk-db)}])
+    (broadcast [:db-form-hide {}])))
+
+(defn- on-cancel
+  [broadcast]
+  (fn [e]
+    (broadcast [:db-form-hide {}])))
+
 (defn- mk-template
   [broadcast]
-  (let [ni (fn [e] (js/alert "Not implemented."))]
-    (listen! [template :#dbf-save] :click ni)
-    (listen! [template :#dbf-test] :click ni)
-    (listen! [template :#dbf-cancel] :click (fn [e] (broadcast [:db-form-hide {}])))
-    template))
+  (listen! [template :#dbf-save] :click (on-save broadcast))
+  (listen! [template :#dbf-test] :click (not-implemented))
+  (listen! [template :#dbf-cancel] :click (on-cancel broadcast))
+  template)
 
 (defn- on-update
   [broadcast {:keys [type host port user database password]}]

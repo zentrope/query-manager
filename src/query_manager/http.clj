@@ -24,7 +24,7 @@
 
 (defn- jread
   [request]
-  (json/read-str (:body request) :key-fn keyword))
+  (json/read-str (sread (:body request)) :key-fn keyword))
 
 (defn- main-routes
   [jobs]
@@ -40,8 +40,7 @@
 
    (GET "/qman/api/db"
        []
-     (let [result (jwrite (deref (db/get)))]
-       (status (response result) 200)))
+     (status (response (jwrite (db/get))) 200))
 
    (PUT "/qman/api/db"
        [:as r]
@@ -100,7 +99,7 @@
 
    (POST "/qman/api/job/:query-id"
        [query-id :as req]
-     (job/create jobs @(db/get) (sql/one query-id))
+     (job/create jobs (db/spec) (sql/one query-id))
      (status (response "") 201))
 
    (DELETE "/qman/api/job/:id"

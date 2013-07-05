@@ -81,6 +81,15 @@
                       (broadcast [:query-change {:value (js->clj data :keywordize-keys true)}]))
         :type :json))
 
+(defn save-db
+  [broadcast db]
+  (ajax :uri "/qman/api/db"
+        :method "PUT"
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [data] (poke-db broadcast))
+        :data db
+        :type :json))
+
 (defn dump
   [data success failure]
   (ajax :uri "/qman/api/dump"
@@ -89,3 +98,15 @@
         :on-success success
         :data data
         :type :json))
+
+(defn events
+  "Events this namespace is interested in receiving."
+  []
+  [:db-save])
+
+(defn recv
+  "Event receiver."
+  [broadcast [topic event]]
+  (case topic
+    :db-save (save-db broadcast (:value event))
+    true))

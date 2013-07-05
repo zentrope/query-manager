@@ -48,8 +48,12 @@
 
 (defn put
   [spec]
-  (reset! conn-spec (specialize spec)))
+  (reset! conn-spec spec))
+
+(defn spec
+  []
+  (specialize @conn-spec))
 
 (defn get
   []
-  conn-spec)
+  @conn-spec)
