@@ -8,9 +8,9 @@
 ;;-----------------------------------------------------------------------------
 
 (def ^:private template
-  (node [:div#queries.lister
+  (node [:div#queries.panel
          [:h2 "Queries"]
-         [:div#queries-table "Not implemented."]]))
+         [:div#queries-table.lister "Not implemented."]]))
 
 (defn- sql-of
   [sql]

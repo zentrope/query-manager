@@ -12,6 +12,7 @@
             [query-manager.view.db-form :as db-form]
             [query-manager.view.upload-panel :as upload-panel]
             [query-manager.view.query-panel :as query-panel]
+            [query-manager.view.error-panel :as error-panel]
 
             ;; Processes
             [query-manager.proc.clock :as clock]
@@ -29,11 +30,15 @@
 
   ;; Composite UI components
   (replace-contents! (sel1 :body) (title-bar/dom))
-  (append! (sel1 :body) (db-form/dom event/broadcast))
-  (append! (sel1 :body) (db-panel/dom event/broadcast))
-  (append! (sel1 :body) (query-panel/dom event/broadcast))
-  (append! (sel1 :body) (upload-panel/dom event/broadcast))
-  (append! (sel1 :body) (status-bar/dom))
+  (append! (sel1 :body)
+           (db-form/dom event/broadcast)
+           (db-panel/dom event/broadcast)
+           (query-panel/dom event/broadcast)
+           (upload-panel/dom event/broadcast)
+           (error-panel/dom event/broadcast)
+           (status-bar/dom))
+
+
 
   ;; Register UI event subscriptions
   (event/map-subs status-bar/recv (status-bar/events))
@@ -42,6 +47,7 @@
   (event/map-subs db-form/recv (db-form/events))
   (event/map-subs upload-panel/recv (upload-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
+  (event/map-subs error-panel/recv (error-panel/events))
 
   ;; Register non-UI event subscribers
   (event/map-subs net/recv (net/events))
@@ -59,6 +65,9 @@
   ;; Init
   (net/poke-db event/broadcast)
   (net/poke-query event/broadcast)
+
+  ;; Test error thing
+  (event/broadcast [:web-error {:value {:status 501 :reason "Pointless test."}}])
 
   (.log js/console "loaded"))
 
