@@ -7,9 +7,8 @@
 
 (def ^:private query-db (atom {}))
 
-(defn- id-gen
-  []
-  (str (System/currentTimeMillis)))
+(let [id (atom 0)]
+  (defn- id-gen [] (str (swap! id inc))))
 
 (defn all
   []

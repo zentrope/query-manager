@@ -81,6 +81,23 @@
                       (broadcast [:query-change {:value (js->clj data :keywordize-keys true)}]))
         :type :json))
 
+(defn save-query
+  [broadcast query]
+  (ajax :uri "/qman/api/query"
+        :method "POST"
+        :data query
+        :type :json
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [_] (poke-query broadcast))))
+
+(defn delete-query
+  [broadcast query-id]
+  (ajax :uri (str "/qman/api/query/" query-id)
+        :method "DELETE"
+        :type :json
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [_] (poke-query broadcast))))
+
 (defn save-db
   [broadcast db]
   (ajax :uri "/qman/api/db"
@@ -102,11 +119,13 @@
 (defn events
   "Events this namespace is interested in receiving."
   []
-  [:db-save])
+  [:db-save :query-save :query-delete])
 
 (defn recv
   "Event receiver."
   [broadcast [topic event]]
   (case topic
     :db-save (save-db broadcast (:value event))
+    :query-save (save-query broadcast (:value event))
+    :query-delete (delete-query broadcast (:value event))
     true))

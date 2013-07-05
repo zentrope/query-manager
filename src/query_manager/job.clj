@@ -42,10 +42,8 @@
   []
   (System/currentTimeMillis))
 
-(let [id (AtomicLong.)]
-  (defn- job-id
-    []
-    (.getAndIncrement id)))
+(let [id (atom 0)]
+  (defn- job-id [] (swap! id inc)))
 
 (defn- mk-job
   [query]

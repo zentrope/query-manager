@@ -38,8 +38,6 @@
            (error-panel/dom event/broadcast)
            (status-bar/dom))
 
-
-
   ;; Register UI event subscriptions
   (event/map-subs status-bar/recv (status-bar/events))
   (event/map-subs title-bar/recv (title-bar/events))
@@ -65,9 +63,6 @@
   ;; Init
   (net/poke-db event/broadcast)
   (net/poke-query event/broadcast)
-
-  ;; Test error thing
-  (event/broadcast [:web-error {:value {:status 501 :reason "Pointless test."}}])
 
   (.log js/console "loaded"))
 
