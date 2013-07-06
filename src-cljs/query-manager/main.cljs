@@ -13,6 +13,7 @@
             [query-manager.view.job-panel :as job-panel]
             [query-manager.view.upload-panel :as upload-panel]
             [query-manager.view.query-panel :as query-panel]
+            [query-manager.view.query-form :as query-form]
             [query-manager.view.error-panel :as error-panel]
 
             ;; Processes
@@ -34,6 +35,7 @@
   (replace-contents! (sel1 :body) (title-bar/dom))
   (append! (sel1 :body)
            (db-form/dom event/broadcast)
+           (query-form/dom event/broadcast)
            (db-panel/dom event/broadcast)
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)
@@ -49,6 +51,7 @@
   (event/map-subs job-panel/recv (job-panel/events))
   (event/map-subs upload-panel/recv (upload-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
+  (event/map-subs query-form/recv (query-form/events))
   (event/map-subs error-panel/recv (error-panel/events))
 
   ;; Register non-UI event subscribers
@@ -67,7 +70,7 @@
 
   ;; Init
   (event/broadcast [:db-poke {}])
-  (event/broadcast [:query-poke {}])
+  (event/broadcast [:queries-poke {}])
   (event/broadcast [:jobs-poke {}])
 
   (.log js/console " - loaded"))

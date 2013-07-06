@@ -28,13 +28,14 @@
                [:tr
                 [:th {:width "40%"} "desc"]
                 [:th {:width "45%"} "sql"]
-                [:th {:width "15%"} "actions"]]
+                [:th.actions {:width "15%"} "actions"]]
                (for [q queries]
                  [:tr {:id (str "qp-row-" (:id q))}
                   [:td (:description q)]
                   [:td (sql-of (:sql q))]
-                  [:td {:style {:white-space "nowrap"}}
+                  [:td.actions
                    [:button.qp-run {:qid (:id q)} "run"]
+                   [:button.qp-edit {:qid (:id q)} "edit"]
                    [:button.qp-del {:qid (:id q)} "del"]]])]
               [:button#qp-runall "run all"])))
 
@@ -47,7 +48,9 @@
 (defn- on-run
   [broadcast]
   (fn [e]
-    (broadcast [:query-run {:value (attr (.-target e) :qid)}])))
+    (let [id (attr (.-target e) :qid)]
+      (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
+      (broadcast [:query-run {:value id}]))))
 
 (defn- on-delete
   [broadcast]
@@ -57,6 +60,14 @@
       (flash! (sel1 row) :flash)
       (broadcast [:query-delete {:value id}]))))
 
+(defn- on-edit
+  [broadcast]
+  (fn [e]
+    (let [id (attr (.-target e) :qid)]
+      (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
+      (broadcast [:query-poke {:value id}])
+      (broadcast [:query-form-show {}]))))
+
 (defn- on-query-change
   [broadcast queries]
   (if (empty? queries)
@@ -64,6 +75,7 @@
     (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
+      (listen-all! (sel :.qp-edit) :click (on-edit broadcast))
       (listen-all! (sel :.qp-del) :click (on-delete broadcast))
       (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries))))))
 

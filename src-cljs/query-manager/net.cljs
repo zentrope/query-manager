@@ -59,14 +59,6 @@
 
 ;; DB
 
-;; (defn get-db
-;;   [success failure]
-;;   (ajax :uri "/qman/api/db"
-;;         :method "GET"
-;;         :on-failure failure
-;;         :on-success success
-;;         :type :json))
-
 (defn- poke-db
   [broadcast]
   (ajax :uri "/qman/api/db"
@@ -104,12 +96,20 @@
 
 ;; queries
 
-(defn- poke-query
+(defn- poke-queries
   [broadcast]
   (ajax :uri "/qman/api/query"
         :method "GET"
         :on-failure (fn [err] (broadcast [:web-error {:value err}]))
         :on-success (fn [data] (broadcast [:query-change {:value (jread data)}]))
+        :type :json))
+
+(defn- poke-query
+  [broadcast id]
+  (ajax :uri (str "/qman/api/query/" id)
+        :method "GET"
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [data] (broadcast [:query-get {:value (jread data)}]))
         :type :json))
 
 (defn- save-query
@@ -119,7 +119,16 @@
         :data query
         :type :json
         :on-failure (fn [err] (broadcast [:web-error {:value err}]))
-        :on-success (fn [_] (poke-query broadcast))))
+        :on-success (fn [_] (poke-queries broadcast))))
+
+(defn- update-query
+  [broadcast query]
+  (ajax :uri (str "/qman/api/query/" (:id query))
+        :method "PUT"
+        :data query
+        :type :json
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [_] (poke-queries broadcast))))
 
 (defn- delete-query
   [broadcast query-id]
@@ -127,14 +136,14 @@
         :method "DELETE"
         :type :json
         :on-failure (fn [err] (broadcast [:web-error {:value err}]))
-        :on-success (fn [_] (poke-query broadcast))))
+        :on-success (fn [_] (poke-queries broadcast))))
 
 (defn- save-db
   [broadcast db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
         :on-failure (fn [err] (broadcast [:web-error {:value err}]))
-        :on-success (fn [data] (poke-db broadcast))
+        :on-success (fn [_] (poke-db broadcast))
         :data db
         :type :json))
 
@@ -155,7 +164,8 @@
   "Events this namespace is interested in receiving."
   []
   [:db-poke :db-save
-   :query-poke :query-save :query-delete :query-run
+   :query-poke :query-save :query-delete :query-run :query-get
+   :queries-poke :query-update
    :jobs-poke :job-delete])
 
 (defn recv
@@ -164,10 +174,12 @@
   (case topic
     :db-save (save-db broadcast (:value event))
     :db-poke (poke-db broadcast)
-    :query-poke (poke-query broadcast)
+    :queries-poke (poke-queries broadcast)
     :query-save (save-query broadcast (:value event))
+    :query-update (update-query broadcast (:value event))
     :query-delete (delete-query broadcast (:value event))
     :query-run (run-job broadcast (:value event))
+    :query-poke (poke-query broadcast (:value event))
     :jobs-poke (poke-jobs broadcast)
     :job-delete (delete-job broadcast (:value event))
     true))

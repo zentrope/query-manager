@@ -25,7 +25,7 @@
                 [:th {:width "15%"} "started"]
                 [:th {:width "15%"} "stopped"]
                 [:th {:width "10%"} "results"]
-                [:th {:width "10%"} "actions"]]
+                [:th.actions {:width "10%"} "actions"]]
                (for [{:keys [id started stopped query status size]} jobs]
                  [:tr
                   [:td {:class status} status]
@@ -33,7 +33,7 @@
                   [:td started]
                   [:td stopped]
                   [:td size]
-                  [:td
+                  [:td.actions
                    [:button "noop"]]])]
               [:button#jp-clear "clear all"])))
 
