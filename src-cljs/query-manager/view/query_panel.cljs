@@ -37,6 +37,7 @@
                    [:button.qp-run {:qid (:id q)} "run"]
                    [:button.qp-edit {:qid (:id q)} "edit"]
                    [:button.qp-del {:qid (:id q)} "del"]]])]
+              [:button#qp-new "new"]
               [:button#qp-runall "run all"])))
 
 (defn- on-run-all
@@ -60,6 +61,11 @@
       (flash! (sel1 row) :flash)
       (broadcast [:query-delete {:value id}]))))
 
+(defn- on-new
+  [broadcast]
+  (fn [e]
+    (broadcast [:query-form-show {}])))
+
 (defn- on-edit
   [broadcast]
   (fn [e]
@@ -77,6 +83,7 @@
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
       (listen-all! (sel :.qp-edit) :click (on-edit broadcast))
       (listen-all! (sel :.qp-del) :click (on-delete broadcast))
+      (listen! (sel1 :#qp-new) :click (on-new broadcast))
       (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries))))))
 
 (defn- mk-template

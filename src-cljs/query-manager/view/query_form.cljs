@@ -1,6 +1,6 @@
 (ns query-manager.view.query-form
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-value! value listen! show! hide!]]))
+  (:require [dommy.core :refer [set-value! set-html! value listen! show! hide!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -18,9 +18,6 @@
            [:button#qf-save "save"]
            [:button#qf-cancel "cancel"]]]]))
 
-(defn- retrieve-query
-  [])
-
 ;; Local event handlers
 
 (defn- on-cancel
@@ -34,24 +31,33 @@
     (let [query {:id (value (sel1 :#qf-id))
                  :sql (value (sel1 :#qf-sql))
                  :description (value (sel1 :#qf-desc))}]
-      (broadcast [:query-update {:value query}])
+      (if (empty? (:id query))
+        (broadcast [:query-save {:value query}])
+        (broadcast [:query-update {:value query}]))
       (broadcast [:query-form-hide {}]))))
 
 ;; Incoming event handlers
 
 (defn- on-show
   [broadcast]
+  (let [id (value (sel1 :#qf-id))]
+    (set-html! (sel1 :#qf-save) (if (empty? id) "create" "save")))
   (show! (sel1 :#query-form-container)))
 
 (defn- on-hide
   [broadcast]
-  (hide! (sel1 :#query-form-container)))
+  (hide! (sel1 :#query-form-container))
+  (set-value! (sel1 :#qf-id) "")
+  (set-value! (sel1 :#qf-desc) "")
+  (set-value! (sel1 :#qf-sql) "")
+  (set-html! (sel1 :#qf-save) "create"))
 
 (defn- on-update
   [broadcast {:keys [id sql description]}]
   (set-value! (sel1 :#qf-id) id)
   (set-value! (sel1 :#qf-desc) description)
-  (set-value! (sel1 :#qf-sql) sql))
+  (set-value! (sel1 :#qf-sql) sql)
+  (set-html! (sel1 :#qf-save) "save"))
 
 (defn- mk-template
   [broadcast]
