@@ -8,8 +8,6 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private queries-state (atom []))
-
 (def ^:private template
   (node [:div#queries.panel
          [:h2 "Queries"]
@@ -41,10 +39,10 @@
               [:button#qp-runall "run all"])))
 
 (defn- on-run-all
-  [broadcast]
+  [broadcast qids]
   (fn [e]
-    (doseq [{:keys [id]} @queries-state]
-      (broadcast [:query-run {:value id}]))))
+    (doseq [qid qids]
+      (broadcast [:query-run {:value qid}]))))
 
 (defn- on-run
   [broadcast]
@@ -61,14 +59,13 @@
 
 (defn- on-query-change
   [broadcast queries]
-  (reset! queries-state queries)
   (if (empty? queries)
     (replace-contents! (sel1 :#queries-table) (node [:p "No queries defined."]))
     (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
       (listen-all! (sel :.qp-del) :click (on-delete broadcast))
-      (listen! (sel1 :#qp-runall) :click (on-run-all broadcast)))))
+      (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries))))))
 
 (defn- mk-template
   [broadcast]

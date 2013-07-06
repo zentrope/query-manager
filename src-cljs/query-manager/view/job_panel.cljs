@@ -6,8 +6,6 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private job-state (atom []))
-
 (def ^:private template
   (node [:div#jobs.panel
          [:h2 "Jobs"]
@@ -40,19 +38,18 @@
               [:button#jp-clear "clear all"])))
 
 (defn- on-clear
-  [broadcast]
+  [broadcast jids]
   (fn [e]
-    (doseq [{:keys [id]} @job-state]
-      (broadcast [:job-delete {:value id}]))))
+    (doseq [jid jids]
+      (broadcast [:job-delete {:value jid}]))))
 
 (defn- on-job-change
   [broadcast jobs]
-  (reset! job-state jobs)
   (when (empty? jobs)
     (replace-contents! (sel1 :#jobs-table) (no-jobs)))
   (when-not (empty? jobs)
     (replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
-    (listen! (sel1 :#jp-clear) :click (on-clear broadcast))))
+    (listen! (sel1 :#jp-clear) :click (on-clear broadcast (map :id jobs)))))
 
 (defn- mk-template
   [broadcast]
