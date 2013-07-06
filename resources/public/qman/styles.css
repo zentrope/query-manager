@@ -3,7 +3,7 @@ html, body {
   color: #444;
   margin: 0;
   padding: 0;
-  font-family: optima, helvetica, sans-serif;
+  font-family: helvetica, optima, helvetica, sans-serif;
   padding-top: 2em;
   padding-bottom: 3em;
 }
@@ -41,6 +41,19 @@ button {
   background: #f6f6f6;
   margin-top: 0em;
   margin-bottom: 1em;
+}
+
+/*--- job status -------------------------------------*/
+.done {
+  color: green !important;
+}
+
+.pending {
+  color: blue !important;
+}
+
+.failed {
+  color: firebrick !important;
 }
 
 /*--------------------------------------------------*/
@@ -127,6 +140,24 @@ div.form table td input {
 /*--------------------------------------------------*/
 
 .lister {
+}
+
+.lister button {
+  padding: 0;
+  margin: 0;
+  padding-bottom: 1px;
+  padding-left: 3px;
+  padding-right: 3px;
+  margin-left: 3px;
+}
+
+.lister button:hover {
+  color: blue;
+}
+
+button::-moz-focus-inner {
+    padding: 0;
+    margin: -3px;
 }
 
 div.lister table {

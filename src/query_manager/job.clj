@@ -58,12 +58,16 @@
   [db jobs job]
   (fn []
     (info " - job start:" (:description (:query job)))
-    (when (:test job)
-      (Thread/sleep 2000))
+    ;;(Thread/sleep (* (inc (rand-int 10)) 1000))
     (try
       (let [sql (:sql (:query job))
             results (doall (jdbc/query db [sql]))
-            update (assoc job :status :done :results results :stopped (now))]
+            update (assoc job :status :done :results results :size (count results)
+                          :stopped (now))]
+        ;;
+        ;; TODO: If the job doesn't exist, don't merge in the update, assuming
+        ;;       someone has deleted the job before it completed.
+        ;;
         (swap! jobs assoc (:id job) update))
       (catch Throwable t
         (let [update (assoc job :status :failed :stopped (now) :error (str t))]

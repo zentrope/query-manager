@@ -15,3 +15,7 @@
   [elem class]
   (unflash! elem class)
   (add-class! elem class))
+
+(defn spawn-after!
+  [millis f]
+  (js/setTimeout f millis))

@@ -1,15 +1,15 @@
-(ns query-manager.proc.clock
+(ns query-manager.proc.job-monitor
   (:require [query-manager.utils :refer [spawn-after!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(defn- start-clock
+(defn- start-job-monitor
   [broadcast]
-  (spawn-after! 1000 (fn []
-                       (broadcast [:clock {:value (.getTime (js/Date.))}])
-                       (start-clock broadcast))))
+  (spawn-after! 2000 (fn []
+                       (broadcast [:jobs-poke {}])
+                       (start-job-monitor broadcast))))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
@@ -17,4 +17,4 @@
 
 (defn start
   [broadcast]
-  (start-clock broadcast))
+  (start-job-monitor broadcast))

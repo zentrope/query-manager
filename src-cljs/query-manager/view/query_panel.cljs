@@ -8,6 +8,8 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
+(def ^:private queries-state (atom []))
+
 (def ^:private template
   (node [:div#queries.panel
          [:h2 "Queries"]
@@ -34,33 +36,35 @@
                   [:td (:description q)]
                   [:td (sql-of (:sql q))]
                   [:td {:style {:white-space "nowrap"}}
-                   [:button.qp-run {:rid (:id q)} "run"]
-                   [:button.qp-del {:did (:id q)} "del"]]])]
+                   [:button.qp-run {:qid (:id q)} "run"]
+                   [:button.qp-del {:qid (:id q)} "del"]]])]
               [:button#qp-runall "run all"])))
 
 (defn- on-run-all
   [broadcast]
   (fn [e]
-    (js/alert "Running all queries not implemented. Sorry!")))
+    (doseq [{:keys [id]} @queries-state]
+      (broadcast [:query-run {:value id}]))))
 
 (defn- on-run
   [broadcast]
   (fn [e]
-    (js/alert (str "Running [" (attr (.-target e) :rid) "] not implemented."))))
+    (broadcast [:query-run {:value (attr (.-target e) :qid)}])))
 
 (defn- on-delete
   [broadcast]
   (fn [e]
-    (let [id (attr (.-target e) :did)
+    (let [id (attr (.-target e) :qid)
           row (keyword (str "#qp-row-" id))]
       (flash! (sel1 row) :flash)
       (broadcast [:query-delete {:value id}]))))
 
 (defn- on-query-change
   [broadcast queries]
+  (reset! queries-state queries)
   (if (empty? queries)
     (replace-contents! (sel1 :#queries-table) (node [:p "No queries defined."]))
-    (let [table (table-of queries)]
+    (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
       (listen-all! (sel :.qp-del) :click (on-delete broadcast))
