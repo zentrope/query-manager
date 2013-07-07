@@ -1,6 +1,6 @@
 (ns query-manager.view.db-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! listen!]]
+  (:require [dommy.core :refer [replace-contents! listen! toggle!]]
             [query-manager.net :as net]))
 
 ;;-----------------------------------------------------------------------------
@@ -8,9 +8,9 @@
 ;;-----------------------------------------------------------------------------
 
 (def ^:private template
-  (node [:div#container.lister
+  (node [:div#db-panel.panel
          [:h2 "Database"]
-         [:div#database-table]]))
+         [:div#database-table.lister]]))
 
 (defn- table-of
   [{:keys [type host port user database]}]
@@ -38,6 +38,10 @@
   (replace-contents! (sel1 :#database-table) (table-of db))
   (listen! (sel1 :#dbp-edit) :click (partial on-click broadcast db)))
 
+(defn- on-visibility-toggle!
+  [broadcast]
+  (toggle! (sel1 :#db-panel)))
+
 (defn- mk-template
   [delegate]
   template)
@@ -52,10 +56,11 @@
 
 (defn events
   []
-  [:db-change])
+  [:db-change :db-panel-toggle])
 
 (defn recv
   [broadcast [topic event]]
   (case topic
     :db-change (on-update broadcast (:value event))
+    :db-panel-toggle (on-visibility-toggle! broadcast)
     true))

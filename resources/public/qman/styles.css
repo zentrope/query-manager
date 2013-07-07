@@ -1,5 +1,5 @@
 html, body {
-  background: #ccc;
+  background: white;
   color: #444;
   margin: 0;
   padding: 0;
@@ -9,12 +9,13 @@ html, body {
 }
 
 h2 {
-  font-size: 13pt;
+  font-size: 15pt;
   margin: 0;
   padding: 0;
   margin-bottom: 1em;
   font-weight: normal;
   letter-spacing: 1.2pt;
+  color: #666;
 }
 
 button {
@@ -34,21 +35,16 @@ p {
 }
 
 .flash {
-  background: yellow !important;
+  background: lightyellow !important;
 }
 
 /*--------------------------------------------------*/
 
 .panel {
   margin: 0 auto;
-  border: 1px solid #aaa;
-  margin-left: 2em;
-  margin-right: 2em;
-  padding: 1em;
-  border-radius: 5pt;
-  background: #f6f6f6;
-  margin-top: 0em;
-  margin-bottom: 1em;
+  border-bottom: 1px solid #ddd;
+  padding: 2em;
+  background: white;
 }
 
 /*--- job status ------------------------------------------------------------*/
@@ -126,6 +122,55 @@ p {
   margin: auto;
   text-align: center;
   width: 100%;
+}
+
+/*--- panel buttons ---------------------------------------------------------*/
+
+.panel-buttons {
+  position: absolute;
+  /* left: 80px; */
+  right: 20px;
+  top: 6px;
+  margin: 0;
+  /* width: 50%; */
+  text-align: center;
+  white-space: nowrap;
+  z-index: 3;
+}
+
+.panel-buttons button {
+  width: 5em;
+  margin: 0;
+  color: white;
+  background: sandybrown;
+  border-radius: 3px;
+  border: 1px solid #222;
+  margin-left: 2px;
+  margin-right: 2px;
+  text-shadow: 1px 1px #222;
+  font-weight: normal;
+  font-size: 10pt;
+  padding: 0.2em;
+}
+
+.panel-buttons button:hover {
+  background: darkorange !important;
+}
+
+.panel-buttons button:active {
+  background: darkred !important;
+}
+
+.panel-buttons button.not-showing:hover {
+  background: #aaa !important;
+  color: black !important;
+}
+
+.not-showing {
+  color: #444 !important;
+  background: #888 !important;
+  border: 1px solid #222 !important;
+  text-shadow: 1px 1px #aaa !important;
 }
 
 /*--------------------------------------------------*/
@@ -267,7 +312,11 @@ div.lister table {
 }
 
 .lister tr {
-  background: white;
+  background: #f9f9f9;
+}
+
+.lister tr:hover {
+  background: lavender;
 }
 
 div.lister th {
@@ -293,22 +342,6 @@ div.lister td {
 
 /*--------------------------------------------------*/
 
-div#container, div#upload-area {
-  margin: 0 auto;
-  /* width: 800px; */
-  border: 1px solid #aaa;
-  margin-left: 2em;
-  margin-right: 2em;
-  padding: 1em;
-  border-radius: 5pt;
-  margin-top: 2em;
-  background: #f6f6f6;
-  /* text-align: center; */
-  /* height: 900px; */
-  margin-top: 0em;
-  margin-bottom: 1em;
-}
-
 #upload-lz {
   border-radius: 5px;
   border: 2px dashed silver;
@@ -316,8 +349,8 @@ div#container, div#upload-area {
   text-align: center;
 }
 
-div#upload-area:hover {
-  border: 1px dotted #aaa;
+#upload-lz:hover {
+  border: 2px dashed sandybrown !important;
   background: white;
 }
 
@@ -345,7 +378,9 @@ div#title-bar {
   position: absolute;
   top: 6px;
   right: 15px;
-  font-size: 8pt;
+  font-size: 9pt;
+  font-weigth: normal;
+  color: orange;
 }
 
 #title-version {
@@ -361,15 +396,14 @@ div#status-bar {
   margin: 0;
   bottom: 0px;
   width: 100%;
-  border-top: 3px solid slateblue;
   background: #444;
   color: white;
   font-size: 10pt;
-  font-family: optima, sans-serif;
   padding: 4pt;
   padding-bottom: 1.3em;
   font-variant: small-caps;
   font-size: 10pt;
+  border-top: 3px solid slateblue;
   height: 1.5em;
 }
 
@@ -377,15 +411,12 @@ div#status-bar div {
   display: inline;
 }
 
-div#loading {
-  position: absolute;
-  left: 45%;
-}
-
 div#db-info {
   position: absolute;
+  top: 6px;
   left: 10px;
   font-variant: small-caps;
+  z-index: 2;
 }
 
 #db-type, #db-host {
@@ -394,6 +425,12 @@ div#db-info {
 
 div#mouse-coords {
   position: absolute;
-  right: 10px;
-  margin-right: 2em;
+  top: 24px;
+  left: 10px;
+  font-size: 8pt;
+  font-weight: normal;
+  color: #777;
+  border: 0;
+  z-index: 1;
+  /* margin-right: 2em; */
 }

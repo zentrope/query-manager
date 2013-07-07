@@ -5,7 +5,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Web
-                 [http-kit "2.1.4"]
+                 [http-kit "2.1.5"]
                  [compojure "1.1.5"]
                  [hiccup "1.0.3"]
                  [org.clojure/data.json "0.2.2"]

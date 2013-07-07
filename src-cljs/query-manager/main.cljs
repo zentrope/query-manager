@@ -43,7 +43,8 @@
            (query-panel/dom event/broadcast)
            (upload-panel/dom event/broadcast)
            (error-panel/dom event/broadcast)
-           (status-bar/dom))
+           (status-bar/dom event/broadcast))
+
 
   ;; Register UI event subscriptions
   (event/map-subs status-bar/recv (status-bar/events))
@@ -56,6 +57,9 @@
   (event/map-subs query-form/recv (query-form/events))
   (event/map-subs error-panel/recv (error-panel/events))
   (event/map-subs job-viewer/recv (job-viewer/events))
+
+  (event/broadcast [:error-panel-toggle {}])
+  (event/broadcast [:upload-panel-toggle {}])
 
   ;; Register non-UI event subscribers
   (event/map-subs net/recv (net/events))

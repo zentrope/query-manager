@@ -1,6 +1,6 @@
 (ns query-manager.view.query-panel
   (:use-macros [dommy.macros :only [sel1 sel node]])
-  (:require [dommy.core :refer [attr remove-class! add-class! listen! replace-contents!]]
+  (:require [dommy.core :refer [toggle! attr listen! replace-contents!]]
             [query-manager.utils :refer [flash! listen-all!]]
             [clojure.string :as string]))
 
@@ -86,6 +86,10 @@
       (listen! (sel1 :#qp-new) :click (on-new broadcast))
       (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries))))))
 
+(defn- on-visibility-toggle!
+  [broadcast]
+  (toggle! (sel1 :#queries)))
+
 (defn- mk-template
   [broadcast]
   template)
@@ -100,10 +104,11 @@
 
 (defn events
   []
-  [:query-change])
+  [:query-change :query-panel-toggle])
 
 (defn recv
   [broadcast [topic event]]
   (case topic
     :query-change (on-query-change broadcast (:value event))
+    :query-panel-toggle (on-visibility-toggle! broadcast)
     true))

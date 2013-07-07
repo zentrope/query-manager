@@ -1,6 +1,6 @@
 (ns query-manager.view.job-panel
   (:use-macros [dommy.macros :only [sel sel1 node]])
-  (:require [dommy.core :refer [attr replace-contents! listen!]]
+  (:require [dommy.core :refer [attr replace-contents! listen! toggle!]]
             [query-manager.utils :refer [flash! listen-all!]]))
 
 ;;-----------------------------------------------------------------------------
@@ -76,6 +76,10 @@
     (listen-all! (sel :.jp-view) :click (on-view broadcast))
     (listen! (sel1 :#jp-clear) :click (on-clear broadcast (map :id jobs)))))
 
+(defn- on-visibility-toggle!
+  [broadcast]
+  (toggle! (sel1 :#jobs)))
+
 (defn- mk-template
   [broadcast]
   template)
@@ -90,10 +94,11 @@
 
 (defn events
   []
-  [:job-change])
+  [:job-change :job-panel-toggle])
 
 (defn recv
   [broadcast [topic event]]
   (case topic
     :job-change (on-job-change broadcast (:value event))
+    :job-panel-toggle (on-visibility-toggle! broadcast)
     true))

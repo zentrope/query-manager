@@ -1,6 +1,6 @@
 (ns query-manager.view.error-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! listen!]]))
+  (:require [dommy.core :refer [replace-contents! listen! toggle!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -38,6 +38,10 @@
     (replace-contents! (sel1 :#ep-list) (table-of errors))
     (listen! (sel1 :#ep-clear) :click (on-clear broadcast))))
 
+(defn- on-visibility-toggle!
+  [broadcast]
+  (toggle! (sel1 :#error-panel)))
+
 (defn- mk-template
   [broadcast]
   template)
@@ -52,10 +56,11 @@
 
 (defn events
   []
-  [:web-error])
+  [:web-error :error-panel-toggle])
 
 (defn recv
   [broadcast [topic event]]
   (case topic
     :web-error (on-error broadcast (:value event))
+    :error-panel-toggle (on-visibility-toggle! broadcast)
     true))

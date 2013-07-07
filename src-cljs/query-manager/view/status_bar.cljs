@@ -1,17 +1,23 @@
 (ns query-manager.view.status-bar
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace! set-html!]]))
+  (:require [dommy.core :refer [replace! listen! set-html! toggle-class!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#status-bar
          [:div#db-info "conn: none"]
-         [:div#loading ""]
+         [:div.panel-buttons
+          [:button#sb-db "db"]
+          [:button#sb-jobs "jobs"]
+          [:button#sb-sql "queries"]
+          [:button#sb-import "import"]
+          [:button#sb-err "err"]]
          [:div#mouse-coords
-          "{:x " [:span#mouse-x "0"] " :y " [:span#mouse-y "0"] "}"]]))
+          "(" [:span#mouse-x "0"] ":" [:span#mouse-y "0"] ")"]]))
 
 (defn- set-mouse-coords!
   [[x y]]
@@ -26,28 +32,43 @@
                                     " on "
                                     [:span#db-host host]])))
 
-(defn- set-loading!
-  [toggle]
-  (if toggle
-    (set-html! (sel1 :#loading) "loading...")
-    (set-html! (sel1 :#loading) "")))
+(defn- on-toggle
+  [broadcast topic]
+  (fn [e]
+    (broadcast [topic {}])))
+
+(defn- mk-template
+  [broadcast]
+  (let [t (template)]
+    (listen! [t :#sb-db] :click (on-toggle broadcast :db-panel-toggle))
+    (listen! [t :#sb-jobs] :click (on-toggle broadcast :job-panel-toggle))
+    (listen! [t :#sb-sql] :click (on-toggle broadcast :query-panel-toggle))
+    (listen! [t :#sb-err] :click (on-toggle broadcast :error-panel-toggle))
+    (listen! [t :#sb-import] :click (on-toggle broadcast :upload-panel-toggle))
+    t))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
 (defn dom
-  []
-  template)
+  [broadcast]
+  (mk-template broadcast))
 
 (defn events
   []
-  [:loading :db-change :mousemove])
+  [:db-change :mousemove
+   :db-panel-toggle :job-panel-toggle :query-panel-toggle :error-panel-toggle
+   :upload-panel-toggle])
 
 (defn recv
   [broadcast [type event]]
   (case type
-    :loading (set-loading! (:value event))
     :db-change (set-db-info! (:value event))
     :mousemove (set-mouse-coords! (:value event))
-    nil))
+    :db-panel-toggle (toggle-class! (sel1 :#sb-db) "not-showing")
+    :job-panel-toggle (toggle-class! (sel1 :#sb-jobs) "not-showing")
+    :query-panel-toggle (toggle-class! (sel1 :#sb-sql) "not-showing")
+    :error-panel-toggle (toggle-class! (sel1 :#sb-err) "not-showing")
+    :upload-panel-toggle (toggle-class! (sel1 :#sb-import) "not-showing")
+    true))

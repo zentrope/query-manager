@@ -1,6 +1,6 @@
 (ns query-manager.view.upload-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-html! set-text! listen! replace-contents!]]
+  (:require [dommy.core :refer [set-html! listen! toggle!]]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
@@ -9,7 +9,7 @@
 ;;-----------------------------------------------------------------------------
 
 (def ^:private template
-  (node [:div#upload-area
+  (node [:div#upload-area.panel
          [:div#upload-lz
           [:p#upload-doc "Drop your file here."]]]))
 
@@ -40,6 +40,10 @@
   (.preventDefault e)
   (.stopPropagation e))
 
+(defn- on-visibility-toggle!
+  [broadcast]
+  (toggle! (sel1 :#upload-area)))
+
 (defn- mk-template
   [broadcast]
   (listen! [template :#upload-area :div] :dragover on-dragover)
@@ -56,8 +60,11 @@
 
 (defn events
   []
-  [])
+  [:upload-panel-toggle])
 
 (defn recv
   [broadcast [topic event]]
-  true)
+
+  (case topic
+    :upload-panel-toggle (on-visibility-toggle! broadcast)
+    true))
