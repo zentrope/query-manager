@@ -19,7 +19,10 @@
 
 (defn- table-of
   [jobs]
-  (node (list [:table
+  (node (list [:p
+               [:span.note "note: "]
+               "Server only keeps the first 500 results per query."]
+              [:table
                [:tr
                 [:th {:width "10%"} "status"]
                 [:th {:width "40%"} "query"]
@@ -54,6 +57,13 @@
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
       (broadcast [:job-delete {:value id}]))))
 
+(defn- on-view
+  [broadcast]
+  (fn [e]
+    (let [id (attr (.-target e) :jid)]
+      (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
+      (broadcast [:job-poke {:value id}]))))
+
 ;; incoming events
 
 (defn- on-job-change
@@ -63,6 +73,7 @@
   (when-not (empty? jobs)
     (replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
     (listen-all! (sel :.jp-del) :click (on-delete broadcast))
+    (listen-all! (sel :.jp-view) :click (on-view broadcast))
     (listen! (sel1 :#jp-clear) :click (on-clear broadcast (map :id jobs)))))
 
 (defn- mk-template

@@ -18,9 +18,15 @@
       (slurp r))
     stream))
 
+(defn- jconvert
+  [k v]
+  (if (instance? java.sql.Timestamp v)
+    (str v)
+    v))
+
 (defn- jwrite
   [value]
-  (json/write-str value))
+  (json/write-str value :value-fn jconvert))
 
 (defn- jread
   [request]

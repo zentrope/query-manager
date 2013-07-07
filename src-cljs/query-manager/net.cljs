@@ -53,37 +53,57 @@
   [json]
   (js->clj json :keywordize-keys true))
 
-;;-----------------------------------------------------------------------------
-;; QUERY MANAGER WEB SERVICE API
-;;-----------------------------------------------------------------------------
+(defn- error-handler
+  [broadcast]
+  (fn [err]
+    (broadcast [:web-error {:value err}])))
 
-;; DB
+;;-----------------------------------------------------------------------------
+;; Database connection API
+;;-----------------------------------------------------------------------------
 
 (defn- poke-db
   [broadcast]
   (ajax :uri "/qman/api/db"
         :method "GET"
-        :on-failure (fn [err]
-                      (broadcast [:web-error {:value err}]))
-        :on-success (fn [db]
-                      (broadcast [:db-change {:value (jread db)}]))
+        :on-failure (error-handler broadcast)
+        :on-success (fn [db] (broadcast [:db-change {:value (jread db)}]))
         :type :json))
 
-;; Jobs
+(defn- save-db
+  [broadcast db]
+  (ajax :uri "/qman/api/db"
+        :method "PUT"
+        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-success (fn [_] (poke-db broadcast))
+        :data db
+        :type :json))
+
+;;-----------------------------------------------------------------------------
+;; Jobs API
+;;-----------------------------------------------------------------------------
 
 (defn- poke-jobs
   [broadcast]
   (ajax :uri "/qman/api/job"
         :method "GET"
         :type :json
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [jobs] (broadcast [:job-change {:value (jread jobs)}]))))
+
+(defn- poke-job
+  [broadcast job-id]
+  (ajax :uri (str "/qman/api/job/" job-id)
+        :method "GET"
+        :type :json
+        :on-failure (error-handler broadcast)
+        :on-success (fn [job] (broadcast [:job-get {:value (jread job)}]))))
 
 (defn- run-job
   [broadcast query-id]
   (ajax :uri (str "/qman/api/job/" query-id)
         :method "POST"
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [_] (poke-jobs broadcast))))
 
 (defn- delete-job
@@ -91,10 +111,12 @@
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "DELETE"
         :type :json
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [_] (poke-jobs broadcast))))
 
-;; queries
+;;-----------------------------------------------------------------------------
+;; Queries API
+;;-----------------------------------------------------------------------------
 
 (defn- poke-queries
   [broadcast]
@@ -138,14 +160,9 @@
         :on-failure (fn [err] (broadcast [:web-error {:value err}]))
         :on-success (fn [_] (poke-queries broadcast))))
 
-(defn- save-db
-  [broadcast db]
-  (ajax :uri "/qman/api/db"
-        :method "PUT"
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
-        :on-success (fn [_] (poke-db broadcast))
-        :data db
-        :type :json))
+;;-----------------------------------------------------------------------------
+;; Utility API
+;;-----------------------------------------------------------------------------
 
 (defn- dump
   [data success failure]
@@ -164,22 +181,34 @@
   "Events this namespace is interested in receiving."
   []
   [:db-poke :db-save
-   :query-poke :query-save :query-delete :query-run :query-get
+   :query-poke :query-save :query-delete :query-run
    :queries-poke :query-update
-   :jobs-poke :job-delete])
+   :jobs-poke :job-delete :job-poke])
 
 (defn recv
   "Event receiver."
   [broadcast [topic event]]
   (case topic
+    ;;
+    ;; database events
+    ;;
     :db-save (save-db broadcast (:value event))
     :db-poke (poke-db broadcast)
+    ;;
+    ;; query events
+    ;;
     :queries-poke (poke-queries broadcast)
     :query-save (save-query broadcast (:value event))
     :query-update (update-query broadcast (:value event))
     :query-delete (delete-query broadcast (:value event))
     :query-run (run-job broadcast (:value event))
     :query-poke (poke-query broadcast (:value event))
+    ;;
+    ;; job events
+    ;;
     :jobs-poke (poke-jobs broadcast)
+    :job-poke (poke-job broadcast (:value event))
     :job-delete (delete-job broadcast (:value event))
+    ;;
+    ;;
     true))

@@ -29,6 +29,10 @@ p {
 
 /*--------------------------------------------------*/
 
+.note {
+  font-variant: small-caps;
+}
+
 .flash {
   background: yellow !important;
 }
@@ -47,7 +51,8 @@ p {
   margin-bottom: 1em;
 }
 
-/*--- job status -------------------------------------*/
+/*--- job status ------------------------------------------------------------*/
+
 .done {
   color: green !important;
 }
@@ -58,6 +63,69 @@ p {
 
 .failed {
   color: firebrick !important;
+}
+
+/*--- job viewer ------------------------------------------------------------*/
+
+#job-view-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 99999;
+}
+
+.job-view {
+  position: relative;
+  height: 80%;
+  width: 90%;
+  margin: 5% auto;
+  border: 1px solid silver;
+  border-radius: 3px;
+  box-shadow: 0 8px 6px -6px black;
+  margin-bottom: 2em;
+  background: #ddd;
+  background: -webkit-linear-gradient(#fff, #ccc);
+  padding: 0.5em;
+  text-align: center;
+}
+
+.job-view h2 {
+}
+
+.job-view-area {
+  position: absolute;
+  background: #f6f6f6;
+  border: 1px solid #aaa;
+  top: 70px;
+  left: 10px;
+  right: 10px;
+  bottom: 50px;
+  overflow: scroll;
+  border-radius: 3px;
+  padding: 1em;
+  text-align: left;
+}
+
+.job-view-area td, .job-view-area th {
+  text-overflow: ellipses;
+  max-width: 50;
+  border: 1px solid silver;
+  white-space: nowrap;
+}
+
+.job-view-area table {
+  margin-right: 1em;
+}
+
+.viewer-controls {
+  position: absolute;
+  bottom: 10px;
+  margin: auto;
+  text-align: center;
+  width: 100%;
 }
 
 /*--------------------------------------------------*/
@@ -220,6 +288,7 @@ div.lister td {
   color: black;
   border-bottom: 1px solid silver;
   padding: 4px;
+  text-align: left;
 }
 
 /*--------------------------------------------------*/

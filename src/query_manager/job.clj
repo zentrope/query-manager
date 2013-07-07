@@ -1,8 +1,7 @@
 (ns query-manager.job
   "Experimental at this point. Beware!"
   (:refer-clojure :exclude [reset!])
-  (:import [java.util.concurrent Executors ThreadFactory]
-           [java.util.concurrent.atomic AtomicLong])
+  (:import [java.util.concurrent Executors ThreadFactory])
   (:require [clojure.tools.logging :refer [info error]]
             [clojure.java.jdbc :as jdbc]))
 
@@ -10,10 +9,9 @@
 ;; Thread machinery
 ;;-----------------------------------------------------------------------------
 
-(let [id-counter (AtomicLong.)]
-  (defn- id-gen
-    []
-    (.getAndIncrement id-counter)))
+(let [id-counter (atom 0)]
+  (defn- id-gen [] (swap! id-counter inc)))
+
 
 (defn- mk-err-handler
   []
@@ -62,13 +60,20 @@
     (try
       (let [sql (:sql (:query job))
             results (doall (jdbc/query db [sql]))
-            update (assoc job :status :done :results results :size (count results)
-                          :stopped (now))]
-        ;;
-        ;; TODO: If the job doesn't exist, don't merge in the update, assuming
-        ;;       someone has deleted the job before it completed.
-        ;;
-        (swap! jobs assoc (:id job) update))
+            update (assoc job
+                     :status :done
+                     :results (take 500 results)
+                     :size (count results)
+                     :stopped (now))]
+        (swap! jobs (fn [js]
+                      ;;
+                      ;; If the job isn't in the current collection,
+                      ;; assume the user deleted it before it completed
+                      ;; and drop the results on the cutting room floor.
+                      ;;
+                      (if (contains? js (:id job))
+                        (assoc js (:id job) update)
+                        js))))
       (catch Throwable t
         (let [update (assoc job :status :failed :stopped (now) :error (str t))]
           (swap! jobs assoc (:id job) update))

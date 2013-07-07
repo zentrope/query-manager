@@ -11,6 +11,7 @@
             [query-manager.view.db-panel :as db-panel]
             [query-manager.view.db-form :as db-form]
             [query-manager.view.job-panel :as job-panel]
+            [query-manager.view.job-viewer :as job-viewer]
             [query-manager.view.upload-panel :as upload-panel]
             [query-manager.view.query-panel :as query-panel]
             [query-manager.view.query-form :as query-form]
@@ -36,6 +37,7 @@
   (append! (sel1 :body)
            (db-form/dom event/broadcast)
            (query-form/dom event/broadcast)
+           (job-viewer/dom event/broadcast)
            (db-panel/dom event/broadcast)
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)
@@ -53,6 +55,7 @@
   (event/map-subs query-panel/recv (query-panel/events))
   (event/map-subs query-form/recv (query-form/events))
   (event/map-subs error-panel/recv (error-panel/events))
+  (event/map-subs job-viewer/recv (job-viewer/events))
 
   ;; Register non-UI event subscribers
   (event/map-subs net/recv (net/events))
