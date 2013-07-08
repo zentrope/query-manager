@@ -20,7 +20,6 @@
 (defn- table-of
   [jobs]
   (node (list [:p
-               [:span.note "note: "]
                "Server only keeps the first 500 results per query."]
               [:table
                [:tr
@@ -38,7 +37,8 @@
                   [:td stopped]
                   [:td size]
                   [:td.actions
-                   [:button.jp-view {:jid id} "view"]
+                   (when-not (zero? size)
+                     [:button.jp-view {:jid id} "view"])
                    [:button.jp-del {:jid id} "del"]]])]
               [:button#jp-clear "clear all"])))
 

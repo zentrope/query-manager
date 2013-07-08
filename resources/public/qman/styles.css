@@ -1,11 +1,13 @@
 html, body {
   background: #e6e6e6;
+  background: linen;
+  background: white;
   color: #444;
   margin: 0;
   padding: 0;
   font-family: helvetica, optima, helvetica, sans-serif;
-  padding-top: 1.5em;
-  padding-bottom: 1.6em;
+  padding-top: 2em;
+  padding-bottom: 2em;
 }
 
 h2 {
@@ -30,24 +32,20 @@ p {
 
 /*--------------------------------------------------*/
 
-.note {
-  font-variant: small-caps;
-}
-
 .flash {
-  background: lightyellow !important;
+  background: yellow !important;
 }
 
 /*--------------------------------------------------*/
 
 .panel {
   margin: 0 auto;
-  padding: 2em;
-  background: white;
-  margin: 10px;
-  margin-right: 15px;
+  padding: 1em;
+  background: #fafafa;
+  margin: 15px;
+  margin-right: 18px;
   border-radius: 3px;
-  border: 1px solid #ddd;
+  border: 1px solid #dadada;
 }
 
 /*--- job status ------------------------------------------------------------*/
@@ -136,11 +134,9 @@ p {
 
 .panel-buttons {
   position: absolute;
-  /* left: 80px; */
   right: 20px;
   top: 6px;
   margin: 0;
-  /* width: 50%; */
   text-align: center;
   white-space: nowrap;
   z-index: 3;
@@ -150,12 +146,12 @@ p {
   width: 5em;
   margin: 0;
   color: white;
-  background: sandybrown;
-  border-radius: 3px;
-  border: 1px solid #222;
+  color: black;
+  background: yellow;
+  border-radius: 5px;
+  border: 1px solid tan;
   margin-left: 2px;
   margin-right: 2px;
-  text-shadow: 1px 1px black;
   font-weight: normal;
   font-size: 10pt;
   padding: 0.2em;
@@ -163,7 +159,7 @@ p {
 }
 
 .panel-buttons button:hover {
-  background: darkorange !important;
+  background: gold !important;
 }
 
 .panel-buttons button:active {
@@ -171,14 +167,14 @@ p {
 }
 
 .panel-buttons button.not-showing:hover {
-  background: #aaa !important;
-  color: black !important;
+  background: #bbb !important;
+  color: blue !important;
 }
 
 .not-showing {
-  color: #444 !important;
-  background: #888 !important;
-  border: 1px solid #222 !important;
+  color: #666 !important;
+  background: #aaa !important;
+  border: 1px solid #888 !important;
   text-shadow: 1px 1px #aaa !important;
 }
 
@@ -322,7 +318,7 @@ div.lister table {
 }
 
 .lister tr {
-  background: #f9f9f9;
+  background: white;
 }
 
 .lister tr:hover {
@@ -370,10 +366,12 @@ div#title-bar {
   top: 0px;
   width: 100%;
   background: #444;
-  border-bottom: 3px solid sandybrown;
+  background: lavender;
+  border-bottom: 3px solid cornflowerblue;
   height: 2.5em;
   padding-top: 6pt;
   color: white;
+  color: black;
 }
 
 #title-text {
@@ -391,6 +389,7 @@ div#title-bar {
   font-size: 9pt;
   font-weigth: normal;
   color: orange;
+  color: blue;
 }
 
 #title-version {
@@ -406,15 +405,16 @@ div#status-bar {
   margin: 0;
   bottom: 0px;
   width: 100%;
-  background: #444;
-  color: white;
+  background: lavender;
+  color: #444;
   font-size: 10pt;
   padding: 4pt;
   padding-bottom: 1.3em;
   font-variant: small-caps;
   font-size: 10pt;
   border-top: 1px solid sandybrown;
-  height: 1.5em;
+  border-top: 3px solid cornflowerblue;
+  height: 2em;
 }
 
 div#status-bar div {
@@ -430,7 +430,7 @@ div#db-info {
 }
 
 #db-type, #db-host {
-  color: orange;
+  color: blue;
 }
 
 div#mouse-coords {
