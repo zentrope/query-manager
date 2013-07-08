@@ -10,8 +10,8 @@
   []
   (node [:div#job-view-container {:style {:display "none"}}
          [:div.job-view
-          [:h2#jv-title "Job Results Viewer"]
-          [:p#jv-desc "~"]
+          [:h2#jv-desc "-"]
+          [:p#jv-title.sub-title "Job Results Viewer"]
           [:div#job-viewer.job-view-area
             [:p "Nothing here yet."]]
           [:div.viewer-controls

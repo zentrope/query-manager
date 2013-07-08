@@ -36,7 +36,9 @@
   [broadcast error-event]
   (let [errors (swap! errors conj error-event)]
     (replace-contents! (sel1 :#ep-list) (table-of errors))
-    (listen! (sel1 :#ep-clear) :click (on-clear broadcast))))
+    (listen! (sel1 :#ep-clear) :click (on-clear broadcast))
+    (when (> 15 (count @errors))
+      (swap! errors (fn [es] (take-last 15 es))))))
 
 (defn- on-visibility-toggle!
   [broadcast]

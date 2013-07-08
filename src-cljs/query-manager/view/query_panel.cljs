@@ -8,11 +8,13 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#queries.panel
          [:h2 "Queries"]
          [:div#queries-table.lister
-          [:p "No queries defined."]]]))
+          [:p "No queries defined."]
+          [:button#qp-new "new"]]]))
 
 (defn- sql-of
   [sql]
@@ -77,7 +79,8 @@
 (defn- on-query-change
   [broadcast queries]
   (if (empty? queries)
-    (replace-contents! (sel1 :#queries-table) (node [:p "No queries defined."]))
+    (replace-contents! (sel1 :#queries-table) (node (list [:p "No queries defined."]
+                                                          [:button#qp-new "new"])))
     (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
@@ -92,7 +95,7 @@
 
 (defn- mk-template
   [broadcast]
-  template)
+  (template))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
