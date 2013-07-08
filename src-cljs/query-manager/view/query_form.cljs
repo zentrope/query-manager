@@ -12,8 +12,8 @@
           [:h2 "Query Definition"]
           [:input#qf-id {:type "hidden"}]
           [:table
-           [:tr [:th "Description"] [:td [:input#qf-desc {:type "text"}]]]
-           [:tr [:th "Query"] [:td [:textarea#qf-sql {:rows "18"}]]]]
+           [:tr [:th "description"] [:td [:input#qf-desc {:type "text"}]]]
+           [:tr [:th "query"] [:td [:textarea#qf-sql {:rows "18"}]]]]
           [:div.form-buttons
            [:button#qf-save "save"]
            [:button#qf-cancel "cancel"]]]]))

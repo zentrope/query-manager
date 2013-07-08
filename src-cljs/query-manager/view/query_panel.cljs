@@ -79,8 +79,12 @@
 (defn- on-query-change
   [broadcast queries]
   (if (empty? queries)
-    (replace-contents! (sel1 :#queries-table) (node (list [:p "No queries defined."]
-                                                          [:button#qp-new "new"])))
+
+    (do (replace-contents! (sel1 :#queries-table)
+                           (node (list [:p "No queries defined."]
+                                       [:button#qp-new "new"])))
+        (listen! (sel1 :#qp-new) :click (on-new broadcast)))
+
     (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
       (listen-all! (sel :.qp-run) :click (on-run broadcast))
