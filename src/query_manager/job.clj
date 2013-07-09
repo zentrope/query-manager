@@ -55,14 +55,14 @@
 (defn- mk-runner
   [db jobs job]
   (fn []
-    (info " - job start:" (:description (:query job)))
+    (info " - job start: [" (:description (:query job)) "]")
     ;;(Thread/sleep (* (inc (rand-int 10)) 1000))
     (try
       (let [sql (:sql (:query job))
-            results (doall (jdbc/query db [sql]))
+            results (doall (take 500 (jdbc/query db [sql])))
             update (assoc job
                      :status :done
-                     :results (take 500 results)
+                     :results results
                      :size (count results)
                      :stopped (now))]
         (swap! jobs (fn [js]
@@ -79,7 +79,7 @@
           (swap! jobs assoc (:id job) update))
         (error t))
       (finally
-        (info " - job complete [" (:description (:query job)) "]")))))
+        (info " - job complete: [" (:description (:query job)) "]")))))
 
 ;;-----------------------------------------------------------------------------
 ;; Public API

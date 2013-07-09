@@ -114,7 +114,6 @@ p {
 .job-view-area td, .job-view-area th {
   text-overflow: ellipses;
   max-width: 50;
-  border: 1px solid silver;
   white-space: nowrap;
 }
 

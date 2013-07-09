@@ -25,7 +25,9 @@
   [response f]
   (let [t (.-target response)]
     (f {:status (.getStatus t)
-        :reason (.getStatusText t)})))
+        :reason (.getStatusText t)
+        :uri (.-lastUri_ t)
+        :timestamp (.getTime (js/Date.))})))
 
 (defn- mk-handler
   [{:keys [on-success on-failure] :as opts}]
@@ -122,7 +124,7 @@
   [broadcast]
   (ajax :uri "/qman/api/query"
         :method "GET"
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [data] (broadcast [:query-change {:value (jread data)}]))
         :type :json))
 
@@ -130,7 +132,7 @@
   [broadcast id]
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [data] (broadcast [:query-get {:value (jread data)}]))
         :type :json))
 
@@ -140,7 +142,7 @@
         :method "POST"
         :data query
         :type :json
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [_] (poke-queries broadcast))))
 
 (defn- update-query
@@ -149,7 +151,7 @@
         :method "PUT"
         :data query
         :type :json
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [_] (poke-queries broadcast))))
 
 (defn- delete-query
@@ -157,21 +159,8 @@
   (ajax :uri (str "/qman/api/query/" query-id)
         :method "DELETE"
         :type :json
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
+        :on-failure (error-handler broadcast)
         :on-success (fn [_] (poke-queries broadcast))))
-
-;;-----------------------------------------------------------------------------
-;; Utility API
-;;-----------------------------------------------------------------------------
-
-(defn- dump
-  [data success failure]
-  (ajax :uri "/qman/api/dump"
-        :method "POST"
-        :on-failure failure
-        :on-success success
-        :data data
-        :type :json))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface

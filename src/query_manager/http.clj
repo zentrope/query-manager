@@ -67,8 +67,9 @@
        (status (response "") 404)))
 
    (GET "/qman/api/query"
-       []
-     (jwrite (sql/all)))
+       [:as r]
+     (fn [r]
+       (jwrite (sql/all))))
 
    (PUT "/qman/api/query/:id"
        [id :as r]
@@ -114,18 +115,6 @@
      (status (response "") 201))
 
    ;;---------------------------------------------------------------------------
-   ;; UTILITIES APIs
-   ;; Mainly so I can learn a few new web techniqes.
-   ;;---------------------------------------------------------------------------
-
-   (POST "/qman/api/dump"
-       [:as request]
-
-;;     (pprint request)
-     (info "DUMP.body: " (sread (:body request)))
-     (status (response "") 201))
-
-   ;;---------------------------------------------------------------------------
    ;; BUILT-IN CLIENT
    ;;---------------------------------------------------------------------------
 
@@ -138,7 +127,6 @@
      (html5 [:head
              [:title "Query Manager"]
              (include-css "qman/styles.css")
-;;             (include-js "qman/jquery-2.0.2.min.js")
              (include-js "qman/main.js")]
             [:body "Loading..."]))
 

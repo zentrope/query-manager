@@ -18,11 +18,15 @@
   [errors]
   (node (list [:table
                [:tr
-                [:th "status"]
-                [:th "error"]]
-               (for [{:keys [status reason]} errors]
+                [:th {:width "10%"} "when"]
+                [:th {:width "10%"} "status"]
+                [:th {:width "40%"} "uri"]
+                [:th {:width "40%"} "error"]]
+               (for [{:keys [timestamp status uri reason]} errors]
                  [:tr
+                  [:td timestamp]
                   [:td status]
+                  [:td uri]
                   [:td reason]])]
               [:button#ep-clear "clear"])))
 
@@ -34,11 +38,11 @@
 
 (defn- on-error
   [broadcast error-event]
-  (let [errors (swap! errors conj error-event)]
-    (replace-contents! (sel1 :#ep-list) (table-of errors))
+  (let [errs (swap! errors conj error-event)]
+    (replace-contents! (sel1 :#ep-list) (table-of errs))
     (listen! (sel1 :#ep-clear) :click (on-clear broadcast))
-    (when (> 15 (count @errors))
-      (swap! errors (fn [es] (take-last 15 es))))))
+    (when (> (count @errors) 15)
+      (swap! errors (fn [es] (take 15 es))))))
 
 (defn- on-visibility-toggle!
   [broadcast]

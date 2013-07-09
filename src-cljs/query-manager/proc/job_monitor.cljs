@@ -9,6 +9,7 @@
   [broadcast]
   (spawn-after! 2000 (fn []
                        (broadcast [:jobs-poke {}])
+                       (broadcast [:queries-poke {}])
                        (start-job-monitor broadcast))))
 
 ;;-----------------------------------------------------------------------------
