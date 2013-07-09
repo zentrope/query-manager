@@ -41,7 +41,7 @@ p {
 .panel {
   margin: 0 auto;
   padding: 1em;
-  background: #fafafa;
+  background: #f9f9f9;
   margin: 15px;
   margin-right: 18px;
   border-radius: 3px;
@@ -145,11 +145,12 @@ p {
 .panel-buttons button {
   width: 5em;
   margin: 0;
+
   color: white;
-  color: black;
-  background: yellow;
+  background: #369;
+  border: 1px solid #444;
+
   border-radius: 5px;
-  border: 1px solid tan;
   margin-left: 2px;
   margin-right: 2px;
   font-weight: normal;
@@ -159,7 +160,7 @@ p {
 }
 
 .panel-buttons button:hover {
-  background: gold !important;
+  box-shadow: 0px 0px 2px 1px #999;
 }
 
 .panel-buttons button:active {
@@ -167,15 +168,17 @@ p {
 }
 
 .panel-buttons button.not-showing:hover {
-  background: #bbb !important;
+  box-shadow: inset 0px 0px 2px 2px #999;
+  background: #ccc !important;
+  background: white !important;
   color: blue !important;
 }
 
 .not-showing {
-  color: #666 !important;
-  background: #aaa !important;
-  border: 1px solid #888 !important;
-  text-shadow: 1px 1px #aaa !important;
+  color: #444 !important;
+  background: lavender !important;
+  border: 1px solid #444 !important;
+  /* text-shadow: 1px 1px #aaa !important; */
 }
 
 /*--------------------------------------------------*/
@@ -306,8 +309,8 @@ div.form table td {
 }
 
 button::-moz-focus-inner {
-    padding: 0;
-    margin: -3px;
+  padding: 0;
+  margin: -3px;
 }
 
 div.lister table {
@@ -317,25 +320,27 @@ div.lister table {
   margin-bottom: 6pt;
 }
 
-.lister tr {
+.lister tr > td {
   background: white;
 }
 
-.lister tr:hover {
+.lister tr:hover > td {
   background: lavender;
 }
 
 div.lister th {
   font-size: 11pt;
   font-variant: small-caps;
-  background: #ddd;
-  color: black;
-  border-bottom: 1px solid silver;
-  padding: 0px;
+  /* background: #ddd; */
+  color: mediumseagreen;
+  border-bottom: 1pt solid #c9f;
+  padding: 4px;
   text-align: left;
-  font-weight: normal;
+  font-weight: bold;
   border-top: 1px solid #bbb;
+  border-top: 0;
   padding-left: 4px;
+  background: transparent !important;
 }
 
 div.lister td {
