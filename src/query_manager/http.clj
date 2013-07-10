@@ -8,8 +8,10 @@
             [compojure.core :refer [routes GET POST DELETE PUT]]
             [compojure.handler :refer [site]]
             [compojure.route :refer [resources not-found]]
-            [ring.util.response :refer [redirect status response]]
+            [ring.util.response :refer [redirect status response header]]
             [hiccup.page :refer [html5 include-js include-css]]))
+
+;;-----------------------------------------------------------------------------
 
 (defn- sread
   [stream]
@@ -32,6 +34,20 @@
   [request]
   (json/read-str (sread (:body request)) :key-fn keyword))
 
+(defn- as-json
+  [doc]
+  (-> (response doc)
+      (header "Content-Type" "application/json")
+      (status 200)))
+
+(defn- as-empty
+  [code]
+  (-> (response "")
+      (header "Content-Type" "plain/text")
+      (status code)))
+
+;;-----------------------------------------------------------------------------
+
 (defn- main-routes
   [jobs]
   (routes
@@ -46,12 +62,12 @@
 
    (GET "/qman/api/db"
        []
-     (status (response (jwrite (db/get))) 200))
+     (as-json (jwrite (db/get))))
 
    (PUT "/qman/api/db"
        [:as r]
      (db/put (jread r))
-     (status (response "") 201))
+     (as-empty 201))
 
    ;;---------------------------------------------------------------------------
    ;; QUERY API
@@ -63,32 +79,32 @@
    (GET "/qman/api/query/:id"
        [id]
      (if-let [query (sql/one id)]
-       (jwrite query)
-       (status (response "") 404)))
+       (as-json (jwrite query))
+       (as-empty 404)))
 
    (GET "/qman/api/query"
-       [:as r]
-     (fn [r]
-       (jwrite (sql/all))))
+       []
+     (as-json (jwrite (sql/all))))
 
    (PUT "/qman/api/query/:id"
        [id :as r]
      (if-let [query (sql/one id)]
        (let [update (merge query (jread r))]
          (sql/update! update)
-         (status (response "") 201))
-       (status (response "") 404)))
+         (as-empty 201))
+       (as-empty 404)))
 
    (POST "/qman/api/query"
        [:as r]
+     (info r)
      (let [{:keys [sql description]} (jread r)]
        (sql/create! sql description))
-     (status (response "") 201))
+     (as-empty 201))
 
    (DELETE "/qman/api/query/:id"
        [id]
      (sql/delete! id)
-     (status (response "") 201))
+     (as-empty 201))
 
    ;;---------------------------------------------------------------------------
    ;; JOB API
@@ -97,22 +113,22 @@
    (GET "/qman/api/job/:id"
        [id :as req]
      (if-let [result (job/one jobs (Long/parseLong id))]
-       (status (response (jwrite result)) 200)
-       (status (response "") 404)))
+       (as-json (jwrite result))
+       (as-empty 404)))
 
    (GET "/qman/api/job"
        [:as req]
-     (status (response (jwrite (job/all jobs))) 200))
+     (as-json (jwrite (job/all jobs))))
 
    (POST "/qman/api/job/:query-id"
        [query-id :as req]
      (job/create jobs (db/spec) (sql/one query-id))
-     (status (response "") 201))
+     (as-empty 201))
 
    (DELETE "/qman/api/job/:id"
        [id :as req]
      (job/delete! jobs id)
-     (status (response "") 201))
+     (as-empty 201))
 
    ;;---------------------------------------------------------------------------
    ;; BUILT-IN CLIENT

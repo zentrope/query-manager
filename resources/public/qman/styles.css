@@ -112,8 +112,9 @@ p {
 }
 
 .job-view-area td, .job-view-area th {
-  text-overflow: ellipses;
-  max-width: 50;
+  text-overflow: ellipsis;
+  max-width: 100px;
+  overflow: hidden;
   white-space: nowrap;
 }
 
@@ -228,7 +229,7 @@ div.form-buttons {
 
 div.form table {
   width: 100%;
-  border: border-collapse;
+  border-collapse: collapse;
 }
 
 div.form table th {
@@ -391,7 +392,7 @@ div#title-bar {
   top: 6px;
   right: 15px;
   font-size: 9pt;
-  font-weigth: normal;
+  font-weight: normal;
   color: orange;
   color: blue;
 }

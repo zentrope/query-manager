@@ -27,9 +27,7 @@
 
 (defn- table-of
   [results]
-  (.log js/console (count results))
   (let [cols (keys (first results))]
-    (.log js/console (count cols))
     (node [:div.lister
            [:table
             [:tr (for [c cols] [:th (name c)])]
@@ -61,7 +59,13 @@
 (defn- on-update!
   [broadcast job]
   (set-html! (sel1 :#jv-desc) (:description (:query job)))
+  ;;
+  ;; TODO:
+  ;; The button click in job_panel should first send a job-view-show,
+  ;; then a job get. This pops up quick, the populates later.
+  ;;
   (on-show! broadcast)
+  ;;
   (if-not (nil? (:error job))
     (replace-contents! (sel1 :#job-viewer) (error-for job))
     (if (empty? (:results job))

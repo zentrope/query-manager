@@ -12,22 +12,22 @@
     (JSON/stringify (clj->js data))))
 
 (defn- success
-  [response f {:keys [type]}]
+  [response callback {:keys [type]}]
   (let [t (.-target response)]
-    (f (let [text (.getResponseText t)]
-         (if (<= (count text) 0)
-           ""
-           (case type
-             :json (.getResponseJson t)
-             text))))))
+    (callback (let [text (.getResponseText t)]
+                (if (<= (count text) 0)
+                  ""
+                  (case type
+                    :json (.getResponseJson t)
+                    text))))))
 
 (defn- failure
-  [response f]
+  [response callback]
   (let [t (.-target response)]
-    (f {:status (.getStatus t)
-        :reason (.getStatusText t)
-        :uri (.-lastUri_ t)
-        :timestamp (.getTime (js/Date.))})))
+    (callback {:status (.getStatus t)
+               :reason (.getStatusText t)
+               :uri (.-lastUri_ t)
+               :timestamp (.getTime (js/Date.))})))
 
 (defn- mk-handler
   [{:keys [on-success on-failure] :as opts}]
@@ -47,9 +47,11 @@
 (defn- ajax
   [& opts]
   (let [{:keys [uri method data type]} opts
-        headers (clj->js {:content-type (mimetype opts)})
-        handler (mk-handler opts)]
-    (.send goog.net.XhrIo uri handler method (jsonify data) headers)))
+        headers (clj->js {goog.net.XhrIo.CONTENT_TYPE_HEADER (mimetype opts)})
+        handler (mk-handler opts)
+        req (goog.net.XhrIo.)]
+    (events/listen req goog.net.EventType/COMPLETE handler)
+    (.send req uri method (jsonify data) headers)))
 
 (defn- jread
   [json]

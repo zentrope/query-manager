@@ -39,7 +39,7 @@
 (defn- on-error
   [broadcast error-event]
   (let [errs (swap! errors conj error-event)]
-    (replace-contents! (sel1 :#ep-list) (table-of errs))
+    (replace-contents! (sel1 :#ep-list) (table-of (reverse (sort-by :timestamp errs))))
     (listen! (sel1 :#ep-clear) :click (on-clear broadcast))
     (when (> (count @errors) 15)
       (swap! errors (fn [es] (take 15 es))))))
