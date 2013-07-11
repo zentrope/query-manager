@@ -6,7 +6,8 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#title-bar
          [:span#title-text "Query Manager"]
          [:span#title-version "Vers 0.1"]
@@ -34,13 +35,17 @@
   [date]
   (set-html! (sel1 :#title-clock) (date-str date)))
 
+(defn- mk-template
+  [channel]
+  (template))
+
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
 (defn dom
-  []
-  template)
+  [channel]
+  (mk-template channel))
 
 (defn events
   []

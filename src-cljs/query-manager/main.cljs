@@ -13,7 +13,6 @@
             [query-manager.view.job-panel :as job-panel]
             [query-manager.view.job-viewer :as job-viewer]
             [query-manager.view.upload-panel :as upload-panel]
-            [query-manager.view.export-panel :as export-panel]
             [query-manager.view.query-panel :as query-panel]
             [query-manager.view.query-form :as query-form]
             [query-manager.view.error-panel :as error-panel]
@@ -23,6 +22,7 @@
             [query-manager.proc.job-monitor :as job-monitor]
 
             ;; Network
+            [query-manager.view.export :as export]
             [query-manager.net :as net]))
 
 ;;-----------------------------------------------------------------------------
@@ -34,18 +34,26 @@
   (.log js/console "loading")
 
   ;; Composite UI components
-  (replace-contents! (sel1 :body) (title-bar/dom))
+  (replace-contents! (sel1 :body) nil)
+
   (append! (sel1 :body)
+
+           ;; UI functions and status
+           (title-bar/dom event/broadcast)
+           (status-bar/dom event/broadcast)
+
+           ;; Popup forms
            (db-form/dom event/broadcast)
            (query-form/dom event/broadcast)
            (job-viewer/dom event/broadcast)
+
+           ;; Content panels
+;;           (export-panel/dom event/broadcast)
            (db-panel/dom event/broadcast)
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)
            (upload-panel/dom event/broadcast)
-           (export-panel/dom event/broadcast)
-           (error-panel/dom event/broadcast)
-           (status-bar/dom event/broadcast))
+           (error-panel/dom event/broadcast))
 
 
   ;; Register UI event subscriptions
@@ -55,7 +63,6 @@
   (event/map-subs db-form/recv (db-form/events))
   (event/map-subs job-panel/recv (job-panel/events))
   (event/map-subs upload-panel/recv (upload-panel/events))
-  (event/map-subs export-panel/recv (export-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
   (event/map-subs query-form/recv (query-form/events))
   (event/map-subs error-panel/recv (error-panel/events))
@@ -64,10 +71,10 @@
   ;; Turn off the stuff we don't want to see right away.
   (event/broadcast [:error-panel-toggle {}])
   (event/broadcast [:upload-panel-toggle {}])
-  (event/broadcast [:export-panel-toggle {}])
 
   ;; Register non-UI event subscribers
   (event/map-subs net/recv (net/events))
+  (event/map-subs export/recv (export/events))
 
   ;; Just for fun, for now.
   (listen! (sel1 :html) :mousemove

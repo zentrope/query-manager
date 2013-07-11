@@ -138,6 +138,18 @@
        []
      (redirect "/qman"))
 
+   (GET "/qman/queries/download"
+       []
+     (-> (sql/all)
+         (as-> stuff
+               (mapv #(dissoc % :id) stuff)
+               (with-out-str (clojure.pprint/pprint stuff))
+               (clojure.string/replace (str stuff) #"\\n" "\n"))
+         (response)
+         (status 200)
+         (header "Content-Type" "application/octet-stream")
+         (header "Content-Disposition" "attachment;filename=\"queries.clj\"")))
+
    (GET "/qman"
        []
      (html5 [:head
