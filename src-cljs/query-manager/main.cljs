@@ -13,6 +13,7 @@
             [query-manager.view.job-panel :as job-panel]
             [query-manager.view.job-viewer :as job-viewer]
             [query-manager.view.upload-panel :as upload-panel]
+            [query-manager.view.export-panel :as export-panel]
             [query-manager.view.query-panel :as query-panel]
             [query-manager.view.query-form :as query-form]
             [query-manager.view.error-panel :as error-panel]
@@ -42,6 +43,7 @@
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)
            (upload-panel/dom event/broadcast)
+           (export-panel/dom event/broadcast)
            (error-panel/dom event/broadcast)
            (status-bar/dom event/broadcast))
 
@@ -53,13 +55,16 @@
   (event/map-subs db-form/recv (db-form/events))
   (event/map-subs job-panel/recv (job-panel/events))
   (event/map-subs upload-panel/recv (upload-panel/events))
+  (event/map-subs export-panel/recv (export-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
   (event/map-subs query-form/recv (query-form/events))
   (event/map-subs error-panel/recv (error-panel/events))
   (event/map-subs job-viewer/recv (job-viewer/events))
 
+  ;; Turn off the stuff we don't want to see right away.
   (event/broadcast [:error-panel-toggle {}])
   (event/broadcast [:upload-panel-toggle {}])
+  (event/broadcast [:export-panel-toggle {}])
 
   ;; Register non-UI event subscribers
   (event/map-subs net/recv (net/events))

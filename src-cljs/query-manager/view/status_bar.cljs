@@ -15,6 +15,7 @@
           [:button#sb-jobs "jobs"]
           [:button#sb-sql "queries"]
           [:button#sb-import "import"]
+          [:button#sb-export "export"]
           [:button#sb-err "err"]]
          [:div#mouse-coords
           "(" [:span#mouse-x "0"] ":" [:span#mouse-y "0"] ")"]]))
@@ -45,6 +46,7 @@
     (listen! [t :#sb-sql] :click (on-toggle broadcast :query-panel-toggle))
     (listen! [t :#sb-err] :click (on-toggle broadcast :error-panel-toggle))
     (listen! [t :#sb-import] :click (on-toggle broadcast :upload-panel-toggle))
+    (listen! [t :#sb-export] :click (on-toggle broadcast :export-panel-toggle))
     t))
 
 ;;-----------------------------------------------------------------------------
@@ -59,6 +61,7 @@
   []
   [:db-change :mousemove
    :db-panel-toggle :job-panel-toggle :query-panel-toggle :error-panel-toggle
+   :export-panel-toggle
    :upload-panel-toggle])
 
 (defn recv
@@ -71,4 +74,5 @@
     :query-panel-toggle (toggle-class! (sel1 :#sb-sql) "not-showing")
     :error-panel-toggle (toggle-class! (sel1 :#sb-err) "not-showing")
     :upload-panel-toggle (toggle-class! (sel1 :#sb-import) "not-showing")
+    :export-panel-toggle (toggle-class! (sel1 :#sb-export) "not-showing")
     true))
