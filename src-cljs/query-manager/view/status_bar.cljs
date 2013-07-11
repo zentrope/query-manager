@@ -15,7 +15,6 @@
           [:button#sb-jobs "jobs"]
           [:button#sb-sql "queries"]
           [:button#sb-import "import"]
-          [:button#sb-export "export"]
           [:button#sb-err "err"]]
          [:div#mouse-coords
           "(" [:span#mouse-x "0"] ":" [:span#mouse-y "0"] ")"]]))
@@ -46,7 +45,6 @@
     (listen! [t :#sb-sql] :click (on-toggle broadcast :query-panel-toggle))
     (listen! [t :#sb-err] :click (on-toggle broadcast :error-panel-toggle))
     (listen! [t :#sb-import] :click (on-toggle broadcast :upload-panel-toggle))
-    (listen! [t :#sb-export] :click (fn [e] (broadcast [:export-queries {}])))
     t))
 
 ;;-----------------------------------------------------------------------------

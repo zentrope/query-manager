@@ -40,7 +40,8 @@
                    [:button.qp-edit {:qid (:id q)} "edit"]
                    [:button.qp-del {:qid (:id q)} "del"]]])]
               [:button#qp-new "new"]
-              [:button#qp-runall "run all"])))
+              [:button#qp-runall "run all"]
+              [:button#qp-export "export"])))
 
 (defn- on-run-all
   [broadcast qids]
@@ -91,7 +92,9 @@
       (listen-all! (sel :.qp-edit) :click (on-edit broadcast))
       (listen-all! (sel :.qp-del) :click (on-delete broadcast))
       (listen! (sel1 :#qp-new) :click (on-new broadcast))
-      (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries))))))
+      (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries)))
+      (listen! (sel1 :#qp-export) :click (fn [e]
+                                           (broadcast [:export-queries {}]))))))
 
 (defn- on-visibility-toggle!
   [broadcast]
