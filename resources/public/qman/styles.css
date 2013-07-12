@@ -1,6 +1,4 @@
 html, body {
-  background: #e6e6e6;
-  background: linen;
   background: white;
   color: #444;
   margin: 0;
@@ -351,19 +349,21 @@ div.lister td {
   text-align: left;
 }
 
-/*--------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 
-#upload-lz {
-  border-radius: 5px;
-  border: 2px dashed silver;
-  padding: 6pt;
-  text-align: center;
+div.import-container {
+  position: fixed;
+  top: 4%;
+  left: 4%;
+  right: 4%;
+  bottom: 4%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  border: 1px solid pink;
+  border-radius: 3px;
 }
 
-#upload-lz:hover {
-  border: 2px dashed sandybrown !important;
-  background: white;
-}
+/*---------------------------------------------------------------------------*/
 
 div#title-bar {
   position: fixed;

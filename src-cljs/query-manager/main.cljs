@@ -48,7 +48,6 @@
            (job-viewer/dom event/broadcast)
 
            ;; Content panels
-;;           (export-panel/dom event/broadcast)
            (db-panel/dom event/broadcast)
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)

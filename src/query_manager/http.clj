@@ -96,7 +96,6 @@
 
    (POST "/qman/api/query"
        [:as r]
-     (info r)
      (let [{:keys [sql description]} (jread r)]
        (sql/create! sql description))
      (as-empty 201))

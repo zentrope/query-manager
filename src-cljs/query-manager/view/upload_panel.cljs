@@ -1,6 +1,6 @@
 (ns query-manager.view.upload-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-html! listen! toggle!]]
+  (:require [dommy.core :refer [show! hide! add-class! set-html! listen! listen-once! hidden?]]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
@@ -8,63 +8,89 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
-  (node [:div#upload-area.panel
-         [:div#upload-lz
-          [:p#upload-doc "Drop your file here."]]]))
+(defn- template
+  []
+  (node [:div.import-container {:style {:display "none"}}]))
+
+(defn- prep-initial-drag!
+  []
+  (listen-once! (sel1 :html) :dragenter (fn [e] (show! (sel1 :.import-container)))))
+
+(defn- hide-container!
+  []
+  (hide! (sel1 :.import-container))
+  (prep-initial-drag!))
 
 (defn- on-text-loaded
-  [broadcast e]
-  (let [source (.-result (.-target e))]
-    (try
-      (let [queries (reader/read-string source)]
-        (doseq [q queries]
-          (broadcast [:query-save {:value q}])))
-      (catch js/Error e
-        (.log js/console "ERROR:" e)
-        (set-html! (sel1 :#upload-doc) "Invalid file format. Sorry!")))))
+  [channel]
+  (fn [e]
+    (let [source (.-result (.-target e))]
+      (try
+        (let [queries (reader/read-string source)]
+          (doseq [q queries]
+            (channel [:query-save {:value q}])))
+        (catch js/Error e
+          (.log js/console "ERROR:" e))
+        (finally
+          (hide-container!))))))
 
 (defn- on-drop
-  [broadcast e]
-  (.preventDefault e)
-  (.stopPropagation e)
-  (let [f (aget (.-files (.-dataTransfer e)) 0)]
-    (if (.-FileReader js/window)
-      (let [rdr (js/FileReader.)]
-        (set! (.-onload rdr) (partial on-text-loaded broadcast))
-        (.readAsText rdr f))
-     (.log js/console "no file reader"))))
+  [channel]
+  (fn [e]
+    (.preventDefault e)
+    (.stopPropagation e)
+    (let [f (aget (.-files (.-dataTransfer e)) 0)]
+      (if (.-FileReader js/window)
+        (let [rdr (js/FileReader.)]
+          (set! (.-onload rdr) (on-text-loaded channel))
+          (.readAsText rdr f))
+        (.log js/console "no file reader")))
+    ;;(hide-container!)
+    ))
+
+(defn- target-class
+  [e]
+  (.-className (.-target e)))
 
 (defn- on-dragover
-  [e]
-  (.preventDefault e)
-  (.stopPropagation e))
+  [channel]
+  (fn [e]
+    (.preventDefault e)
+    (.stopPropagation e)
+    (let [class (target-class e)]
+      (when-not (= class "import-container")
+        (when-not (hidden? (sel1 :.import-container))
+          ;; (.log js/console "class" class)
+          (hide-container!))))))
 
-(defn- on-visibility-toggle!
-  [broadcast]
-  (toggle! (sel1 :#upload-area)))
+(defn- on-drag-leave
+  []
+  (fn [e]
+    (if (= (target-class e) "import-container")
+      (hide-container!))))
 
 (defn- mk-template
-  [broadcast]
-  (listen! [template :#upload-area :div] :dragover on-dragover)
-  (listen! [template :#upload-area :div] :drop (partial on-drop broadcast))
-  template)
+  [channel]
+  (prep-initial-drag!)
+  (listen! (sel1 :html) :dragover (on-dragover channel))
+  (listen! (sel1 :html) :dragleave (on-drag-leave))
+  (listen! (sel1 :html) :drop (fn [e]
+                                (if (= (target-class e) "import-container")
+                                  ((on-drop channel) e))))
+  (template))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
 (defn dom
-  [broadcast]
-  (mk-template broadcast))
+  [channel]
+  (mk-template channel))
 
 (defn events
   []
-  [:upload-panel-toggle])
+  [])
 
 (defn recv
-  [broadcast [topic event]]
-
-  (case topic
-    :upload-panel-toggle (on-visibility-toggle! broadcast)
-    true))
+  [channel [topic event]]
+  true)
