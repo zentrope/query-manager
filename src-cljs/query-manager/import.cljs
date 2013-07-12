@@ -1,6 +1,6 @@
-(ns query-manager.view.upload-panel
+(ns query-manager.import
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [show! hide! add-class! set-html! listen! listen-once! hidden?]]
+  (:require [dommy.core :refer [show! hide! listen! listen-once! hidden?]]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
