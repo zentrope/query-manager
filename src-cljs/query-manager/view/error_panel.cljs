@@ -10,9 +10,10 @@
 
 (def ^:private template
   (node [:div#error-panel.panel
-         [h2 "Error Log"]
-         [:div#ep-list.lister
-          [:p "No errors!"]]]))
+         [:div.panel-header "error log"]
+         [:div.panel-body
+          [:div#ep-list.lister
+           [:p "No errors!"]]]]))
 
 (defn- table-of
   [errors]

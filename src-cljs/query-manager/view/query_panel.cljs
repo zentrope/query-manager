@@ -11,10 +11,11 @@
 (defn- template
   []
   (node [:div#queries.panel
-         [:h2 "Queries"]
-         [:div#queries-table.lister
-          [:p "No queries defined."]
-          [:button#qp-new "new"]]]))
+         [:div.panel-header "queries"]
+         [:div.panel-body
+          [:div#queries-table.lister
+           [:p "No queries defined."]
+           [:button#qp-new "new"]]]]))
 
 (defn- sql-of
   [sql]
@@ -28,7 +29,7 @@
   [queries]
   (node (list [:table
                [:tr
-                [:th {:width "40%"} "desc"]
+                [:th {:width "40%"} "query"]
                 [:th {:width "45%"} "sql"]
                 [:th.actions {:width "15%"} "actions"]]
                (for [q queries]

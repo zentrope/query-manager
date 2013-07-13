@@ -9,8 +9,9 @@
 
 (def ^:private template
   (node [:div#db-panel.panel
-         [:h2 "Database"]
-         [:div#database-table.lister]]))
+         [:div.panel-header "database"]
+         [:div.panel-body
+          [:div#database-table.lister]]]))
 
 (defn- table-of
   [{:keys [type host port user database]}]

@@ -1,5 +1,5 @@
 html, body {
-  background: white;
+  background: #f2f2f2;
   color: #444;
   margin: 0;
   padding: 0;
@@ -38,12 +38,33 @@ p {
 
 .panel {
   margin: 0 auto;
-  padding: 1em;
-  background: #f9f9f9;
+  background: white;
   margin: 15px;
   margin-right: 18px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 0;
+}
+
+.panel-header {
+  text-align: left;
+  font-variant: small-caps;
+  font-size: 12pt;
+  font-weight: bold;
+  background: #ccc;
+  color: #369;
+  letter-spacing: 1.3px;
+  text-shadow: 1px 1px 1px white;
+  padding: 2px;
+  border: 0;
+  padding-left: 0.66em;
+  padding-top: 0.3em;
+  padding-bottom: 0.3em;
+}
+
+.panel-body {
+  padding: 0.66em;
   border-radius: 3px;
-  border: 1px solid #dadada;
 }
 
 /*--- job status ------------------------------------------------------------*/
@@ -82,7 +103,6 @@ p {
   box-shadow: 0 8px 6px -6px black;
   margin-bottom: 2em;
   background: #ddd;
-  /* background: -webkit-linear-gradient(#fff, #ccc); */
   padding: 0.5em;
   text-align: center;
 }
@@ -132,7 +152,7 @@ p {
 
 .panel-buttons {
   position: absolute;
-  right: 20px;
+  right: 25px;
   top: 6px;
   margin: 0;
   text-align: center;
@@ -201,7 +221,6 @@ div.form {
   box-shadow: 0 8px 6px -6px black;
   margin-bottom: 2em;
   background: #ddd;
-  /* background: -webkit-linear-gradient(#fff, #ccc); */
   padding: 0.5em;
 }
 
@@ -214,7 +233,6 @@ div.form h2 {
   border-bottom: 1px solid silver;
   padding-bottom: 0.5em;
   margin-bottom: 0.5em;
-  /* text-shadow: 1px 1px #fff; */
 }
 
 div.form-buttons {
@@ -272,12 +290,7 @@ div.form table td {
   outline: none;
 }
 
-/*--------------------------------------------------*/
-
-#queries {
-}
-
-/*--------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 
 .lister {
 }
@@ -327,24 +340,24 @@ div.lister table {
 }
 
 div.lister th {
-  font-size: 11pt;
-  font-variant: small-caps;
-  /* background: #ddd; */
-  color: mediumseagreen;
-  border-bottom: 1pt solid #c9f;
+  font-size: 10pt;
+  /* font-variant: small-caps; */
+  color: #444;
+  font-style: italic;
+  text-decoration: underline;
   padding: 4px;
   text-align: left;
-  font-weight: bold;
-  border-top: 1px solid #bbb;
+  font-weight: normal;
   border-top: 0;
   padding-left: 4px;
+  border-bottom: 1px solid #f2f2f2;
   background: transparent !important;
 }
 
 div.lister td {
   font-size: 10pt;
   color: black;
-  border-bottom: 1px solid silver;
+  border-bottom: 1px solid #f2f2f2;
   padding: 4px;
   text-align: left;
 }
@@ -372,12 +385,11 @@ div#title-bar {
   top: 0px;
   width: 100%;
   background: #444;
-  background: lavender;
-  border-bottom: 3px solid cornflowerblue;
+  border-bottom: 3px solid #222;
   height: 2.5em;
   padding-top: 6pt;
   color: white;
-  color: black;
+  opacity: 0.8;
 }
 
 #title-text {
@@ -386,6 +398,8 @@ div#title-bar {
   position: absolute;
   top: 10px;
   left: 15px;
+  color: orange;
+  text-shadow: 1px 1px 5px black;
 }
 
 #title-clock {
@@ -395,7 +409,7 @@ div#title-bar {
   font-size: 9pt;
   font-weight: normal;
   color: orange;
-  color: blue;
+  text-shadow: 1px 1px 5px black;
 }
 
 #title-version {
@@ -404,23 +418,27 @@ div#title-bar {
   font-size: 8pt;
   right: 15px;
   font-style: italic;
+  color: lavender;
+  text-shadow: 1px 1px 5px black;
 }
+
+/*---------------------------------------------------------------------------*/
 
 div#status-bar {
   position: fixed;
   margin: 0;
   bottom: 0px;
   width: 100%;
-  background: lavender;
-  color: #444;
+  background: #444;
+  color: white;
   font-size: 10pt;
   padding: 4pt;
   padding-bottom: 1.3em;
   font-variant: small-caps;
   font-size: 10pt;
-  border-top: 1px solid sandybrown;
-  border-top: 3px solid cornflowerblue;
+  border-top: 3px solid #222;
   height: 2em;
+  opacity: 0.9;
 }
 
 div#status-bar div {
@@ -436,7 +454,7 @@ div#db-info {
 }
 
 #db-type, #db-host {
-  color: blue;
+  color: orange;
 }
 
 div#mouse-coords {
@@ -445,8 +463,7 @@ div#mouse-coords {
   left: 10px;
   font-size: 8pt;
   font-weight: normal;
-  color: #777;
+  color: #999;
   border: 0;
   z-index: 1;
-  /* margin-right: 2em; */
 }

@@ -9,9 +9,10 @@
 
 (def ^:private template
   (node [:div#jobs.panel
-         [:h2 "Jobs"]
-         [:div#jobs-table.lister
-          [:p "No jobs."]]]))
+         [:div.panel-header "jobs"]
+         [:div.panel-body
+          [:div#jobs-table.lister
+           [:p "No jobs."]]]]))
 
 (defn- no-jobs
   []
@@ -19,9 +20,7 @@
 
 (defn- table-of
   [jobs]
-  (node (list [:p
-               "Server only keeps the first 500 results per query."]
-              [:table
+  (node (list [:table
                [:tr
                 [:th {:width "10%"} "status"]
                 [:th {:width "40%"} "query"]
