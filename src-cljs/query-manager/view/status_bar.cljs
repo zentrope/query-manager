@@ -10,8 +10,8 @@
   []
   (node [:div#status-bar
          [:div#db-info "conn: none"]
-         [:div.panel-buttons
-          [:button#sb-db "db"]
+         [:div.status-buttons
+          [:button#sb-db.not-showing "db"]
           [:button#sb-jobs "jobs"]
           [:button#sb-sql "queries"]
           [:button#sb-err "err"]]
@@ -31,18 +31,18 @@
                                     " on "
                                     [:span#db-host host]])))
 
-(defn- on-toggle
-  [broadcast topic]
+(defn- on-toggle!
+  [channel topic]
   (fn [e]
-    (broadcast [topic {}])))
+    (channel [topic {}])))
 
 (defn- mk-template
-  [broadcast]
+  [channel]
   (let [t (template)]
-    (listen! [t :#sb-db] :click (on-toggle broadcast :db-panel-toggle))
-    (listen! [t :#sb-jobs] :click (on-toggle broadcast :job-panel-toggle))
-    (listen! [t :#sb-sql] :click (on-toggle broadcast :query-panel-toggle))
-    (listen! [t :#sb-err] :click (on-toggle broadcast :error-panel-toggle))
+    (listen! [t :#sb-db] :click (on-toggle! channel :db-form-show))
+    (listen! [t :#sb-jobs] :click (on-toggle! channel :job-panel-toggle))
+    (listen! [t :#sb-sql] :click (on-toggle! channel :query-panel-toggle))
+    (listen! [t :#sb-err] :click (on-toggle! channel :error-panel-toggle))
     t))
 
 ;;-----------------------------------------------------------------------------
@@ -50,20 +50,26 @@
 ;;-----------------------------------------------------------------------------
 
 (defn dom
-  [broadcast]
-  (mk-template broadcast))
+  [channel]
+  (mk-template channel))
 
 (defn events
   []
-  [:db-change :mousemove
-   :db-panel-toggle :job-panel-toggle :query-panel-toggle :error-panel-toggle])
+  [:db-change
+   :mousemove
+   :db-form-hide
+   :db-form-show
+   :job-panel-toggle
+   :query-panel-toggle
+   :error-panel-toggle])
 
 (defn recv
-  [broadcast [type event]]
-  (case type
+  [channel [topic event]]
+  (case topic
     :db-change (set-db-info! (:value event))
     :mousemove (set-mouse-coords! (:value event))
-    :db-panel-toggle (toggle-class! (sel1 :#sb-db) "not-showing")
+    :db-form-hide (toggle-class! (sel1 :#sb-db) "not-showing")
+    :db-form-show (toggle-class! (sel1 :#sb-db) "not-showing")
     :job-panel-toggle (toggle-class! (sel1 :#sb-jobs) "not-showing")
     :query-panel-toggle (toggle-class! (sel1 :#sb-sql) "not-showing")
     :error-panel-toggle (toggle-class! (sel1 :#sb-err) "not-showing")

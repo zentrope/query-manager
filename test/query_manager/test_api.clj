@@ -113,11 +113,11 @@
   (let [r (get! "/qman/api/db")
         data (jread (:body r))]
     (is (= 200 (:status r)))
-    (is (= default-spec data))))
+    (is (= (assoc default-spec :updated true) data))))
 
 (deftest put-db
   (let [spec {:user "k" :password "z" :database "test" :type "mysql"
-              :host "foo" :port 17}
+              :host "foo" :port 17 :updated true}
         r (put! "/qman/api/db" spec)
         r2 (get! "/qman/api/db")
         data (jread (:body r2))]
@@ -179,7 +179,7 @@
     (is (= "done" (:status job)))
     (is (= (:select statement) (get-in job [:query :sql])))
     (is (= "Test" (get-in job [:query :description])))
-    (is (= job (select-keys job [:id :started :stopped :query :status])))))
+    (is (= job (select-keys job [:id :started :stopped :query :status :size])))))
 
 (deftest find-one-job-among-many
   (drop-db db)

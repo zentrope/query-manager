@@ -8,7 +8,6 @@
             ;; Views
             [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
-            [query-manager.view.db-panel :as db-panel]
             [query-manager.view.job-panel :as job-panel]
             [query-manager.view.query-panel :as query-panel]
             [query-manager.view.error-panel :as error-panel]
@@ -47,7 +46,6 @@
            (import/dom event/broadcast)
 
            ;; Content panels
-           (db-panel/dom event/broadcast)
            (job-panel/dom event/broadcast)
            (query-panel/dom event/broadcast)
            (error-panel/dom event/broadcast))
@@ -55,7 +53,6 @@
   ;; Register UI event subscriptions
   (event/map-subs status-bar/recv (status-bar/events))
   (event/map-subs title-bar/recv (title-bar/events))
-  (event/map-subs db-panel/recv (db-panel/events))
   (event/map-subs db-form/recv (db-form/events))
   (event/map-subs job-panel/recv (job-panel/events))
   (event/map-subs query-panel/recv (query-panel/events))
@@ -86,6 +83,15 @@
   (event/broadcast [:db-poke {}])
   (event/broadcast [:queries-poke {}])
   (event/broadcast [:jobs-poke {}])
+
+  ;; Only bring up the DB connection form if it hasn't been changed
+  ;; since the app started up.
+
+  (letfn [(db-prompter [c [topic {:keys [value]}]]
+            (when-not (:updated value)
+              (c [:db-form-show {}])
+              (event/unsubscribe! db-prompter :db-change)))]
+    (event/map-subs db-prompter [:db-change]))
 
   (.log js/console " - loaded"))
 

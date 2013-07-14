@@ -9,7 +9,8 @@
                    :password ""
                    :database "test"
                    :host "127.0.0.1"
-                   :port 1234})
+                   :port 1234
+                   :updated false})
 
 (def ^:private conn-spec (atom default-spec))
 
@@ -48,7 +49,7 @@
 
 (defn put
   [spec]
-  (reset! conn-spec spec))
+  (reset! conn-spec (assoc spec :updated true)))
 
 (defn spec
   []

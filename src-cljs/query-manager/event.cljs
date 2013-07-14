@@ -12,6 +12,12 @@
                        (let [orig (or (event-type s) #{})]
                          (assoc s event-type (conj orig f))))))
 
+(defn- rem-sub!
+  [event-type handler]
+  (swap! subscribers (fn [subs]
+                       (let [orig (or (event-type subs) #{})]
+                         (assoc subs event-type (disj orig handler))))))
+
 (defn- now
   []
   (.getTime (js/Date.)))
@@ -24,6 +30,10 @@
   [f event-types]
   (doseq [e event-types]
     (add-sub e f)))
+
+(defn unsubscribe!
+  [handler event-type]
+  (rem-sub! event-type handler))
 
 (defn broadcast
   [event]
