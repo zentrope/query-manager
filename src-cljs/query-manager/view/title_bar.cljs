@@ -47,7 +47,7 @@
   [channel]
   (mk-template channel))
 
-(defn events
+(defn topics
   []
   [:clock])
 

@@ -113,7 +113,7 @@
   [broadcast]
   (mk-template broadcast))
 
-(defn events
+(defn topics
   []
   [:query-change :query-panel-toggle])
 

@@ -168,8 +168,8 @@
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn events
-  "Events this namespace is interested in receiving."
+(defn topics
+  "Topics this namespace is interested in receiving."
   []
   [:db-poke :db-save
    :query-poke :query-save :query-delete :query-run

@@ -84,7 +84,7 @@
   [broadcast]
   (mk-template broadcast))
 
-(defn events
+(defn topics
   []
   [:db-change :db-form-hide :db-form-show])
 

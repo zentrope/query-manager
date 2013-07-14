@@ -73,7 +73,7 @@
   [broadcast]
   (mk-template broadcast))
 
-(defn events
+(defn topics
   []
   [:query-form-show :query-form-hide :query-get])
 

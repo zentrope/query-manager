@@ -86,7 +86,7 @@
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn events
+(defn topics
   []
   [:job-get :job-view-show :job-view-hide])
 

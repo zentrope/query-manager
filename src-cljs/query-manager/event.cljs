@@ -4,19 +4,19 @@
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private subscribers (atom {}))
+(def ^:private subscriptions (atom {}))
 
-(defn- add-sub
-  [event-type f]
-  (swap! subscribers (fn [s]
-                       (let [orig (or (event-type s) #{})]
-                         (assoc s event-type (conj orig f))))))
+(defn- add-sub!
+  [topic f]
+  (swap! subscriptions (fn [s]
+                       (let [orig (or (topic s) #{})]
+                         (assoc s topic (conj orig f))))))
 
 (defn- rem-sub!
-  [event-type handler]
-  (swap! subscribers (fn [subs]
-                       (let [orig (or (event-type subs) #{})]
-                         (assoc subs event-type (disj orig handler))))))
+  [topic handler]
+  (swap! subscriptions (fn [subs]
+                       (let [orig (or (topic subs) #{})]
+                         (assoc subs topic (disj orig handler))))))
 
 (defn- now
   []
@@ -26,19 +26,19 @@
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn map-subs
-  [f event-types]
-  (doseq [e event-types]
-    (add-sub e f)))
+(defn subscribe!
+  [handler topics]
+  (doseq [topic topics]
+    (add-sub! topic handler)))
 
 (defn unsubscribe!
-  [handler event-type]
-  (rem-sub! event-type handler))
+  [handler topic]
+  (rem-sub! topic handler))
 
-(defn broadcast
+(defn publish!
   [event]
   (let [topic (first event)
         data (assoc (second event) :timestamp (now))]
-    (when-let [subscribers (topic @subscribers)]
-      (doseq [s subscribers]
-        (s broadcast [topic data])))))
+    (when-let [subscribers (topic @subscriptions)]
+      (doseq [subscriber subscribers]
+        (subscriber publish! [topic data])))))

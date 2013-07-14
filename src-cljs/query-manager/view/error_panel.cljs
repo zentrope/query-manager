@@ -61,7 +61,7 @@
   [broadcast]
   (mk-template broadcast))
 
-(defn events
+(defn topics
   []
   [:web-error :error-panel-toggle])
 

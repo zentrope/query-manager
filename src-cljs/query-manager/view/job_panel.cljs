@@ -91,7 +91,7 @@
   [broadcast]
   (mk-template broadcast))
 
-(defn events
+(defn topics
   []
   [:job-change :job-panel-toggle])
 

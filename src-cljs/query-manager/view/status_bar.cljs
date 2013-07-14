@@ -53,7 +53,7 @@
   [channel]
   (mk-template channel))
 
-(defn events
+(defn topics
   []
   [:db-change
    :mousemove

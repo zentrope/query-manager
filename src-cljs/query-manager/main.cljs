@@ -36,53 +36,53 @@
   (append! (sel1 :body)
 
            ;; UI functions and status
-           (title-bar/dom event/broadcast)
-           (status-bar/dom event/broadcast)
+           (title-bar/dom event/publish!)
+           (status-bar/dom event/publish!)
 
            ;; Popup forms (or similar)
-           (db-form/dom event/broadcast)
-           (query-form/dom event/broadcast)
-           (job-viewer/dom event/broadcast)
-           (import/dom event/broadcast)
+           (db-form/dom event/publish!)
+           (query-form/dom event/publish!)
+           (job-viewer/dom event/publish!)
+           (import/dom event/publish!)
 
            ;; Content panels
-           (job-panel/dom event/broadcast)
-           (query-panel/dom event/broadcast)
-           (error-panel/dom event/broadcast))
+           (job-panel/dom event/publish!)
+           (query-panel/dom event/publish!)
+           (error-panel/dom event/publish!))
 
   ;; Register UI event subscriptions
-  (event/map-subs status-bar/recv (status-bar/events))
-  (event/map-subs title-bar/recv (title-bar/events))
-  (event/map-subs db-form/recv (db-form/events))
-  (event/map-subs job-panel/recv (job-panel/events))
-  (event/map-subs query-panel/recv (query-panel/events))
-  (event/map-subs query-form/recv (query-form/events))
-  (event/map-subs error-panel/recv (error-panel/events))
-  (event/map-subs job-viewer/recv (job-viewer/events))
+  (event/subscribe! status-bar/recv (status-bar/topics))
+  (event/subscribe! title-bar/recv (title-bar/topics))
+  (event/subscribe! db-form/recv (db-form/topics))
+  (event/subscribe! job-panel/recv (job-panel/topics))
+  (event/subscribe! query-panel/recv (query-panel/topics))
+  (event/subscribe! query-form/recv (query-form/topics))
+  (event/subscribe! error-panel/recv (error-panel/topics))
+  (event/subscribe! job-viewer/recv (job-viewer/topics))
 
   ;; Turn off the stuff we don't want to see right away.
-  (event/broadcast [:error-panel-toggle {}])
-  (event/broadcast [:upload-panel-toggle {}])
+  (event/publish! [:error-panel-toggle {}])
+  (event/publish! [:upload-panel-toggle {}])
 
   ;; Register non-UI event subscribers
-  (event/map-subs net/recv (net/events))
-  (event/map-subs export/recv (export/events))
-  (event/map-subs import/recv (import/events))
+  (event/subscribe! net/recv (net/topics))
+  (event/subscribe! export/recv (export/topics))
+  (event/subscribe! import/recv (import/topics))
 
   ;; Just for fun, for now.
   (listen! (sel1 :html) :mousemove
            (fn [e]
              (let [x (.-clientX e)
                    y (.-clientY e)]
-               (event/broadcast [:mousemove {:value [x y]}]))))
+               (event/publish! [:mousemove {:value [x y]}]))))
 
   ;; Start background processes
-  (proc/start event/broadcast)
+  (proc/start event/publish!)
 
   ;; Init
-  (event/broadcast [:db-poke {}])
-  (event/broadcast [:queries-poke {}])
-  (event/broadcast [:jobs-poke {}])
+  (event/publish! [:db-poke {}])
+  (event/publish! [:queries-poke {}])
+  (event/publish! [:jobs-poke {}])
 
   ;; Only bring up the DB connection form if it hasn't been changed
   ;; since the app started up.
@@ -91,7 +91,7 @@
             (when-not (:updated value)
               (c [:db-form-show {}])
               (event/unsubscribe! db-prompter :db-change)))]
-    (event/map-subs db-prompter [:db-change]))
+    (event/subscribe! db-prompter [:db-change]))
 
   (.log js/console " - loaded"))
 
