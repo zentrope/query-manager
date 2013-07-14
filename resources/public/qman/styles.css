@@ -28,13 +28,13 @@ p {
   font-size: 10pt;
 }
 
-/*--------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 
 .flash {
   background: yellow !important;
 }
 
-/*--------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
 
 .panel {
   margin: 0 auto;
@@ -49,7 +49,7 @@ p {
 .panel-header {
   text-align: left;
   font-variant: small-caps;
-  font-size: 12pt;
+  font-size: 13pt;
   font-weight: bold;
   background: #ccc;
   color: #369;
@@ -164,42 +164,59 @@ p {
   width: 5em;
   margin: 0;
 
-  color: white;
-  background: #369;
-  border: 1px solid #444;
+  color: #222;
+  background: #bbb;
+  border: 1px solid #222;
 
   border-radius: 5px;
   margin-left: 2px;
   margin-right: 2px;
+  padding: 0.2em;
+
   font-weight: normal;
   font-size: 10pt;
-  padding: 0.2em;
   letter-spacing: 1.3px;
+  text-shadow: 1px 1px 1px white;
 }
 
 .panel-buttons button:hover {
-  box-shadow: 0px 0px 2px 1px #999;
+  box-shadow: 0px 0px 4px 1px orange;
 }
 
 .panel-buttons button:active {
   background: darkred !important;
 }
 
-.panel-buttons button.not-showing:hover {
-  box-shadow: inset 0px 0px 2px 2px #999;
-  background: #ccc !important;
-  background: white !important;
-  color: blue !important;
-}
+/* .panel-buttons button.not-showing:hover { */
+/*   box-shadow: inset 0px 0px 2px 2px #999; */
+/*   background: #ccc !important; */
+/*   background: white !important; */
+/*   color: blue !important; */
+/* } */
 
 .not-showing {
-  color: #444 !important;
-  background: lavender !important;
+  color: #ccc !important;
+  background: #888 !important;
   border: 1px solid #444 !important;
-  /* text-shadow: 1px 1px #aaa !important; */
+  text-shadow: -1px -1px 1px #555 !important;
 }
 
-/*--------------------------------------------------*/
+/*---------------------------------------------------------------------------*/
+
+div.import-container {
+  position: fixed;
+  top: 8%;
+  bottom: 8%;
+  left: 4%;
+  right: 4%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  border: 1px solid orange;
+  border-radius: 3px;
+  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
+}
+
+/*---------------------------------------------------------------------------*/
 
 div.form-container {
   position: fixed;
@@ -341,8 +358,7 @@ div.lister table {
 
 div.lister th {
   font-size: 10pt;
-  /* font-variant: small-caps; */
-  color: #444;
+  color: #666;
   font-style: italic;
   text-decoration: underline;
   padding: 4px;
@@ -364,22 +380,7 @@ div.lister td {
 
 /*---------------------------------------------------------------------------*/
 
-div.import-container {
-  position: fixed;
-  top: 4%;
-  left: 4%;
-  right: 4%;
-  bottom: 4%;
-  background: rgba(0, 0, 0, 0.5);
-  z-index: 999;
-  border: 1px solid orange;
-  border-radius: 3px;
-  box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
-}
-
-/*---------------------------------------------------------------------------*/
-
-div#title-bar {
+#title-bar {
   position: fixed;
   margin: 0;
   top: 0px;
