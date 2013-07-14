@@ -1,7 +1,7 @@
 (ns query-manager.view.job-panel
   (:use-macros [dommy.macros :only [sel sel1 node]])
   (:require [dommy.core :refer [attr replace-contents! listen! toggle!]]
-            [query-manager.utils :refer [flash! listen-all!]]))
+            [query-manager.utils :refer [flash! listen-all! das]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -18,23 +18,42 @@
   []
   (node [:p "No job history."]))
 
+(defn- ftimestamp
+  [ts]
+  (if (< ts 1)
+    "-"
+    (let [d (js/Date. ts)]
+      (str (das :hour d)
+           ":"
+           (das :minute d)
+           ":"
+           (das :second d)))))
+
+(defn- duration
+  [started stopped]
+  (if (< stopped 1)
+    (node [:span.spin])
+    (.toFixed (/ (- stopped started) 1000) 2)))
+
 (defn- table-of
   [jobs]
   (node (list [:table
                [:tr
                 [:th {:width "10%"} "status"]
                 [:th {:width "40%"} "query"]
-                [:th {:width "15%"} "started"]
-                [:th {:width "15%"} "stopped"]
-                [:th {:width "10%"} "results"]
+                [:th {:width "10%"} "started"]
+                [:th {:width "10%"} "stopped"]
+                [:th.num {:width "10%"} "duration (s)"]
+                [:th.num {:width "10%"} "results"]
                 [:th.actions {:width "10%"} "actions"]]
                (for [{:keys [id started stopped query status size]} jobs]
                  [:tr {:id (str "jp-row-" id)}
                   [:td {:class status} status]
                   [:td (:description query)]
-                  [:td started]
-                  [:td stopped]
-                  [:td size]
+                  [:td (ftimestamp started)]
+                  [:td (ftimestamp stopped)]
+                  [:td.num (duration started stopped)]
+                  [:td.num size]
                   [:td.actions
                    (when-not (zero? size)
                      [:button.jp-view {:jid id} "view"])
