@@ -4,6 +4,7 @@
 
             ;; Events
             [query-manager.event :as event]
+            [query-manager.protocols :refer [publish!]]
 
             ;; Views
             [query-manager.view.status-bar :as status-bar]
@@ -24,6 +25,8 @@
 ;;-----------------------------------------------------------------------------
 ;; Main
 ;;-----------------------------------------------------------------------------
+
+(def ^:private bus (event/mk-event-bus))
 
 (defn main
   []
@@ -51,7 +54,9 @@
            (error-panel/dom event/publish!))
 
   ;; Register UI event subscriptions
-  (event/subscribe! status-bar/recv (status-bar/topics))
+;;  (event/subscribe! status-bar/recv (status-bar/topics))
+  (status-bar/mk-view! bus) ;; returns dom, should bind in let, then inject
+
   (event/subscribe! title-bar/recv (title-bar/topics))
   (event/subscribe! db-form/recv (db-form/topics))
   (event/subscribe! job-panel/recv (job-panel/topics))
@@ -74,7 +79,7 @@
            (fn [e]
              (let [x (.-clientX e)
                    y (.-clientY e)]
-               (event/publish! [:mousemove {:value [x y]}]))))
+               (publish! bus :mousemove {:value [x y]}))))
 
   ;; Start background processes
   (proc/start event/publish!)
@@ -92,6 +97,7 @@
               (c [:db-form-show {}])
               (event/unsubscribe! db-prompter :db-change)))]
     (event/subscribe! db-prompter [:db-change]))
+
 
   (.log js/console " - loaded"))
 

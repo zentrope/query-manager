@@ -1,4 +1,30 @@
-(ns query-manager.event)
+(ns query-manager.event
+  (:use [query-manager.protocols :only [IBus ISubscriber recv!]]))
+
+;;-----------------------------------------------------------------------------
+;; Experimental
+;;-----------------------------------------------------------------------------
+
+(defrecord Subscriber [topic handler]
+  ISubscriber
+  (recv! [this mbus message]
+    (handler mbus message)))
+
+(defrecord EventBus [subscriptions]
+  IBus
+  (subscribe! [this topic handler]
+    (let [subscriber (Subscriber. topic handler)]
+      (swap! subscriptions (fn [subs]
+                             (let [clients (conj (or (topic subs) #{}) subscriber)]
+                               (assoc subs topic clients))))))
+  (publish! [this topic message]
+    (let [subs (topic @subscriptions)]
+      (doseq [sub subs]
+        (recv! sub this message)))))
+
+(defn mk-event-bus
+  []
+  (EventBus. (atom {})))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
