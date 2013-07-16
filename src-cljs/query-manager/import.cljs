@@ -1,6 +1,8 @@
 (ns query-manager.import
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [show! hide! listen! listen-once! hidden?]]
+            [query-manager.protocols :refer [publish!]]
+            [query-manager.view :refer [mk-view]]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
@@ -22,27 +24,27 @@
   (prep-initial-drag!))
 
 (defn- on-text-loaded
-  [channel]
+  [mbus]
   (fn [e]
     (let [source (.-result (.-target e))]
       (try
         (let [queries (reader/read-string source)]
           (doseq [q queries]
-            (channel [:query-save {:value q}])))
+            (publish! mbus :query-save {:value q})))
         (catch js/Error e
           (.log js/console "ERROR:" e))
         (finally
           (hide-container!))))))
 
 (defn- on-drop
-  [channel]
+  [mbus]
   (fn [e]
     (.preventDefault e)
     (.stopPropagation e)
     (let [f (aget (.-files (.-dataTransfer e)) 0)]
       (if (.-FileReader js/window)
         (let [rdr (js/FileReader.)]
-          (set! (.-onload rdr) (on-text-loaded channel))
+          (set! (.-onload rdr) (on-text-loaded mbus))
           (.readAsText rdr f))
         (.log js/console "no file reader")))
     ;;(hide-container!)
@@ -53,7 +55,7 @@
   (.-className (.-target e)))
 
 (defn- on-dragover
-  [channel]
+  [mbus]
   (fn [e]
     (.preventDefault e)
     (.stopPropagation e)
@@ -70,27 +72,19 @@
       (hide-container!))))
 
 (defn- mk-template
-  [channel]
+  [mbus]
   (prep-initial-drag!)
-  (listen! (sel1 :html) :dragover (on-dragover channel))
+  (listen! (sel1 :html) :dragover (on-dragover mbus))
   (listen! (sel1 :html) :dragleave (on-drag-leave))
   (listen! (sel1 :html) :drop (fn [e]
                                 (if (= (target-class e) "import-container")
-                                  ((on-drop channel) e))))
+                                  ((on-drop mbus) e))))
   (template))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [channel]
-  (mk-template channel))
-
-(defn topics
-  []
-  [])
-
-(defn recv
-  [channel [topic event]]
-  true)
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template {}))

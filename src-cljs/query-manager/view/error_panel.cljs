@@ -1,6 +1,8 @@
 (ns query-manager.view.error-panel
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! listen! toggle!]]))
+  (:require [dommy.core :refer [replace-contents! listen! toggle!]]
+            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -32,42 +34,35 @@
               [:button#ep-clear "clear"])))
 
 (defn- on-clear
-  [broadcast]
+  [mbus]
   (fn [e]
     (reset! errors [])
     (replace-contents! (sel1 :#ep-list) (node [:p "No errors!"]))))
 
 (defn- on-error
-  [broadcast error-event]
+  [mbus error-event]
   (let [errs (swap! errors conj error-event)]
     (replace-contents! (sel1 :#ep-list) (table-of (reverse (sort-by :timestamp errs))))
-    (listen! (sel1 :#ep-clear) :click (on-clear broadcast))
+    (listen! (sel1 :#ep-clear) :click (on-clear mbus))
     (when (> (count @errors) 15)
       (swap! errors (fn [es] (take 15 es))))))
 
 (defn- on-visibility-toggle!
-  [broadcast]
+  [mbus]
   (toggle! (sel1 :#error-panel)))
 
 (defn- mk-template
-  [broadcast]
+  [mbus]
   template)
+
+(def ^:private subscriptions
+  {:web-error (fn [mbus msg] (on-error mbus (:value msg)))
+   :error-panel-toggle (fn [mbus msg] (on-visibility-toggle! mbus))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn topics
-  []
-  [:web-error :error-panel-toggle])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :web-error (on-error broadcast (:value event))
-    :error-panel-toggle (on-visibility-toggle! broadcast)
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

@@ -1,6 +1,7 @@
 (ns query-manager.net
   (:require [goog.net.XhrIo :as xhr]
-            [goog.events :as events]))
+            [goog.events :as events]
+            [query-manager.protocols :refer [publish! subscribe!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -58,28 +59,28 @@
   (js->clj json :keywordize-keys true))
 
 (defn- error-handler
-  [broadcast]
+  [mbus]
   (fn [err]
-    (broadcast [:web-error {:value err}])))
+    (publish! mbus :web-error {:value err})))
 
 ;;-----------------------------------------------------------------------------
 ;; Database connection API
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-db
-  [broadcast]
+  [mbus]
   (ajax :uri "/qman/api/db"
         :method "GET"
-        :on-failure (error-handler broadcast)
-        :on-success (fn [db] (broadcast [:db-change {:value (jread db)}]))
+        :on-failure (error-handler mbus)
+        :on-success (fn [db] (publish! mbus :db-change {:value (jread db)}))
         :type :json))
 
 (defn- save-db
-  [broadcast db]
+  [mbus db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
-        :on-failure (fn [err] (broadcast [:web-error {:value err}]))
-        :on-success (fn [_] (poke-db broadcast))
+        :on-failure (fn [err] (publish! mbus :web-error {:value err}))
+        :on-success (fn [_] (poke-db mbus))
         :data db
         :type :json))
 
@@ -88,118 +89,100 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-jobs
-  [broadcast]
+  [mbus]
   (ajax :uri "/qman/api/job"
         :method "GET"
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [jobs] (broadcast [:job-change {:value (jread jobs)}]))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [jobs] (publish! mbus :job-change {:value (jread jobs)}))))
 
 (defn- poke-job
-  [broadcast job-id]
+  [mbus job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "GET"
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [job] (broadcast [:job-get {:value (jread job)}]))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [job] (publish! mbus :job-get {:value (jread job)}))))
 
 (defn- run-job
-  [broadcast query-id]
+  [mbus query-id]
   (ajax :uri (str "/qman/api/job/" query-id)
         :method "POST"
-        :on-failure (error-handler broadcast)
-        :on-success (fn [_] (poke-jobs broadcast))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [_] (poke-jobs mbus))))
 
 (defn- delete-job
-  [broadcast job-id]
+  [mbus job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [_] (poke-jobs broadcast))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [_] (poke-jobs mbus))))
 
 ;;-----------------------------------------------------------------------------
 ;; Queries API
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-queries
-  [broadcast]
+  [mbus]
   (ajax :uri "/qman/api/query"
         :method "GET"
-        :on-failure (error-handler broadcast)
-        :on-success (fn [data] (broadcast [:query-change {:value (jread data)}]))
+        :on-failure (error-handler mbus)
+        :on-success (fn [data] (publish! mbus :query-change {:value (jread data)}))
         :type :json))
 
 (defn- poke-query
-  [broadcast id]
+  [mbus id]
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
-        :on-failure (error-handler broadcast)
-        :on-success (fn [data] (broadcast [:query-get {:value (jread data)}]))
+        :on-failure (error-handler mbus)
+        :on-success (fn [data] (publish! mbus :query-get {:value (jread data)}))
         :type :json))
 
 (defn- save-query
-  [broadcast query]
+  [mbus query]
   (ajax :uri "/qman/api/query"
         :method "POST"
         :data query
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [_] (poke-queries broadcast))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [_] (poke-queries mbus))))
 
 (defn- update-query
-  [broadcast query]
+  [mbus query]
   (ajax :uri (str "/qman/api/query/" (:id query))
         :method "PUT"
         :data query
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [_] (poke-queries broadcast))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [_] (poke-queries mbus))))
 
 (defn- delete-query
-  [broadcast query-id]
+  [mbus query-id]
   (ajax :uri (str "/qman/api/query/" query-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler broadcast)
-        :on-success (fn [_] (poke-queries broadcast))))
+        :on-failure (error-handler mbus)
+        :on-success (fn [_] (poke-queries mbus))))
+
+(def ^:private subscriptions
+  {:db-save (fn [mbus msg] (save-db mbus (:value msg)))
+   :db-poke (fn [mbus _] (poke-db mbus))
+   :queries-poke (fn [mbus _] (poke-queries mbus))
+   :query-save (fn [mbus msg] (save-query mbus (:value msg)))
+   :query-update (fn [mbus msg] (update-query mbus (:value msg)))
+   :query-delete (fn [mbus msg] (delete-query mbus (:value msg)))
+   :query-run (fn [mbus msg] (run-job mbus (:value msg)))
+   :query-poke (fn [mbus msg] (poke-query mbus (:value msg)))
+   :jobs-poke (fn [mbus _] (poke-jobs mbus))
+   :job-poke (fn [mbus msg] (poke-job mbus (:value msg)))
+   :job-delete (fn [mbus msg] (delete-job mbus (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn topics
-  "Topics this namespace is interested in receiving."
-  []
-  [:db-poke :db-save
-   :query-poke :query-save :query-delete :query-run
-   :queries-poke :query-update
-   :jobs-poke :job-delete :job-poke])
-
-(defn recv
-  "Event receiver."
-  [broadcast [topic event]]
-  (case topic
-    ;;
-    ;; database events
-    ;;
-    :db-save (save-db broadcast (:value event))
-    :db-poke (poke-db broadcast)
-    ;;
-    ;; query events
-    ;;
-    :queries-poke (poke-queries broadcast)
-    :query-save (save-query broadcast (:value event))
-    :query-update (update-query broadcast (:value event))
-    :query-delete (delete-query broadcast (:value event))
-    :query-run (run-job broadcast (:value event))
-    :query-poke (poke-query broadcast (:value event))
-    ;;
-    ;; job events
-    ;;
-    :jobs-poke (poke-jobs broadcast)
-    :job-poke (poke-job broadcast (:value event))
-    :job-delete (delete-job broadcast (:value event))
-    ;;
-    ;;
-    true))
+(defn init!
+  [mbus]
+  (doseq [[topic handler] subscriptions]
+    (subscribe! mbus topic handler)))

@@ -1,6 +1,8 @@
 (ns query-manager.view.job-viewer
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! set-html! show! hide! listen!]]))
+  (:require [dommy.core :refer [replace-contents! set-html! show! hide! listen!]]
+            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; DOM
@@ -40,31 +42,31 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- on-done-button-clicked
-  [broadcast]
+  [mbus]
   (fn [e]
-    (broadcast [:job-view-hide {}])))
+    (publish! mbus :job-view-hide {})))
 
 ;;-----------------------------------------------------------------------------
 ;; Application Events
 ;;-----------------------------------------------------------------------------
 
 (defn- on-show!
-  [broadcast]
+  [mbus]
   (show! (sel1 :#job-view-container)))
 
 (defn- on-hide!
-  [broadcast]
+  [mbus]
   (hide! (sel1 :#job-view-container)))
 
 (defn- on-update!
-  [broadcast job]
+  [mbus job]
   (set-html! (sel1 :#jv-desc) (:description (:query job)))
   ;;
   ;; TODO:
   ;; The button click in job_panel should first send a job-view-show,
   ;; then a job get. This pops up quick, the populates later.
   ;;
-  (on-show! broadcast)
+  (on-show! mbus)
   ;;
   (if-not (nil? (:error job))
     (replace-contents! (sel1 :#job-viewer) (error-for job))
@@ -77,27 +79,20 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- mk-template
-  [broadcast]
-  (let [template (template)]
-    (listen! [template :#jv-done] :click (on-done-button-clicked broadcast))
-    template))
+  [mbus]
+  (let [t (template)]
+    (listen! [t :#jv-done] :click (on-done-button-clicked mbus))
+    t))
+
+(def ^:private subscriptions
+  {:job-view-show (fn [mbus msg] (on-show! mbus))
+   :job-view-hide (fn [mbus msg] (on-hide! mbus))
+   :job-get (fn [mbus msg] (on-update! mbus (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn topics
-  []
-  [:job-get :job-view-show :job-view-hide])
-
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :job-view-show (on-show! broadcast)
-    :job-view-hide (on-hide! broadcast)
-    :job-get (on-update! broadcast (:value event))
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

@@ -1,13 +1,16 @@
 (ns query-manager.view.job-panel
   (:use-macros [dommy.macros :only [sel sel1 node]])
   (:require [dommy.core :refer [attr replace-contents! listen! toggle!]]
+            [query-manager.protocols :refer [publish!]]
+            [query-manager.view :refer [mk-view]]
             [query-manager.utils :refer [flash! listen-all! das]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#jobs.panel
          [:div.panel-header "jobs"]
          [:div.panel-body
@@ -63,60 +66,53 @@
 ;; local events
 
 (defn- on-clear
-  [broadcast jids]
+  [mbus jids]
   (fn [e]
     (doseq [id jids]
-      (broadcast [:job-delete {:value id}]))))
+      (publish! mbus :job-delete {:value id}))))
 
 (defn- on-delete
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [id (attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
-      (broadcast [:job-delete {:value id}]))))
+      (publish! mbus :job-delete {:value id}))))
 
 (defn- on-view
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [id (attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
-      (broadcast [:job-poke {:value id}]))))
+      (publish! mbus :job-poke {:value id}))))
 
 ;; incoming events
 
 (defn- on-job-change
-  [broadcast jobs]
+  [mbus jobs]
   (when (empty? jobs)
     (replace-contents! (sel1 :#jobs-table) (no-jobs)))
   (when-not (empty? jobs)
     (replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
-    (listen-all! (sel :.jp-del) :click (on-delete broadcast))
-    (listen-all! (sel :.jp-view) :click (on-view broadcast))
-    (listen! (sel1 :#jp-clear) :click (on-clear broadcast (map :id jobs)))))
+    (listen-all! (sel :.jp-del) :click (on-delete mbus))
+    (listen-all! (sel :.jp-view) :click (on-view mbus))
+    (listen! (sel1 :#jp-clear) :click (on-clear mbus (map :id jobs)))))
 
 (defn- on-visibility-toggle!
-  [broadcast]
+  [mbus]
   (toggle! (sel1 :#jobs)))
 
 (defn- mk-template
-  [broadcast]
-  template)
+  [mbus]
+  (template))
+
+(def ^:private subscriptions
+  {:job-change (fn [mbus msg] (on-job-change mbus (:value msg)))
+   :job-panel-toggle (fn [mbus msg] (on-visibility-toggle! mbus))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn topics
-  []
-  [:job-change :job-panel-toggle])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :job-change (on-job-change broadcast (:value event))
-    :job-panel-toggle (on-visibility-toggle! broadcast)
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

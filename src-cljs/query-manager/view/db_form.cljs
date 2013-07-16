@@ -1,12 +1,15 @@
 (ns query-manager.view.db-form
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-value! value listen! show! hide!]]))
+  (:require [dommy.core :refer [set-value! value listen! show! hide!]]
+            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#db-form-container.form-container {:style {:display "none"}}
          [:div#db-form.form
           [:h2 "Database Connection Info"]
@@ -42,25 +45,26 @@
     (js/alert "Not implemented.")))
 
 (defn- on-save
-  [broadcast]
+  [mbus]
   (fn [e]
-    (broadcast [:db-save {:value (mk-db)}])
-    (broadcast [:db-form-hide {}])))
+    (publish! mbus :db-save {:value (mk-db)})
+    (publish! mbus :db-form-hide {})))
 
 (defn- on-cancel
-  [broadcast]
+  [mbus]
   (fn [e]
-    (broadcast [:db-form-hide {}])))
+    (publish! mbus :db-form-hide {})))
 
 (defn- mk-template
-  [broadcast]
-  (listen! [template :#dbf-save] :click (on-save broadcast))
-  (listen! [template :#dbf-test] :click (not-implemented))
-  (listen! [template :#dbf-cancel] :click (on-cancel broadcast))
-  template)
+  [mbus]
+  (let [t (template)]
+    (listen! [t :#dbf-save] :click (on-save mbus))
+    (listen! [t :#dbf-test] :click (not-implemented))
+    (listen! [t :#dbf-cancel] :click (on-cancel mbus))
+    t))
 
 (defn- on-update
-  [broadcast {:keys [type host port user database password]}]
+  [mbus {:keys [type host port user database password]}]
   (set-value! (sel1 :#dbf-type) type)
   (set-value! (sel1 :#dbf-host) host)
   (set-value! (sel1 :#dbf-user) user)
@@ -69,29 +73,22 @@
   (set-value! (sel1 :#dbf-database) database))
 
 (defn- on-show
-  [broadcast db-info]
+  [mbus db-info]
   (show! (sel1 :#db-form-container)))
 
 (defn- on-hide
-  [broadcast db-info]
+  [mbus db-info]
   (hide! (sel1 :#db-form-container)))
+
+(def ^:private subscriptions
+  {:db-change (fn [mbus msg] (on-update mbus (:value msg)))
+   :db-form-show (fn [mbus msg] (on-show mbus (:value msg)))
+   :db-form-hide (fn [mbus msg] (on-hide mbus (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn topics
-  []
-  [:db-change :db-form-hide :db-form-show])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :db-change (on-update broadcast (:value event))
-    :db-form-show (on-show broadcast (:value event))
-    :db-form-hide (on-hide broadcast (:value event))
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

@@ -1,6 +1,8 @@
 (ns query-manager.view.query-panel
   (:use-macros [dommy.macros :only [sel1 sel node]])
   (:require [dommy.core :refer [toggle! attr listen! replace-contents!]]
+            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :refer [publish!]]
             [query-manager.utils :refer [flash! listen-all!]]
             [clojure.string :as string]))
 
@@ -45,81 +47,77 @@
               [:button#qp-export "export"])))
 
 (defn- on-run-all
-  [broadcast qids]
+  [mbus qids]
   (fn [e]
     (doseq [qid qids]
-      (broadcast [:query-run {:value qid}]))))
+      (publish! mbus :query-run {:value qid}))))
 
 (defn- on-run
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [id (attr (.-target e) :qid)]
       (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (broadcast [:query-run {:value id}]))))
+      (publish! mbus :query-run {:value id}))))
 
 (defn- on-delete
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [id (attr (.-target e) :qid)
           row (keyword (str "#qp-row-" id))]
       (flash! (sel1 row) :flash)
-      (broadcast [:query-delete {:value id}]))))
+      (publish! mbus :query-delete {:value id}))))
 
 (defn- on-new
-  [broadcast]
+  [mbus]
   (fn [e]
-    (broadcast [:query-form-show {}])))
+    (publish! mbus :query-form-show {})))
 
 (defn- on-edit
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [id (attr (.-target e) :qid)]
       (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (broadcast [:query-poke {:value id}])
-      (broadcast [:query-form-show {}]))))
+      (publish! mbus :query-poke {:value id})
+      (publish! mbus :query-form-show {}))))
 
 (defn- on-query-change
-  [broadcast queries]
+  [mbus queries]
   (if (empty? queries)
 
     (do (replace-contents! (sel1 :#queries-table)
                            (node (list [:p "No queries defined."]
                                        [:button#qp-new "new"])))
-        (listen! (sel1 :#qp-new) :click (on-new broadcast)))
+        (listen! (sel1 :#qp-new) :click (on-new mbus)))
 
     (let [table (table-of (sort-by :id queries))]
       (replace-contents! (sel1 :#queries-table) table)
-      (listen-all! (sel :.qp-run) :click (on-run broadcast))
-      (listen-all! (sel :.qp-edit) :click (on-edit broadcast))
-      (listen-all! (sel :.qp-del) :click (on-delete broadcast))
-      (listen! (sel1 :#qp-new) :click (on-new broadcast))
-      (listen! (sel1 :#qp-runall) :click (on-run-all broadcast (map :id queries)))
+      (listen-all! (sel :.qp-run) :click (on-run mbus))
+      (listen-all! (sel :.qp-edit) :click (on-edit mbus))
+      (listen-all! (sel :.qp-del) :click (on-delete mbus))
+      (listen! (sel1 :#qp-new) :click (on-new mbus))
+      (listen! (sel1 :#qp-runall) :click (on-run-all mbus (map :id queries)))
       (listen! (sel1 :#qp-export) :click (fn [e]
-                                           (broadcast [:export-queries {}]))))))
+                                           (publish! mbus :export-queries {}))))))
 
 (defn- on-visibility-toggle!
-  [broadcast]
+  [mbus]
   (toggle! (sel1 :#queries)))
 
 (defn- mk-template
-  [broadcast]
+  [mbus]
   (template))
+
+(def ^:private subscriptions
+  {:query-change (fn [mbus msg]
+                   (on-query-change mbus (:value msg)))
+   :query-panel-toggle (fn [mbus msg]
+                         (on-visibility-toggle! mbus))})
+
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn topics
-  []
-  [:query-change :query-panel-toggle])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :query-change (on-query-change broadcast (:value event))
-    :query-panel-toggle (on-visibility-toggle! broadcast)
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

@@ -1,21 +1,15 @@
-(ns query-manager.export)
-
-;;-----------------------------------------------------------------------------
+(ns query-manager.export
+  (:require [query-manager.protocols :refer [subscribe!]]))
 
 (defn- on-export!
-  [broadcast]
-  (set! (.-location js/window) "/qman/queries/download"))
+  []
+  (fn [mbus msg]
+    (set! (.-location js/window) "/qman/queries/download")))
 
 ;;-----------------------------------------------------------------------------
 ;; Public
 ;;-----------------------------------------------------------------------------
 
-(defn topics
-  []
-  [:export-queries])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :export-queries (on-export! broadcast)
-    true))
+(defn init!
+  [mbus]
+  (subscribe! mbus :export-queries (on-export!)))

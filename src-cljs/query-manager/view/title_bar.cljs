@@ -1,6 +1,7 @@
 (ns query-manager.view.title-bar
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [set-html!]]
+            [query-manager.view :refer [mk-view]]
             [query-manager.utils :refer [das]]))
 
 ;;-----------------------------------------------------------------------------
@@ -23,23 +24,16 @@
   (set-html! (sel1 :#title-clock) (date-str date)))
 
 (defn- mk-template
-  [channel]
+  [mbus]
   (template))
+
+(def ^:private subscriptions
+  {:clock (fn [mbus msg] (set-clock! (js/Date. (:value msg))))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [channel]
-  (mk-template channel))
-
-(defn topics
-  []
-  [:clock])
-
-(defn recv
-  [broadcast [type event]]
-  (case type
-    :clock (set-clock! (js/Date. (:value event)))
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))

@@ -1,12 +1,15 @@
 (ns query-manager.view.query-form
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-value! set-html! value listen! show! hide!]]))
+  (:require [dommy.core :refer [set-value! set-html! value listen! show! hide!]]
+            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
 ;;-----------------------------------------------------------------------------
 
-(def ^:private template
+(defn- template
+  []
   (node [:div#query-form-container.form-container {:style {:display "none"}}
          [:div#query-form.form
           [:h2 "Query Definition"]
@@ -21,31 +24,31 @@
 ;; Local event handlers
 
 (defn- on-cancel
-  [broadcast]
+  [mbus]
   (fn [e]
-    (broadcast [:query-form-hide {}])))
+    (publish! mbus :query-form-hide {})))
 
 (defn- on-save
-  [broadcast]
+  [mbus]
   (fn [e]
     (let [query {:id (value (sel1 :#qf-id))
                  :sql (value (sel1 :#qf-sql))
                  :description (value (sel1 :#qf-desc))}]
       (if (empty? (:id query))
-        (broadcast [:query-save {:value query}])
-        (broadcast [:query-update {:value query}]))
-      (broadcast [:query-form-hide {}]))))
+        (publish! mbus :query-save {:value query})
+        (publish! mbus :query-update {:value query}))
+      (publish! mbus :query-form-hide {}))))
 
 ;; Incoming event handlers
 
 (defn- on-show
-  [broadcast]
+  [mbus]
   (let [id (value (sel1 :#qf-id))]
     (set-html! (sel1 :#qf-save) (if (empty? id) "create" "save")))
   (show! (sel1 :#query-form-container)))
 
 (defn- on-hide
-  [broadcast]
+  [mbus]
   (hide! (sel1 :#query-form-container))
   (set-value! (sel1 :#qf-id) "")
   (set-value! (sel1 :#qf-desc) "")
@@ -53,34 +56,28 @@
   (set-html! (sel1 :#qf-save) "create"))
 
 (defn- on-update
-  [broadcast {:keys [id sql description]}]
+  [mbus {:keys [id sql description]}]
   (set-value! (sel1 :#qf-id) id)
   (set-value! (sel1 :#qf-desc) description)
   (set-value! (sel1 :#qf-sql) sql)
   (set-html! (sel1 :#qf-save) "save"))
 
 (defn- mk-template
-  [broadcast]
-  (listen! [template :#qf-save] :click (on-save broadcast))
-  (listen! [template :#qf-cancel] :click (on-cancel broadcast))
-  template)
+  [mbus]
+  (let [t (template)]
+    (listen! [t :#qf-save] :click (on-save mbus))
+    (listen! [t :#qf-cancel] :click (on-cancel mbus))
+    t))
+
+(def ^:private subscriptions
+  {:query-form-show (fn [mbus msg] (on-show mbus))
+   :query-form-hide (fn [mbus msg] (on-hide mbus))
+   :query-get (fn [mbus msg] (on-update mbus (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn dom
-  [broadcast]
-  (mk-template broadcast))
-
-(defn topics
-  []
-  [:query-form-show :query-form-hide :query-get])
-
-(defn recv
-  [broadcast [topic event]]
-  (case topic
-    :query-form-show (on-show broadcast)
-    :query-form-hide (on-hide broadcast)
-    :query-get (on-update broadcast (:value event))
-    true))
+(defn mk-view!
+  [mbus]
+  (mk-view mbus mk-template subscriptions))
