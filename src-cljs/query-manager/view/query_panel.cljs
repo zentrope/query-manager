@@ -99,19 +99,12 @@
       (listen! (sel1 :#qp-export) :click (fn [e]
                                            (publish! mbus :export-queries {}))))))
 
-(defn- on-visibility-toggle!
-  [mbus]
-  (toggle! (sel1 :#queries)))
-
 (defn- mk-template
   [mbus]
   (template))
 
 (def ^:private subscriptions
-  {:query-change (fn [mbus msg]
-                   (on-query-change mbus (:value msg)))
-   :query-panel-toggle (fn [mbus msg]
-                         (on-visibility-toggle! mbus))})
+  {:query-change (fn [mbus msg] (on-query-change mbus (:value msg)))})
 
 
 ;;-----------------------------------------------------------------------------

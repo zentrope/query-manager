@@ -97,17 +97,12 @@
     (listen-all! (sel :.jp-view) :click (on-view mbus))
     (listen! (sel1 :#jp-clear) :click (on-clear mbus (map :id jobs)))))
 
-(defn- on-visibility-toggle!
-  [mbus]
-  (toggle! (sel1 :#jobs)))
-
 (defn- mk-template
   [mbus]
   (template))
 
 (def ^:private subscriptions
-  {:job-change (fn [mbus msg] (on-job-change mbus (:value msg)))
-   :job-panel-toggle (fn [mbus msg] (on-visibility-toggle! mbus))})
+  {:job-change (fn [mbus msg] (on-job-change mbus (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface

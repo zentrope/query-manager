@@ -14,8 +14,6 @@
          [:div#db-info "conn: none"]
          [:div.status-buttons
           [:button#sb-db.not-showing "db"]
-          [:button#sb-jobs "jobs"]
-          [:button#sb-sql "queries"]
           [:button#sb-err "err"]]
          [:div#mouse-coords
           "(" [:span#sb-mouse-x "0"] ":" [:span#sb-mouse-y "0"] ")"]]))
@@ -44,8 +42,6 @@
   [mbus]
   (let [t (template)]
     (listen! [t :#sb-db] :click (on-toggle! mbus :db-form-show))
-    (listen! [t :#sb-jobs] :click (on-toggle! mbus :job-panel-toggle))
-    (listen! [t :#sb-sql] :click (on-toggle! mbus :query-panel-toggle))
     (listen! [t :#sb-err] :click (on-toggle! mbus :error-panel-toggle))
     t))
 
@@ -55,11 +51,9 @@
 
 (def ^:private subscriptions
   {:mousemove (fn [mbus msg] (set-mouse-coords! (:value msg)))
-   :job-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-jobs) "not-showing"))
    :db-change (fn [mbus msg] (set-db-info! (:value msg)))
    :db-form-hide (fn [mbus msg] (toggle-class! (sel1 :#sb-db) "not-showing"))
    :db-form-show (fn [mbus msg] (toggle-class! (sel1 :#sb-db) "not-showing"))
-   :query-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-sql) "not-showing"))
    :error-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-err) "not-showing"))})
 
 (defn mk-view!
