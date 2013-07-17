@@ -153,6 +153,7 @@
        []
      (html5 [:head
              [:title "Query Manager"]
+             [:link {:rel "shortcut icon" :href "/qman/favicon.ico"}]
              (include-css "qman/styles.css")
              (include-js "qman/main.js")]
             [:body "Loading..."]))
