@@ -13,8 +13,8 @@
   (node [:div#status-bar
          [:div#db-info "conn: none"]
          [:div.status-buttons
-          [:button#sb-db.not-showing "db"]
-          [:button#sb-err "err"]]
+          [:button#sb-db {:class "not-showing"} "db"]
+          [:button#sb-err "log"]]
          [:div#mouse-coords
           "(" [:span#sb-mouse-x "0"] ":" [:span#sb-mouse-y "0"] ")"]]))
 

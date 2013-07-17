@@ -27,6 +27,7 @@ button {
 p {
   font-size: 10pt;
 }
+
 /*---------------------------------------------------------------------------*/
 
 span.spin {
@@ -229,10 +230,10 @@ div.import-container {
 
 div.form-container {
   position: fixed;
-  top: 20px;
-  bottom: 20px;
-  left: 25px;
-  right: 25px;
+  top: 5px;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
   z-index: 99999;
   background: rgba(0, 0, 0, 0.7);
   border: 1px solid orange;
