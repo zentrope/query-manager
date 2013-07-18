@@ -2,6 +2,7 @@
   (:require [query-manager.db :as db]
             [query-manager.sql :as sql]
             [query-manager.job :as job]
+            [query-manager.test-db :as test-db]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :as json]
             [clojure.tools.logging :refer [info]]
@@ -68,6 +69,18 @@
        [:as r]
      (db/put (jread r))
      (as-empty 201))
+
+   (POST "/qman/api/db/test"
+       [:as r]
+     ;;
+     ;; Returning a result from a POST is a no-no, but, well it's the
+     ;; simplist thing that can possible work, so foo.
+     ;;
+     (-> (jread r)
+         (db/specialize)
+         (test-db/test-connection)
+         (jwrite)
+         (as-json)))
 
    ;;---------------------------------------------------------------------------
    ;; QUERY API

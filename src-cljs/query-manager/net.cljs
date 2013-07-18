@@ -75,6 +75,15 @@
         :on-success (fn [db] (publish! mbus :db-change {:value (jread db)}))
         :type :json))
 
+(defn- test-db
+  [mbus db]
+  (ajax :uri "/qman/api/db/test"
+        :method "POST"
+        :on-failure (error-handler mbus)
+        :on-success (fn [db] (publish! mbus :db-test-result {:value (jread db)}))
+        :data db
+        :type :json))
+
 (defn- save-db
   [mbus db]
   (ajax :uri "/qman/api/db"
@@ -168,6 +177,7 @@
 (def ^:private subscriptions
   {:db-save (fn [mbus msg] (save-db mbus (:value msg)))
    :db-poke (fn [mbus _] (poke-db mbus))
+   :db-test (fn [mbus msg] (test-db mbus (:value msg)))
    :queries-poke (fn [mbus _] (poke-queries mbus))
    :query-save (fn [mbus msg] (save-query mbus (:value msg)))
    :query-update (fn [mbus msg] (update-query mbus (:value msg)))

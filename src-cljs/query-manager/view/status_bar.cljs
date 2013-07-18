@@ -1,6 +1,7 @@
 (ns query-manager.view.status-bar
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace! listen! set-html! toggle-class!]]
+  (:require [dommy.core :refer [replace! listen! set-html! toggle-class!
+                                add-class! remove-class!]]
             [query-manager.view :refer [mk-view]]
             [query-manager.protocols :refer [publish!]]))
 
@@ -52,8 +53,8 @@
 (def ^:private subscriptions
   {:mousemove (fn [mbus msg] (set-mouse-coords! (:value msg)))
    :db-change (fn [mbus msg] (set-db-info! (:value msg)))
-   :db-form-hide (fn [mbus msg] (toggle-class! (sel1 :#sb-db) "not-showing"))
-   :db-form-show (fn [mbus msg] (toggle-class! (sel1 :#sb-db) "not-showing"))
+   :db-form-hide (fn [mbus msg] (add-class! (sel1 :#sb-db) "not-showing"))
+   :db-form-show (fn [mbus msg] (remove-class! (sel1 :#sb-db) "not-showing"))
    :error-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-err) "not-showing"))})
 
 (defn mk-view!

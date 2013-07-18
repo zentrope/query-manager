@@ -41,7 +41,23 @@ span.spin {
   text-align: right !important;
 }
 
-/*---------------------------------------------------------------------------*/
+.all-systems-go {
+  color: lime !important;
+  text-shadow: 1px 1px 2px #333;
+  letter-spacing: 1.2px !important;
+}
+
+.in-progress {
+  color: gold !important;
+  text-shadow: 1px 1px 2px #333;
+  letter-spacing: 1.2px !important;
+}
+
+.snafu {
+  color: firebrick !important;
+  text-shadow: 2px 2px 2px 1px #666;
+  letter-spacing: 1.2px !important;
+}
 
 .flash {
   background: yellow !important;
@@ -264,6 +280,16 @@ div.form h2 {
   border-bottom: 1px solid #555;
   padding-bottom: 0.5em;
   margin-bottom: 0.5em;
+}
+
+div.form-message {
+  margin-top: 1em;
+  padding: 0.5em;
+  text-align:center;
+  font-size: 10pt;
+  font-weight: bold;
+  height: 2.5em;
+  margin-bottom: 1em;
 }
 
 div.form-buttons {

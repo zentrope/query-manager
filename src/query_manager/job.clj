@@ -12,7 +12,6 @@
 (let [id-counter (atom 0)]
   (defn- id-gen [] (swap! id-counter inc)))
 
-
 (defn- mk-err-handler
   []
   (proxy [Thread$UncaughtExceptionHandler] []
@@ -56,7 +55,6 @@
   [db jobs job]
   (fn []
     (info " - job start: [" (:description (:query job)) "]")
-    ;;(Thread/sleep (* (inc (rand-int 10)) 1000))
     (try
       (let [sql (:sql (:query job))
             results (doall (take 500 (jdbc/query db [sql])))
