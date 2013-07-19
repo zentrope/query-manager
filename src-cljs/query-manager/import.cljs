@@ -46,9 +46,7 @@
         (let [rdr (js/FileReader.)]
           (set! (.-onload rdr) (on-text-loaded mbus))
           (.readAsText rdr f))
-        (.log js/console "no file reader")))
-    ;;(hide-container!)
-    ))
+        (.log js/console "no file reader")))))
 
 (defn- target-class
   [e]

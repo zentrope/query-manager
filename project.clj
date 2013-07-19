@@ -32,10 +32,17 @@
 
   :hooks [leiningen.cljsbuild]
 
-  :cljsbuild {:builds [{:source-paths ["src-cljs"]
+  :cljsbuild {:builds {:dev
+                       {:source-paths ["src-cljs"]
                         :compiler {:output-to "resources/public/qman/main.js"
                                    :optimizations :whitespace
-                                   :pretty-print true}}]}
+                                   :pretty-print true}}
+                       :prod
+                       {:source-paths ["src-cljs"]
+                        :compiler {:output-to "resources/public/qman/main.js"
+                                   :optimizations :advanced
+                                   :externs ["resources/externs.js"]
+                                   :pretty-print false}}}}
 
   :repl-options {:port 4001}
   :min-lein-version "2.2.0"
