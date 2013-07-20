@@ -56,18 +56,13 @@
 
 (defn- on-hide!
   [mbus]
-  (hide! (sel1 :#job-view-container)))
+  (hide! (sel1 :#job-view-container))
+  (set-html! (sel1 :#jv-desc) "job viewer")
+  (set-html! (sel1 :#job-viewer) "loading..."))
 
 (defn- on-update!
   [mbus job]
   (set-html! (sel1 :#jv-desc) (:description (:query job)))
-  ;;
-  ;; TODO:
-  ;; The button click in job_panel should first send a job-view-show,
-  ;; then a job get. This pops up quick, the populates later.
-  ;;
-  (on-show! mbus)
-  ;;
   (if-not (nil? (:error job))
     (replace-contents! (sel1 :#job-viewer) (error-for job))
     (if (empty? (:results job))

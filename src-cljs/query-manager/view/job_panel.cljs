@@ -83,6 +83,7 @@
   (fn [e]
     (let [id (attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
+      (publish! mbus :job-view-show {})
       (publish! mbus :job-poke {:value id}))))
 
 ;; incoming events
