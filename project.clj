@@ -5,9 +5,9 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Web
-                 [http-kit "2.1.6"]
+                 [http-kit "2.1.8"]
                  [compojure "1.1.5"]
-                 [hiccup "1.0.3"]
+                 [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.2"]
 
                  ;; Logging
@@ -26,6 +26,7 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
+                 [org.clojure/clojurescript "0.0-1847"]
                  [prismatic/dommy "0.1.1"]]
 
   :plugins [[lein-cljsbuild "0.3.2"]]
