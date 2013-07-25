@@ -49,14 +49,14 @@
                 [:th.num {:width "10%"} "duration (s)"]
                 [:th.num {:width "10%"} "results"]
                 [:th.actions {:width "10%"} "actions"]]
-               (for [{:keys [id started stopped query status size]} jobs]
+               (for [{:keys [id started stopped query status size count-col] :as job} jobs]
                  [:tr {:id (str "jp-row-" id)}
                   [:td {:class status} status]
                   [:td (:description query)]
                   [:td (ftimestamp started)]
                   [:td (ftimestamp stopped)]
                   [:td.num (duration started stopped)]
-                  [:td.num size]
+                  [:td.num (if-let [c count-col] c size)]
                   [:td.actions
                    (when-not (zero? size)
                      [:button.jp-view {:jid id} "view"])

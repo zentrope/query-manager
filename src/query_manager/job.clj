@@ -9,9 +9,6 @@
 ;; Thread machinery
 ;;-----------------------------------------------------------------------------
 
-(let [id-counter (atom 0)]
-  (defn- id-gen [] (swap! id-counter inc)))
-
 (defn- mk-err-handler
   []
   (proxy [Thread$UncaughtExceptionHandler] []
@@ -20,12 +17,13 @@
 
 (defn- mk-thread-factory
   []
-  (proxy [ThreadFactory] []
-    (newThread [r]
-      (doto (Thread. r)
-        (.setUncaughtExceptionHandler (mk-err-handler))
-        (.setDaemon true) ;; die on JVM shutdown
-        (.setName (str "job-proc-" (id-gen)))))))
+  (let [id-counter (atom 0)]
+    (proxy [ThreadFactory] []
+      (newThread [r]
+        (doto (Thread. r)
+          (.setUncaughtExceptionHandler (mk-err-handler))
+          (.setDaemon true) ;; die on JVM shutdown
+          (.setName (str "job-proc-" (swap! id-counter inc))))))))
 
 (defn- mk-thread-pool
   [size]
@@ -51,6 +49,17 @@
    :status :pending
    :results []})
 
+(defn- calc-count-or-size
+  "Given a result set, return its size unless there's a single row
+   with a single column named 'count', in which case, return that."
+  [results]
+  (let [size (count results)
+        row (first results)
+        cols (count (keys (or row {})))]
+    (if (and (= cols 1) (:count row) (< size 2))
+      (:count row)
+      nil)))
+
 (defn- mk-runner
   [db jobs job]
   (fn []
@@ -62,6 +71,7 @@
                      :status :done
                      :results results
                      :size (count results)
+                     :count-col (calc-count-or-size results)
                      :stopped (now))]
         (swap! jobs (fn [js]
                       ;;
