@@ -26,6 +26,16 @@
    :subname (str "//" (:host spec) ":" (:port spec) "/" (:database spec))
    :subprotocol (name (:type spec))})
 
+(defmethod specialize :sqlserver
+  [spec]
+  {:type (:type spec)
+   :host (:host spec)
+   :port (:port spec)
+   :user (:user spec)
+   :password (:password spec)
+   :subname (str "//" (:host spec) ":" (:port spec) "/" (:database spec))
+   :subprotocol "jtds:sqlserver"})
+
 (defmethod specialize :oracle
   [spec]
   {:type (:type spec)

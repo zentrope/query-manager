@@ -17,7 +17,7 @@
                  ;; Database
                  [org.clojure/java.jdbc "0.3.0-alpha4"]    ;; jdbc
                  [mysql/mysql-connector-java "5.1.25"]     ;; mysql
-                 [net.sourceforge.jtds/jtds "1.3.1"]       ;; sql-server
+                 [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.172"]             ;; h2 database
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
                  [org.clojars.zentrope/ojdbc "11.2.0.3.0"] ;; oracle
