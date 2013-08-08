@@ -45,15 +45,20 @@
   (.log js/console "loading")
 
   ;; Clear body
-  (replace-contents! (sel1 :body) nil)
+  (replace-contents! (sel1 :body) [:div#container
+                                   [:div#left]
+                                   [:div#right]])
 
   ;; Composite UI components
-  (append! (sel1 :body)
+  (append! (sel1 :#left)
+           (dom queryPanel))
+
+  (append! (sel1 :#right)
 
            (dom titleBar)
            (dom statusBar)
            (dom jobPanel)
-           (dom queryPanel)
+
            (dom errorPanel)
 
            (dom dbForm)

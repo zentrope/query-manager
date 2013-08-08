@@ -12,9 +12,9 @@
 
 (defn- template
   []
-  (node [:div#queries.panel
-         [:div.panel-header "queries"]
-         [:div.panel-body
+  (node [:div#queries.side-panel
+         [:div.side-panel-header "queries"]
+         [:div.side-panel-body
           [:div#queries-table.lister
            [:p "No queries defined."]
            [:button#qp-new "new"]]]]))
@@ -30,14 +30,14 @@
 (defn- table-of
   [queries]
   (node (list [:table
-               [:tr
-                [:th {:width "40%"} "query"]
-                [:th {:width "45%"} "sql"]
-                [:th.actions {:width "15%"} "actions"]]
+               ;; [:tr
+               ;;  [:th {:width "40%"} "query"]
+               ;;  ;; [:th {:width "45%"} "sql"]
+               ;;  [:th.actions {:width "15%"} "actions"]]
                (for [q queries]
                  [:tr {:id (str "qp-row-" (:id q))}
                   [:td (:description q)]
-                  [:td (sql-of (:sql q))]
+                  ;; [:td (sql-of (:sql q))]
                   [:td.actions
                    [:button.qp-run {:qid (:id q)} "run"]
                    [:button.qp-edit {:qid (:id q)} "edit"]

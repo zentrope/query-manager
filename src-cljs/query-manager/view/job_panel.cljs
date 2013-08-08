@@ -12,7 +12,7 @@
 (defn- template
   []
   (node [:div#jobs.panel
-         [:div.panel-header "jobs"]
+         [:div.panel-header "query job results"]
          [:div.panel-body
           [:div#jobs-table.lister
            [:p "No jobs."]]]]))

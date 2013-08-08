@@ -1,9 +1,9 @@
 html, body {
-  background: #f2f2f2;
+  background: white;
   color: #444;
   margin: 0;
   padding: 0;
-  font-family: helvetica, optima, helvetica, sans-serif;
+  font-family: helvetica neue, helvetica, optima, helvetica, sans-serif;
   padding-top: 2em;
   padding-bottom: 2em;
 }
@@ -26,6 +26,36 @@ button {
 
 p {
   font-size: 10pt;
+}
+
+/*---------------------------------------------------------------------------*/
+
+#container {
+  padding-bottom: 30px;
+}
+
+#left {
+  position: fixed;
+  width: 300px;
+  top: 0px;
+  bottom: 0px;
+  right: 0px;
+  border-left: 1px solid #ccc;
+  overflow: hidden;
+  background: #d0d6df;
+  padding-top: 30px;
+  margin-bottom: 30px;
+}
+
+#right {
+  position: absolute;
+  right: 301px;
+  top: 0px;
+  left: 0px;
+  bottom: 0px;
+  padding-top: 30px;
+  overflow: auto;
+  margin-bottom: 30px;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -65,35 +95,67 @@ span.spin {
 
 /*---------------------------------------------------------------------------*/
 
+.side-panel {
+  margin: 10px;
+}
+
+.side-panel-header {
+  font-variant: small-caps;
+  font-weight: bold;
+  margin-top: 20pt;
+  color: #444;
+  letter-spacing: 1.3px;
+  text-shadow: 1px 1px 1px white;
+  font-size: 14pt;
+  border-bottom: 1px dotted #999;
+}
+
+.side-panel-body {
+  padding: 5px;
+}
+
+.side-panel-body .lister td {
+  background: #d0d6df;
+  color: #222;
+  text-shadow: 1px 1px 1px 4px white !important;
+  border-bottom: 1px dotted #999;
+  padding: 6px 2px 6px 2px;
+}
+
+.side-panel-body .lister tr:hover > td {
+  background: white !important;
+}
+
+.side-panel-body .lister tr {
+  border-right: 1px solid #d0d6df;
+  border-left: 1px solid #d0d6df;
+}
+
+.side-panel-body .lister tr:hover {
+  border: 1px solid #999;
+}
+
+/*---------------------------------------------------------------------------*/
+
 .panel {
-  margin: 0 auto;
+  margin: 10px;
   background: white;
-  margin: 15px;
-  margin-right: 18px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  padding: 0;
 }
 
 .panel-header {
-  text-align: left;
   font-variant: small-caps;
-  font-size: 13pt;
   font-weight: bold;
-  background: #ccc;
-  color: #369;
+  margin-top: 20pt;
+  color: #444;
   letter-spacing: 1.3px;
-  text-shadow: 1px 1px 1px white;
-  padding: 2px;
-  border: 0;
-  padding-left: 0.66em;
-  padding-top: 0.3em;
-  padding-bottom: 0.3em;
+  text-shadow: 1px 1px 5px 2px #aaa;
+  font-size: 14pt;
+  border-bottom: 1px dotted #999;
+  margin-left: 10pt;
 }
 
 .panel-body {
-  padding: 0.66em;
-  border-radius: 3px;
+  padding: 1em;
 }
 
 /*--- job status ------------------------------------------------------------*/
@@ -209,7 +271,7 @@ span.spin {
 }
 
 .status-buttons button:hover {
-  box-shadow: 0px 0px 4px 1px orange;
+  box-shadow: 0px 0px 4px 1px skyblue;
 }
 
 .status-buttons button:active {
@@ -227,10 +289,6 @@ span.spin {
 
 div.import-container {
   position: fixed;
-  top: 8%;
-  bottom: 8%;
-  left: 4%;
-  right: 4%;
   top: 20px;
   bottom: 20px;
   left: 25px;
@@ -408,6 +466,7 @@ div.lister th {
   padding-left: 4px;
   border-bottom: 1px solid #f2f2f2;
   background: transparent !important;
+  white-space: nowrap;
 }
 
 div.lister td {
@@ -424,43 +483,49 @@ div.lister td {
   position: fixed;
   margin: 0;
   top: 0px;
-  width: 100%;
+  left: 0px;
+  right: 0px;
   background: #444;
-  border-bottom: 3px solid #222;
-  height: 2.5em;
+  border-bottom: 1px solid #888;
+  height: 25px;
   padding-top: 6pt;
   color: white;
-  opacity: 0.8;
+  z-index: 100;
+  background: -webkit-linear-gradient(#cccccc 0%,#999 100%);
+  background: linear-gradient(to bottom, #cccccc 0%,#999 100%);
+
 }
 
 #title-text {
-  font-size: 16pt;
-  font-weight: normal;
   position: absolute;
-  top: 10px;
-  left: 15px;
-  color: orange;
-  text-shadow: 1px 1px 5px black;
+  top: 6pt;
+  left: 0;
+  right: 0;
+
+  text-align: center;
+  font-size: 12pt;
+  font-weight: bold;
+  color: #333;
+  text-shadow: #ddd 0 -1px;
+  letter-spacing: 1.2pt;
 }
 
 #title-clock {
   position: absolute;
-  top: 6px;
-  right: 15px;
-  font-size: 9pt;
-  font-weight: normal;
-  color: orange;
-  text-shadow: 1px 1px 5px black;
+  top: 6pt;
+  left: 15px;
+  font-size: 8pt;
+  color: #555;
+  text-shadow: 1px 1px 3px #ccc;
 }
 
 #title-version {
   position: absolute;
-  bottom: 10px;
-  font-size: 8pt;
+  top: 6pt;
   right: 15px;
-  font-style: italic;
-  color: lavender;
-  text-shadow: 1px 1px 5px black;
+  font-size: 8pt;
+  color: #555;
+  text-shadow: 1px 1px 3px #ccc;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -469,17 +534,18 @@ div#status-bar {
   position: fixed;
   margin: 0;
   bottom: 0px;
-  width: 100%;
-  background: #444;
-  color: white;
+  left: 0;
+  right: 0;
+  color: black;
   font-size: 10pt;
   padding: 4pt;
-  padding-bottom: 1.3em;
   font-variant: small-caps;
-  font-size: 10pt;
-  border-top: 3px solid #222;
-  height: 2em;
-  opacity: 0.9;
+  border-top: 1px solid #999;
+  height: 25px;
+  z-index: 100;
+
+  background: -webkit-linear-gradient(#cccccc 0%,#999 100%);
+  background: linear-gradient(to bottom, #cccccc 0%,#999 100%);
 }
 
 div#status-bar div {
@@ -488,23 +554,27 @@ div#status-bar div {
 
 div#db-info {
   position: absolute;
-  top: 6px;
+  bottom: 8pt;
   left: 10px;
+  font-size: 8pt;
   font-variant: small-caps;
-  z-index: 2;
+  z-index: 102;
 }
 
 #db-type, #db-host {
-  color: orange;
+  color: white;
+  text-shadow: 1px 1px 3px #555;
 }
 
 div#mouse-coords {
   position: absolute;
-  top: 24px;
-  left: 10px;
+  left: 200px;
+  bottom: 8pt;
+  right: 200px;
+
+  text-align: center;
+  z-index: 101;
   font-size: 8pt;
-  font-weight: normal;
-  color: #999;
-  border: 0;
-  z-index: 1;
+  color: #555;
+  text-shadow: 1px 1px 3px #ccc;
 }
