@@ -268,6 +268,7 @@ span.spin {
   font-size: 10pt;
   letter-spacing: 1.3px;
   text-shadow: 1px 1px 1px white;
+  box-shadow: 1px 1px 2px 1px #bbb;
 }
 
 .status-buttons button:hover {
@@ -310,7 +311,7 @@ div.form-container {
   right: 5px;
   z-index: 99999;
   background: rgba(0, 0, 0, 0.7);
-  border: 1px solid orange;
+  border: 1px solid blue;
   border-radius: 3px;
   box-shadow: 0px 0px 10px 2px rgba(0, 0, 0, 0.5);
 }
@@ -486,14 +487,14 @@ div.lister td {
   left: 0px;
   right: 0px;
   background: #444;
-  border-bottom: 1px solid #888;
+  border-bottom: 1px solid #999;
   height: 25px;
   padding-top: 6pt;
   color: white;
   z-index: 100;
   background: -webkit-linear-gradient(#cccccc 0%,#999 100%);
   background: linear-gradient(to bottom, #cccccc 0%,#999 100%);
-
+  box-shadow: 0px 1px 6px 1px #333;
 }
 
 #title-text {
@@ -506,7 +507,7 @@ div.lister td {
   font-size: 12pt;
   font-weight: bold;
   color: #333;
-  text-shadow: #ddd 0 -1px;
+  text-shadow: #ddd 0 1px;
   letter-spacing: 1.2pt;
 }
 
@@ -540,39 +541,23 @@ div#status-bar {
   font-size: 10pt;
   padding: 4pt;
   font-variant: small-caps;
-  border-top: 1px solid #999;
+  border-top: 1px solid #888;
   height: 25px;
   z-index: 100;
 
-  background: -webkit-linear-gradient(#cccccc 0%,#999 100%);
-  background: linear-gradient(to bottom, #cccccc 0%,#999 100%);
+  background: -webkit-linear-gradient(#ccc 0%,#999 100%);
+  background: linear-gradient(to bottom, #ccc 0%,#999 100%);
 }
 
 div#status-bar div {
   display: inline;
 }
 
-div#db-info {
-  position: absolute;
-  bottom: 8pt;
-  left: 10px;
-  font-size: 8pt;
-  font-variant: small-caps;
-  z-index: 102;
-}
-
-#db-type, #db-host {
-  color: white;
-  text-shadow: 1px 1px 3px #555;
-}
-
 div#mouse-coords {
   position: absolute;
-  left: 200px;
+  left: 10px;
   bottom: 8pt;
-  right: 200px;
 
-  text-align: center;
   z-index: 101;
   font-size: 8pt;
   color: #555;

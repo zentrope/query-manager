@@ -12,27 +12,16 @@
 (defn- template
   []
   (node [:div#status-bar
-         [:div#db-info "conn: none"]
          [:div.status-buttons
           [:button#sb-db {:class "not-showing"} "db"]
           [:button#sb-err "log"]]
          [:div#mouse-coords
           "(" [:span#sb-mouse-x "0"] ":" [:span#sb-mouse-y "0"] ")"]]))
 
-(defn- db-info-node
-  [type host]
-  (node [:div#db-info
-         "conn: " [:span#db-type type]
-         " on " [:span#db-host host]]))
-
 (defn- set-mouse-coords!
   [[x y]]
   (set-html! (sel1 :#sb-mouse-x) x)
   (set-html! (sel1 :#sb-mouse-y) y))
-
-(defn- set-db-info!
-  [{:keys [type host] :as db}]
-  (replace! (sel1 :#db-info) (db-info-node type host)))
 
 (defn- on-toggle!
   [mbus topic]
@@ -52,7 +41,6 @@
 
 (def ^:private subscriptions
   {:mousemove (fn [mbus msg] (set-mouse-coords! (:value msg)))
-   :db-change (fn [mbus msg] (set-db-info! (:value msg)))
    :db-form-hide (fn [mbus msg] (add-class! (sel1 :#sb-db) "not-showing"))
    :db-form-show (fn [mbus msg] (remove-class! (sel1 :#sb-db) "not-showing"))
    :error-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-err) "not-showing"))})

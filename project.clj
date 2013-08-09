@@ -46,5 +46,5 @@
                                    :pretty-print false}}}}
 
   :repl-options {:port 4001}
-  :min-lein-version "2.2.0"
+  :min-lein-version "2.3.0"
   :main query-manager.main)
