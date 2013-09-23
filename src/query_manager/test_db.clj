@@ -10,7 +10,7 @@
 
 (defn- mk-conn-test-query
   [db]
-  (case (:type (keyword db))
+  (case (keyword (:type db))
     :oracle "select 1 from dual"
     "select 1"))
 
