@@ -5,7 +5,7 @@
             ;; Events
             ;;
             [query-manager.event :as event]
-            [query-manager.protocols :refer [publish! subscribe! unsubscribe! dom]]
+            [query-manager.protocols :as proto]
             ;;
             ;; Views
             ;;
@@ -51,23 +51,23 @@
 
   ;; Composite UI components
   (append! (sel1 :#left)
-           (dom queryPanel))
+           (proto/dom queryPanel))
 
   (append! (sel1 :#right)
 
-           (dom titleBar)
-           (dom statusBar)
-           (dom jobPanel)
+           (proto/dom titleBar)
+           (proto/dom statusBar)
+           (proto/dom jobPanel)
 
-           (dom errorPanel)
+           (proto/dom errorPanel)
 
-           (dom dbForm)
-           (dom queryForm)
-           (dom jobViewer)
-           (dom importPanel))
+           (proto/dom dbForm)
+           (proto/dom queryForm)
+           (proto/dom jobViewer)
+           (proto/dom importPanel))
 
   ;; Turn off the stuff we don't want to see right away.
-  (publish! bus :error-panel-toggle {})
+  (proto/publish! bus :error-panel-toggle {})
 
   ;; Register non-UI event subscribers
   (net/init! bus)
@@ -78,25 +78,25 @@
            (fn [e]
              (let [x (.-clientX e)
                    y (.-clientY e)]
-               (publish! bus :mousemove {:value [x y]}))))
+               (proto/publish! bus :mousemove {:value [x y]}))))
 
   ;; Start background processes
   (proc/start bus)
 
   ;; Init
-  (publish! bus :db-poke {})
-  (publish! bus :db-poke {})
-  (publish! bus :queries-poke {})
-  (publish! bus :jobs-poke {})
+  (proto/publish! bus :db-poke {})
+  (proto/publish! bus :db-poke {})
+  (proto/publish! bus :queries-poke {})
+  (proto/publish! bus :jobs-poke {})
 
   ;; Only bring up the DB connection form if it hasn't been changed
   ;; since the app started up.
 
   (letfn [(handler [mbus {:keys [value]}]
             (when-not (:updated value)
-              (publish! mbus :db-form-show {})
-              (unsubscribe! mbus :db-change handler)))]
-    (subscribe! bus :db-change handler))
+              (proto/publish! mbus :db-form-show {})
+              (proto/unsubscribe! mbus :db-change handler)))]
+    (proto/subscribe! bus :db-change handler))
 
   (.log js/console " - loaded"))
 

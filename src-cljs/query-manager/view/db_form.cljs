@@ -3,7 +3,7 @@
   (:require [dommy.core :refer [set-value! value listen! show! hide!
                                 remove-class! add-class! set-html!
                                 set-attr! remove-attr!]]
-            [query-manager.view :refer [mk-view]]
+            [query-manager.view :as view]
             [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
@@ -132,4 +132,4 @@
 
 (defn mk-view!
   [mbus]
-  (mk-view mbus mk-template subscriptions))
+  (view/mk-view mbus mk-template subscriptions))

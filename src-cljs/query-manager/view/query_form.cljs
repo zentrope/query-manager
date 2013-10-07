@@ -1,7 +1,7 @@
 (ns query-manager.view.query-form
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [set-value! set-html! value listen! show! hide!]]
-            [query-manager.view :refer [mk-view]]
+            [query-manager.view :as view]
             [query-manager.protocols :refer [publish!]]))
 
 ;;-----------------------------------------------------------------------------
@@ -80,4 +80,4 @@
 
 (defn mk-view!
   [mbus]
-  (mk-view mbus mk-template subscriptions))
+  (view/mk-view mbus mk-template subscriptions))

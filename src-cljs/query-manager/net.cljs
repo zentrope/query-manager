@@ -1,7 +1,7 @@
 (ns query-manager.net
   (:require [goog.net.XhrIo :as xhr]
             [goog.events :as events]
-            [query-manager.protocols :refer [publish! subscribe!]]))
+            [query-manager.protocols :as proto]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -61,7 +61,7 @@
 (defn- error-handler
   [mbus]
   (fn [err]
-    (publish! mbus :web-error {:value err})))
+    (proto/publish! mbus :web-error {:value err})))
 
 ;;-----------------------------------------------------------------------------
 ;; Database connection API
@@ -72,7 +72,7 @@
   (ajax :uri "/qman/api/db"
         :method "GET"
         :on-failure (error-handler mbus)
-        :on-success (fn [db] (publish! mbus :db-change {:value (jread db)}))
+        :on-success (fn [db] (proto/publish! mbus :db-change {:value (jread db)}))
         :type :json))
 
 (defn- test-db
@@ -80,7 +80,7 @@
   (ajax :uri "/qman/api/db/test"
         :method "POST"
         :on-failure (error-handler mbus)
-        :on-success (fn [db] (publish! mbus :db-test-result {:value (jread db)}))
+        :on-success (fn [db] (proto/publish! mbus :db-test-result {:value (jread db)}))
         :data db
         :type :json))
 
@@ -88,7 +88,7 @@
   [mbus db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
-        :on-failure (fn [err] (publish! mbus :web-error {:value err}))
+        :on-failure (fn [err] (proto/publish! mbus :web-error {:value err}))
         :on-success (fn [_] (poke-db mbus))
         :data db
         :type :json))
@@ -103,7 +103,7 @@
         :method "GET"
         :type :json
         :on-failure (error-handler mbus)
-        :on-success (fn [jobs] (publish! mbus :job-change {:value (jread jobs)}))))
+        :on-success (fn [jobs] (proto/publish! mbus :job-change {:value (jread jobs)}))))
 
 (defn- poke-job
   [mbus job-id]
@@ -111,7 +111,7 @@
         :method "GET"
         :type :json
         :on-failure (error-handler mbus)
-        :on-success (fn [job] (publish! mbus :job-get {:value (jread job)}))))
+        :on-success (fn [job] (proto/publish! mbus :job-get {:value (jread job)}))))
 
 (defn- run-job
   [mbus query-id]
@@ -137,7 +137,7 @@
   (ajax :uri "/qman/api/query"
         :method "GET"
         :on-failure (error-handler mbus)
-        :on-success (fn [data] (publish! mbus :query-change {:value (jread data)}))
+        :on-success (fn [data] (proto/publish! mbus :query-change {:value (jread data)}))
         :type :json))
 
 (defn- poke-query
@@ -145,7 +145,7 @@
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
         :on-failure (error-handler mbus)
-        :on-success (fn [data] (publish! mbus :query-get {:value (jread data)}))
+        :on-success (fn [data] (proto/publish! mbus :query-get {:value (jread data)}))
         :type :json))
 
 (defn- save-query
@@ -195,4 +195,4 @@
 (defn init!
   [mbus]
   (doseq [[topic handler] subscriptions]
-    (subscribe! mbus topic handler)))
+    (proto/subscribe! mbus topic handler)))

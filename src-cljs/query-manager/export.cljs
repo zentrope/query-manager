@@ -1,5 +1,5 @@
 (ns query-manager.export
-  (:require [query-manager.protocols :refer [subscribe!]]))
+  (:require [query-manager.protocols :as proto]))
 
 (defn- on-export!
   []
@@ -12,4 +12,4 @@
 
 (defn init!
   [mbus]
-  (subscribe! mbus :export-queries (on-export!)))
+  (proto/subscribe! mbus :export-queries (on-export!)))

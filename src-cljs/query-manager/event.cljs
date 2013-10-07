@@ -1,13 +1,13 @@
 (ns query-manager.event
-  (:use [query-manager.protocols :only [IBus ISubscriber recv!]]))
+  (:require [query-manager.protocols :as proto]))
 
 (defrecord Subscriber [topic handler]
-  ISubscriber
+  proto/ISubscriber
   (recv! [this mbus message]
     (handler mbus message)))
 
 (defrecord EventBus [subscriptions]
-  IBus
+  proto/IBus
   (unsubscribe! [this topic handler]
     (swap! subscriptions (fn [subs]
                            (let [orig (or (topic subs) #{})]
@@ -20,7 +20,7 @@
   (publish! [this topic message]
     (let [subs (topic @subscriptions)]
       (doseq [sub subs]
-        (recv! sub this message)))))
+        (proto/recv! sub this message)))))
 
 (defn mk-event-bus
   []

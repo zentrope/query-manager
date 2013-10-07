@@ -1,7 +1,7 @@
 (ns query-manager.view.query-panel
   (:use-macros [dommy.macros :only [sel1 sel node]])
   (:require [dommy.core :refer [toggle! attr listen! replace-contents!]]
-            [query-manager.view :refer [mk-view]]
+            [query-manager.view :as view]
             [query-manager.protocols :refer [publish!]]
             [query-manager.utils :refer [flash! listen-all!]]
             [clojure.string :as string]))
@@ -113,4 +113,4 @@
 
 (defn mk-view!
   [mbus]
-  (mk-view mbus mk-template subscriptions))
+  (view/mk-view mbus mk-template subscriptions))

@@ -1,6 +1,6 @@
 (ns query-manager.proc
-  (:require [query-manager.utils :refer [spawn-after!]]
-            [query-manager.protocols :refer [publish!]]))
+  (:require [query-manager.utils :as utils]
+            [query-manager.protocols :as proto]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -8,22 +8,22 @@
 
 (defn- pull-jobs!
   [channel]
-  (publish! channel :jobs-poke {}))
+  (proto/publish! channel :jobs-poke {}))
 
 (defn- pull-queries!
   [channel]
-  (publish! channel :queries-poke {}))
+  (proto/publish! channel :queries-poke {}))
 
 (defn- shout-clock!
   [channel]
-  (publish! channel :clock {:value (.getTime (js/Date.))}))
+  (proto/publish! channel :clock {:value (.getTime (js/Date.))}))
 
 
 (defn- start-proc
   [channel interval proc]
-  (spawn-after! interval (fn []
-                           (proc channel)
-                           (start-proc channel interval proc))))
+  (utils/spawn-after! interval (fn []
+                                 (proc channel)
+                                 (start-proc channel interval proc))))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface

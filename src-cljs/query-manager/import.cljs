@@ -1,8 +1,8 @@
 (ns query-manager.import
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [show! hide! listen! listen-once! hidden?]]
-            [query-manager.protocols :refer [publish!]]
-            [query-manager.view :refer [mk-view]]
+            [query-manager.protocols :as proto]
+            [query-manager.view :as view]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
@@ -30,7 +30,7 @@
       (try
         (let [queries (reader/read-string source)]
           (doseq [q queries]
-            (publish! mbus :query-save {:value q})))
+            (proto/publish! mbus :query-save {:value q})))
         (catch js/Error e
           (.log js/console "ERROR:" e))
         (finally
@@ -85,4 +85,4 @@
 
 (defn mk-view!
   [mbus]
-  (mk-view mbus mk-template {}))
+  (view/mk-view mbus mk-template {}))

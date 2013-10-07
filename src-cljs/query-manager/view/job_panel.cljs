@@ -2,7 +2,7 @@
   (:use-macros [dommy.macros :only [sel sel1 node]])
   (:require [dommy.core :refer [attr replace-contents! listen! toggle!]]
             [query-manager.protocols :refer [publish!]]
-            [query-manager.view :refer [mk-view]]
+            [query-manager.view :as view]
             [query-manager.utils :refer [flash! listen-all! das]]))
 
 ;;-----------------------------------------------------------------------------
@@ -111,4 +111,4 @@
 
 (defn mk-view!
   [mbus]
-  (mk-view mbus mk-template subscriptions))
+  (view/mk-view mbus mk-template subscriptions))

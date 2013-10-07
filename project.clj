@@ -26,7 +26,7 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
-                 [org.clojure/clojurescript "0.0-1889"]
+                 [org.clojure/clojurescript "0.0-1913"]
                  [prismatic/dommy "0.1.2"]]
 
   :plugins [[lein-cljsbuild "0.3.3"]]
