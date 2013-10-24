@@ -5,7 +5,7 @@
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Web
-                 [http-kit "2.1.11"]
+                 [http-kit "2.1.13"]
                  [compojure "1.1.5"]
                  [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.3"]
@@ -18,7 +18,7 @@
                  [org.clojure/java.jdbc "0.3.0-alpha4"]    ;; jdbc
                  [mysql/mysql-connector-java "5.1.26"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
-                 [com.h2database/h2 "1.3.173"]             ;; h2 database
+                 [com.h2database/h2 "1.3.174"]             ;; h2 database
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
                  [org.clojars.zentrope/ojdbc "11.2.0.3.0"] ;; oracle
 
@@ -26,7 +26,7 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
-                 [org.clojure/clojurescript "0.0-1913"]
+                 [org.clojure/clojurescript "0.0-1934"]
                  [prismatic/dommy "0.1.2"]]
 
   :plugins [[lein-cljsbuild "0.3.3"]]
