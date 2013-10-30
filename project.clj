@@ -6,7 +6,7 @@
 
                  ;; Web
                  [http-kit "2.1.13"]
-                 [compojure "1.1.5"]
+                 [compojure "1.1.6"]
                  [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.3"]
 
@@ -26,10 +26,10 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
-                 [org.clojure/clojurescript "0.0-1934"]
+                 [org.clojure/clojurescript "0.0-1978"]
                  [prismatic/dommy "0.1.2"]]
 
-  :plugins [[lein-cljsbuild "0.3.3"]]
+  :plugins [[lein-cljsbuild "0.3.4"]]
 
   :hooks [leiningen.cljsbuild]
 
