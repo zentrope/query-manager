@@ -9,6 +9,7 @@
                  [compojure "1.1.6"]
                  [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.3"]
+                 [javax.servlet/servlet-api "2.5"]
 
                  ;; Logging
                  [org.clojure/tools.logging "0.2.6"]
