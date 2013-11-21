@@ -17,7 +17,7 @@
 
                  ;; Database
                  [org.clojure/java.jdbc "0.3.0-alpha4"]    ;; jdbc
-                 [mysql/mysql-connector-java "5.1.26"]     ;; mysql
+                 [mysql/mysql-connector-java "5.1.27"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
@@ -27,10 +27,10 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
-                 [org.clojure/clojurescript "0.0-1978"]
+                 [org.clojure/clojurescript "0.0-2030"]
                  [prismatic/dommy "0.1.2"]]
 
-  :plugins [[lein-cljsbuild "0.3.4"]]
+  :plugins [[lein-cljsbuild "1.0.0"]]
 
   :hooks [leiningen.cljsbuild]
 
@@ -46,8 +46,9 @@
                                    :externs ["resources/externs.js"]
                                    :pretty-print false}}}}
 
+  :jvm-opts ["-Dapple.awt.UIElement=true"]
   :repl-options {:port 4001}
-  :min-lein-version "2.3.2"
+  :min-lein-version "2.3.4"
   :profiles {:offline {:offline? true}
              :uberjar {:aot [query-manager.main]}}
   :main query-manager.main)
