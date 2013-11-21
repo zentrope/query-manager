@@ -66,7 +66,7 @@
     (info " - job start: [" (:description (:query job)) "]")
     (try
       (let [sql (:sql (:query job))
-            results (doall (take 500 (jdbc/query db [sql])))
+            results (doall (take 500 (jdbc/query db [sql] :identifiers identity)))
             update (assoc job
                      :status :done
                      :results results

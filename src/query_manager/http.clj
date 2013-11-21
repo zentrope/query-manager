@@ -24,9 +24,14 @@
 (defn- jconvert
   [k v]
   (cond
-    (instance? java.sql.Timestamp v) (str v)
+    (instance? java.sql.Timestamp v)
+    (str v)
+    (and (number? v)
+         (< v 0))
+    (str v)
     (and (instance? java.lang.Long v)
-         (< v 0)) (str v)
+         (< v 0))
+    (str v)
     :else v))
 
 (defn- jwrite
