@@ -9,14 +9,14 @@
                  [compojure "1.1.6"]
                  [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.3"]
-                 [javax.servlet/servlet-api "2.5"]
+                 [javax.servlet/servlet-api "3.0-alpha-1"]
 
                  ;; Logging
                  [org.clojure/tools.logging "0.2.6"]
                  [ch.qos.logback/logback-classic "1.0.13"]
 
                  ;; Database
-                 [org.clojure/java.jdbc "0.3.0-alpha4"]    ;; jdbc
+                 [org.clojure/java.jdbc "0.3.0-beta1"]     ;; jdbc
                  [mysql/mysql-connector-java "5.1.27"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database
@@ -27,7 +27,7 @@
                  [org.clojure/tools.nrepl "0.2.3"]
 
                  ;; ClojureScript
-                 [org.clojure/clojurescript "0.0-2030"]
+                 [org.clojure/clojurescript "0.0-2080"]
                  [prismatic/dommy "0.1.2"]]
 
   :plugins [[lein-cljsbuild "1.0.0"]]
