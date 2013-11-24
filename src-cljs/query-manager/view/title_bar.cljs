@@ -12,16 +12,8 @@
   []
   (node [:div#title-bar
          [:span#title-text "Query Manager"]
-         [:span#title-version "Vers 0.1"]
+         [:span#title-version "Vers 2"]
          [:span#title-clock "-"]]))
-
-(defn- date-str
-  [date]
-  (str (das :hour date) ":" (das :minute date) ":" (das :second date)))
-
-(defn- set-clock!
-  [date]
-  (set-html! (sel1 :#title-clock) (date-str date)))
 
 (defn- set-db-info!
   [{:keys [type host] :as db}]
@@ -32,8 +24,7 @@
   (template))
 
 (def ^:private subscriptions
-  {:clock (fn [mbus msg] (set-clock! (js/Date. (:value msg))))
-   :db-change (fn [mbus msg] (set-db-info! (:value msg)))})
+  {:db-change (fn [mbus msg] (set-db-info! (:value msg)))})
 
 ;;-----------------------------------------------------------------------------
 ;; Interface

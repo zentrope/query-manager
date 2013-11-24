@@ -1,4 +1,5 @@
 (ns query-manager.view.status-bar
+  ;;
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :refer [replace! listen! set-html! toggle-class!
                                 add-class! remove-class!]]
@@ -18,11 +19,6 @@
          [:div#mouse-coords
           "(" [:span#sb-mouse-x "0"] ":" [:span#sb-mouse-y "0"] ")"]]))
 
-(defn- set-mouse-coords!
-  [[x y]]
-  (set-html! (sel1 :#sb-mouse-x) x)
-  (set-html! (sel1 :#sb-mouse-y) y))
-
 (defn- on-toggle!
   [mbus topic]
   (fn [e]
@@ -40,8 +36,7 @@
 ;;-----------------------------------------------------------------------------
 
 (def ^:private subscriptions
-  {:mousemove (fn [mbus msg] (set-mouse-coords! (:value msg)))
-   :db-form-hide (fn [mbus msg] (add-class! (sel1 :#sb-db) "not-showing"))
+  {:db-form-hide (fn [mbus msg] (add-class! (sel1 :#sb-db) "not-showing"))
    :db-form-show (fn [mbus msg] (remove-class! (sel1 :#sb-db) "not-showing"))
    :error-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-err) "not-showing"))})
 

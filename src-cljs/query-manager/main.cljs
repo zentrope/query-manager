@@ -1,6 +1,14 @@
 (ns query-manager.main
-  (:use-macros [dommy.macros :only [sel1]])
-  (:require [dommy.core :refer [replace-contents! listen! append!]]
+  ;;
+  ;; I wrote this before I knew about core.async. So, time to
+  ;; rewrite. ;) If you see this notice, it means I'm in the process
+  ;; of attempting to do that without breaking anything.
+  ;;
+  (:use-macros [dommy.macros :only [sel1]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :refer [replace-contents! listen! append! set-html!]]
+            [cljs.core.async :refer [put! timeout <! chan]]
+            [query-manager.utils :refer [das]]
             ;;
             ;; Events
             ;;
@@ -20,10 +28,71 @@
             ;;
             ;; IO
             ;;
-            [query-manager.proc :as proc]
             [query-manager.import :as import]
             [query-manager.export :as export]
             [query-manager.net :as net]))
+
+;;-----------------------------------------------------------------------------
+;; Daemons
+;;-----------------------------------------------------------------------------
+
+(defn- event-loop!
+  [event-fn millis]
+  (go-loop []
+    (<! (timeout millis))
+    (event-fn)
+    (recur)))
+
+(defn- clock-loop!
+  []
+  (go-loop []
+    (<! (timeout 1000))
+    (let [date (js/Date.)
+          pretty (str (das :hour date) ":"
+                      (das :minute date) ":"
+                      (das :second date))]
+      (set-html! (sel1 :#title-clock) pretty)
+      (recur))))
+
+(defn- mouse-loop!
+  []
+  (let [ch (chan)]
+    (go-loop []
+      (when-let [[x y] (<! ch)]
+        (set-html! (sel1 :#sb-mouse-x) x)
+        (set-html! (sel1 :#sb-mouse-y) y)
+        (recur)))
+    (listen! (sel1 :html) :mousemove
+             (fn [e]
+               (let [x (.-clientX e)
+                     y (.-clientY e)]
+                 (put! ch [x y]))))))
+
+(defn- start-daemons!
+  [channel]
+  (clock-loop!)
+  (mouse-loop!)
+  (event-loop! (fn [] (proto/publish! channel :jobs-poke {})) 2000)
+  (event-loop! (fn [] (proto/publish! channel :queries-poke {})) 2000))
+
+;;-----------------------------------------------------------------------------
+;; Notes (port to core.async)
+;;-----------------------------------------------------------------------------
+
+;; How about this: each "component" provides two channels. The main app loop
+;; listens to one of those channels. When an event comes in, it publishes to
+;; the other channels.
+;;
+;; A component will return a "filter" channel which will filter out
+;; all the messages it's not interested in consuming.
+;;
+;; When a component generates an event (button click, drag/drop) it
+;; will put a message on its "event" channel, which will be picked up
+;; via alts! at the main loop and broadcast across the other channels.
+;;
+;; Seems simple, though I'm not sure an app of this size really needs
+;; 'components' all that much. Might be worth a try as an experiment,
+;; anyway.
 
 ;;-----------------------------------------------------------------------------
 ;; Main
@@ -73,15 +142,8 @@
   (net/init! bus)
   (export/init! bus)
 
-  ;; Just for fun, for now.
-  (listen! (sel1 :html) :mousemove
-           (fn [e]
-             (let [x (.-clientX e)
-                   y (.-clientY e)]
-               (proto/publish! bus :mousemove {:value [x y]}))))
-
   ;; Start background processes
-  (proc/start bus)
+  (start-daemons! bus)
 
   ;; Init
   (proto/publish! bus :db-poke {})
