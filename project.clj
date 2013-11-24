@@ -23,10 +23,8 @@
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
                  [org.clojars.zentrope/ojdbc "11.2.0.3.0"] ;; oracle
 
-                 ;; Services
-                 [org.clojure/tools.nrepl "0.2.3"]
-
                  ;; ClojureScript
+                 [org.clojure/core.async "0.1.256.0-1bf8cf-alpha"]
                  [org.clojure/clojurescript "0.0-2080"]
                  [prismatic/dommy "0.1.2"]]
 
@@ -47,7 +45,6 @@
                                    :pretty-print false}}}}
 
   :jvm-opts ["-Dapple.awt.UIElement=true"]
-  :repl-options {:port 4001}
   :min-lein-version "2.3.4"
   :profiles {:offline {:offline? true}
              :uberjar {:aot [query-manager.main]}}
