@@ -95,6 +95,22 @@
 ;; anyway.
 
 ;;-----------------------------------------------------------------------------
+
+(defn- update-state!
+  [state msg]
+  ;; Doing nothing for now.
+  state)
+
+(defn- app-loop!
+  [initial-state queues]
+  (go-loop [state initial-state]
+    (let [[msg ch] (alts! queues)]
+      (when-not (nil? msg)
+        (.log js/console (str msg))
+        (let [new-state (update-state! state msg)]
+          (recur new-state))))))
+
+;;-----------------------------------------------------------------------------
 ;; Main
 ;;-----------------------------------------------------------------------------
 
@@ -159,6 +175,18 @@
               (proto/publish! mbus :db-form-show {})
               (proto/unsubscribe! mbus :db-change handler)))]
     (proto/subscribe! bus :db-change handler))
+
+
+  ;; New stuff
+
+  (let [app-queue (chan)
+        queues [app-queue (status-bar/get-channel)]
+        state {}]
+    (app-loop! state queues)
+    (put! app-queue [:db-form-show {}]))
+
+
+  ;; and back to the old
 
   (.log js/console " - loaded"))
 
