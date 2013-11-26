@@ -11,3 +11,7 @@
   (doseq [[topic handler] subscriptions]
     (proto/subscribe! mbus topic handler))
   (View. mbus template-fn))
+
+
+;; TODO: Should return a "state" of all the views, with functions
+;;       for extracting channels and dom fragments.

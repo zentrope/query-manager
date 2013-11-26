@@ -1,14 +1,10 @@
 (ns query-manager.view.status-bar
   ;;
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace! listen! set-html! toggle-class!
-                                add-class! remove-class!]]
-            [cljs.core.async :as async :refer [chan]]
-            [query-manager.view :as view]
-            [query-manager.protocols :refer [publish!]]))
+  (:use-macros [dommy.macros           :only [sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require    [dommy.core             :as dom]
+               [cljs.core.async        :as async]))
 
-;;-----------------------------------------------------------------------------
-;; Implementation
 ;;-----------------------------------------------------------------------------
 
 (defn- template
@@ -21,37 +17,40 @@
           "(" [:span#sb-mouse-x "0"] ":" [:span#sb-mouse-y "0"] ")"]]))
 
 (defn- on-toggle!
-  [mbus event-channel topic]
+  [send-ch topic]
   (fn [e]
-    (publish! mbus topic {})
-    (async/put! event-channel [topic {}])))
+    (async/put! send-ch [topic {}])))
 
 (defn- mk-template
-  [event-channel mbus]
+  [send-ch]
   (let [t (template)]
-    (listen! [t :#sb-db] :click (on-toggle! mbus event-channel :db-form-show))
-    (listen! [t :#sb-err] :click (on-toggle! mbus event-channel :error-panel-toggle))
+    (dom/listen! [t :#sb-db] :click (on-toggle! send-ch :db-form-show))
+    (dom/listen! [t :#sb-err] :click (on-toggle! send-ch :error-panel-toggle))
     t))
 
+(defn- process
+  [output-ch [topic msg]]
+  (case topic
+    :db-form-hide (dom/add-class! (sel1 :#sb-db) "not-showing")
+    :db-form-show (dom/remove-class! (sel1 :#sb-db) "not-showing")
+    :error-panel-toggle (dom/toggle-class! (sel1 :#sb-err) "not-showing")
+    :noop))
+
+(defn- block-loop
+  [input-ch output-ch]
+  (go-loop []
+    (when-let [msg (async/<! input-ch)]
+      (process output-ch msg)
+      (recur))))
+
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(def ^:private subscriptions
-  {:db-form-hide (fn [mbus msg] (add-class! (sel1 :#sb-db) "not-showing"))
-   :db-form-show (fn [mbus msg] (remove-class! (sel1 :#sb-db) "not-showing"))
-   :error-panel-toggle (fn [mbus msg] (toggle-class! (sel1 :#sb-err) "not-showing"))})
-
-;; Just for now. Eventually, a "view" will be a data structure
-;; containing channels and so on. This just lets me figure out
-;; of a "channel-per-view" is workable.
-
-(def ^:private event-channel (async/chan))
-
-(defn get-channel
+(defn instance
   []
-  event-channel)
-
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus (partial mk-template event-channel) subscriptions))
+  (let [recv-ch (async/chan) ;; put here for app to recv
+        send-ch (async/chan) ;; listen here to get from app
+        block (block-loop send-ch recv-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :view (mk-template recv-ch)
+     :block block}))

@@ -1,11 +1,9 @@
 (ns query-manager.view.title-bar
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-html!]]
-            [query-manager.view :as view]
-            [query-manager.utils :refer [das]]))
+  (:use-macros [dommy.macros :only [sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]))
 
-;;-----------------------------------------------------------------------------
-;; Implementation
 ;;-----------------------------------------------------------------------------
 
 (defn- template
@@ -17,19 +15,32 @@
 
 (defn- set-db-info!
   [{:keys [type host] :as db}]
-  (set-html! (sel1 :#title-text) (str host " &mdash; " type)))
+  (dom/set-html! (sel1 :#title-text) (str host " &mdash; " type)))
 
 (defn- mk-template
-  [mbus]
+  []
   (template))
 
-(def ^:private subscriptions
-  {:db-change (fn [mbus msg] (set-db-info! (:value msg)))})
+(defn process
+  [[topic msg]]
+  (case topic
+    :db-change (set-db-info! (:value msg))
+    :noop))
+
+(defn- block-loop
+  [ch]
+  (go-loop []
+      (when-let [msg (async/<! ch)]
+        (process msg)
+        (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        block (block-loop recv-ch)]
+    {:recv recv-ch
+     :send nil
+     :view (mk-template)
+     :block block}))

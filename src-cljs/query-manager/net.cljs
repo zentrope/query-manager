@@ -1,95 +1,49 @@
 (ns query-manager.net
-  (:require [goog.net.XhrIo :as xhr]
-            [goog.events :as events]
-            [query-manager.protocols :as proto]))
+  ;;
+  (:use-macros [cljs.core.async.macros :only [go-loop]])
+  ;;
+  (:require [query-manager.ajax :refer [ajax]]
+            [query-manager.protocols :as proto]
+            [cljs.core.async :as async]))
 
 ;;-----------------------------------------------------------------------------
-;; Implementation
-;;-----------------------------------------------------------------------------
-
-(defn- jsonify
-  [data]
-  (when data
-    (JSON/stringify (clj->js data))))
-
-(defn- success
-  [response callback {:keys [type]}]
-  (let [t (.-target response)]
-    (callback (let [text (.getResponseText t)]
-                (if (<= (count text) 0)
-                  ""
-                  (case type
-                    :json (.getResponseJson t)
-                    text))))))
-
-(defn- failure
-  [response callback]
-  (let [t (.-target response)]
-    (callback {:status (.getStatus t)
-               :reason (.getStatusText t)
-               :uri (.-lastUri_ t)
-               :timestamp (.getTime (js/Date.))})))
-
-(defn- mk-handler
-  [{:keys [on-success on-failure] :as opts}]
-  (fn [response]
-    (if (.isSuccess (.-target response))
-      (when on-success
-        (success response on-success opts))
-      (when on-failure
-        (failure response on-failure)))))
-
-(defn- mimetype
-  [{:keys [type]}]
-  (case type
-    :json "application/json"
-    "plain/text"))
-
-(defn- ajax
-  [& opts]
-  (let [{:keys [uri method data type]} opts
-        headers (clj->js {goog.net.XhrIo.CONTENT_TYPE_HEADER (mimetype opts)})
-        handler (mk-handler opts)
-        req (goog.net.XhrIo.)]
-    (events/listen req goog.net.EventType/COMPLETE handler)
-    (.send req uri method (jsonify data) headers)))
 
 (defn- jread
   [json]
   (js->clj json :keywordize-keys true))
 
 (defn- error-handler
-  [mbus]
+  [output-ch]
   (fn [err]
-    (proto/publish! mbus :web-error {:value err})))
+    (async/put! output-ch [:web-error {:value err}])))
 
 ;;-----------------------------------------------------------------------------
 ;; Database connection API
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-db
-  [mbus]
+  [output-ch]
   (ajax :uri "/qman/api/db"
         :method "GET"
-        :on-failure (error-handler mbus)
-        :on-success (fn [db] (proto/publish! mbus :db-change {:value (jread db)}))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [db] (async/put! output-ch [:db-change {:value (jread db)}]))
         :type :json))
 
 (defn- test-db
-  [mbus db]
+  [output-ch db]
   (ajax :uri "/qman/api/db/test"
         :method "POST"
-        :on-failure (error-handler mbus)
-        :on-success (fn [db] (proto/publish! mbus :db-test-result {:value (jread db)}))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [db] (async/put! output-ch [:db-test-result {:value (jread db)}]))
         :data db
         :type :json))
 
 (defn- save-db
-  [mbus db]
+  [output-ch db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
-        :on-failure (fn [err] (proto/publish! mbus :web-error {:value err}))
-        :on-success (fn [_] (poke-db mbus))
+        :on-failure (fn [err] (async/put! output-ch [:web-error {:value err}]))
+        :on-success (fn [_] (poke-db output-ch))
         :data db
         :type :json))
 
@@ -98,101 +52,115 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-jobs
-  [mbus]
+  [output-ch]
   (ajax :uri "/qman/api/job"
         :method "GET"
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [jobs] (proto/publish! mbus :job-change {:value (jread jobs)}))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [jobs] (async/put! output-ch [:job-change {:value (jread jobs)}]))))
 
 (defn- poke-job
-  [mbus job-id]
+  [output-ch job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "GET"
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [job] (proto/publish! mbus :job-get {:value (jread job)}))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [job] (async/put! output-ch [:job-get {:value (jread job)}]))))
 
 (defn- run-job
-  [mbus query-id]
+  [output-ch query-id]
   (ajax :uri (str "/qman/api/job/" query-id)
         :method "POST"
-        :on-failure (error-handler mbus)
-        :on-success (fn [_] (poke-jobs mbus))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [_] (poke-jobs output-ch))))
 
 (defn- delete-job
-  [mbus job-id]
+  [output-ch job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [_] (poke-jobs mbus))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [_] (poke-jobs output-ch))))
 
 ;;-----------------------------------------------------------------------------
 ;; Queries API
 ;;-----------------------------------------------------------------------------
 
 (defn- poke-queries
-  [mbus]
+  [output-ch]
   (ajax :uri "/qman/api/query"
         :method "GET"
-        :on-failure (error-handler mbus)
-        :on-success (fn [data] (proto/publish! mbus :query-change {:value (jread data)}))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [data] (async/put! output-ch [:query-change {:value (jread data)}]))
         :type :json))
 
 (defn- poke-query
-  [mbus id]
+  [output-ch id]
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
-        :on-failure (error-handler mbus)
-        :on-success (fn [data] (proto/publish! mbus :query-get {:value (jread data)}))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [data] (async/put! output-ch [:query-get {:value (jread data)}]))
         :type :json))
 
 (defn- save-query
-  [mbus query]
+  [output-ch query]
   (ajax :uri "/qman/api/query"
         :method "POST"
         :data query
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [_] (poke-queries mbus))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [_] (poke-queries output-ch))))
 
 (defn- update-query
-  [mbus query]
+  [output-ch query]
   (ajax :uri (str "/qman/api/query/" (:id query))
         :method "PUT"
         :data query
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [_] (poke-queries mbus))))
+        :on-failure (error-handler output-ch)
+        :on-success (fn [_] (poke-queries output-ch))))
 
 (defn- delete-query
-  [mbus query-id]
+  [output-ch query-id]
   (ajax :uri (str "/qman/api/query/" query-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler mbus)
-        :on-success (fn [_] (poke-queries mbus))))
-
-(def ^:private subscriptions
-  {:db-save (fn [mbus msg] (save-db mbus (:value msg)))
-   :db-poke (fn [mbus _] (poke-db mbus))
-   :db-test (fn [mbus msg] (test-db mbus (:value msg)))
-   :queries-poke (fn [mbus _] (poke-queries mbus))
-   :query-save (fn [mbus msg] (save-query mbus (:value msg)))
-   :query-update (fn [mbus msg] (update-query mbus (:value msg)))
-   :query-delete (fn [mbus msg] (delete-query mbus (:value msg)))
-   :query-run (fn [mbus msg] (run-job mbus (:value msg)))
-   :query-poke (fn [mbus msg] (poke-query mbus (:value msg)))
-   :jobs-poke (fn [mbus _] (poke-jobs mbus))
-   :job-poke (fn [mbus msg] (poke-job mbus (:value msg)))
-   :job-delete (fn [mbus msg] (delete-job mbus (:value msg)))})
+        :on-failure (error-handler output-ch)
+        :on-success (fn [_] (poke-queries output-ch))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
+
+(defn- process
+  [output-ch [topic msg]]
+  (case topic
+    :db-save (save-db output-ch (:value msg))
+    :db-poke (poke-db output-ch)
+    :db-test (test-db output-ch (:value msg))
+    :queries-poke (poke-queries output-ch)
+    :query-save (save-query output-ch (:value msg))
+    :query-update (update-query output-ch (:value msg))
+    :query-delete (delete-query output-ch (:value msg))
+    :query-run (run-job output-ch (:value msg))
+    :query-poke (poke-query output-ch (:value msg))
+    :jobs-poke (poke-jobs output-ch)
+    :job-poke (poke-job output-ch (:value msg))
+    :job-delete (delete-job output-ch (:value msg))
+    :noop))
+
+(defn- block-loop
+  [input-ch output-ch]
+  (go-loop []
+    (when-let [msg (async/<! input-ch)]
+      (process output-ch msg)
+      (recur))))
+
 ;;-----------------------------------------------------------------------------
 
-(defn init!
-  [mbus]
-  (doseq [[topic handler] subscriptions]
-    (proto/subscribe! mbus topic handler)))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        send-ch (async/chan)
+        block (block-loop send-ch recv-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :block block}))

@@ -7,7 +7,7 @@
   (:use-macros [dommy.macros :only [sel1]]
                [cljs.core.async.macros :only [go-loop]])
   (:require [dommy.core :refer [replace-contents! listen! append! set-html!]]
-            [cljs.core.async :refer [put! timeout <! chan]]
+            [cljs.core.async :as async :refer [put! timeout <! chan]]
             [query-manager.utils :refer [das]]
             ;;
             ;; Events
@@ -69,11 +69,11 @@
                  (put! ch [x y]))))))
 
 (defn- start-daemons!
-  [channel]
+  [event-ch]
   (clock-loop!)
   (mouse-loop!)
-  (event-loop! (fn [] (proto/publish! channel :jobs-poke {})) 2000)
-  (event-loop! (fn [] (proto/publish! channel :queries-poke {})) 2000))
+  (event-loop! (fn [] (async/put! event-ch [:jobs-poke {}])) 2000)
+  (event-loop! (fn [] (async/put! event-ch [:queries-poke {}])) 2000))
 
 ;;-----------------------------------------------------------------------------
 ;; Notes (port to core.async)
@@ -97,26 +97,34 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- update-state!
-  [state msg]
+  [state outputs msg]
   ;; Doing nothing for now.
+  (doseq [o outputs]
+    (put! o msg))
   state)
 
 (defn- app-loop!
-  [initial-state queues]
+  [initial-state inputs outputs]
   (go-loop [state initial-state]
-    (let [[msg ch] (alts! queues)]
+    (let [[msg ch] (alts! inputs)]
       (when-not (nil? msg)
         (.log js/console (str msg))
-        (let [new-state (update-state! state msg)]
-          (recur new-state))))))
+        (let [new-state (update-state! state outputs msg)]
+          (recur new-state)))
+      (.log js/console "app-loop terminated"))))
 
 ;;-----------------------------------------------------------------------------
 ;; Main
 ;;-----------------------------------------------------------------------------
 
+(def ^:private status-bar-view (status-bar/instance))
+(def ^:private title-bar-view (title-bar/instance))
+
+(def ^:private views
+  [status-bar-view
+   title-bar-view])
+
 (def ^:private bus (event/mk-event-bus))
-(def ^:private statusBar (status-bar/mk-view! bus))
-(def ^:private titleBar (title-bar/mk-view! bus))
 (def ^:private errorPanel (error-panel/mk-view! bus))
 (def ^:private jobPanel (job-panel/mk-view! bus))
 (def ^:private queryPanel (query-panel/mk-view! bus))
@@ -140,8 +148,8 @@
 
   (append! (sel1 :#right)
 
-           (proto/dom titleBar)
-           (proto/dom statusBar)
+           (:view title-bar-view)
+           (:view status-bar-view)
            (proto/dom jobPanel)
 
            (proto/dom errorPanel)
@@ -155,11 +163,7 @@
   (proto/publish! bus :error-panel-toggle {})
 
   ;; Register non-UI event subscribers
-  (net/init! bus)
   (export/init! bus)
-
-  ;; Start background processes
-  (start-daemons! bus)
 
   ;; Init
   (proto/publish! bus :db-poke {})
@@ -176,17 +180,28 @@
               (proto/unsubscribe! mbus :db-change handler)))]
     (proto/subscribe! bus :db-change handler))
 
-
+  ;;===========================================================================
   ;; New stuff
 
-  (let [app-queue (chan)
-        queues [app-queue (status-bar/get-channel)]
+  ;; Eventually: map across view for :recv and :send, filter out nils, etc.
+
+  (let [net-lib (net/instance)
+        app-queue (async/chan)
+        inputs [app-queue
+                (:recv status-bar-view)
+                (:recv net-lib)
+                (:recv title-bar-view)]
+        outputs [(:send net-lib)
+                 (:send status-bar-view)]
         state {}]
-    (app-loop! state queues)
+
+    (app-loop! state inputs outputs)
+
+    (start-daemons! app-queue)
     (put! app-queue [:db-form-show {}]))
 
-
-  ;; and back to the old
+  ;; End New
+  ;;===========================================================================
 
   (.log js/console " - loaded"))
 
