@@ -1,8 +1,8 @@
 (ns query-manager.view.job-panel
-  (:use-macros [dommy.macros :only [sel sel1 node]])
-  (:require [dommy.core :refer [attr replace-contents! listen! toggle!]]
-            [query-manager.protocols :refer [publish!]]
-            [query-manager.view :as view]
+  (:use-macros [dommy.macros :only [sel sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]
             [query-manager.utils :refer [flash! listen-all! das]]))
 
 ;;-----------------------------------------------------------------------------
@@ -26,10 +26,8 @@
   (if (< ts 1)
     "-"
     (let [d (js/Date. ts)]
-      (str (das :hour d)
-           ":"
-           (das :minute d)
-           ":"
+      (str (das :hour d) ":"
+           (das :minute d) ":"
            (das :second d)))))
 
 (defn- duration
@@ -66,49 +64,65 @@
 ;; local events
 
 (defn- on-clear
-  [mbus jids]
+  [output-ch jids]
   (fn [e]
     (doseq [id jids]
-      (publish! mbus :job-delete {:value id}))))
+      (async/put! output-ch [:job-delete {:value id}]))))
 
 (defn- on-delete
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [id (attr (.-target e) :jid)]
+    (let [id (dom/attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
-      (publish! mbus :job-delete {:value id}))))
+      (async/put! output-ch [:job-delete {:value id}]))))
 
 (defn- on-view
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [id (attr (.-target e) :jid)]
+    (let [id (dom/attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
-      (publish! mbus :job-view-show {})
-      (publish! mbus :job-poke {:value id}))))
+      (async/put! output-ch [:job-view-show {}])
+      (async/put! output-ch [:job-poke {:value id}]))))
 
 ;; incoming events
 
 (defn- on-job-change
-  [mbus jobs]
+  [output-ch jobs]
   (when (empty? jobs)
-    (replace-contents! (sel1 :#jobs-table) (no-jobs)))
+    (dom/replace-contents! (sel1 :#jobs-table) (no-jobs)))
   (when-not (empty? jobs)
-    (replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
-    (listen-all! (sel :.jp-del) :click (on-delete mbus))
-    (listen-all! (sel :.jp-view) :click (on-view mbus))
-    (listen! (sel1 :#jp-clear) :click (on-clear mbus (map :id jobs)))))
+    (dom/replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
+    (listen-all! (sel :.jp-del) :click (on-delete output-ch))
+    (listen-all! (sel :.jp-view) :click (on-view output-ch))
+    (dom/listen! (sel1 :#jp-clear) :click (on-clear output-ch (map :id jobs)))))
 
 (defn- mk-template
-  [mbus]
+  []
   (template))
 
-(def ^:private subscriptions
-  {:job-change (fn [mbus msg] (on-job-change mbus (:value msg)))})
+(defn- process
+  [output-ch [topic msg]]
+  (case topic
+    :job-change (on-job-change output-ch (:value msg))
+    :noop))
+
+(defn- block-loop
+  [input-ch output-ch]
+  (go-loop []
+    (when-let [msg (async/<! input-ch)]
+      (process output-ch msg)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        send-ch (async/chan)
+        block (block-loop send-ch recv-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :view (mk-template)
+     :block block}))

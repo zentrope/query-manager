@@ -6,8 +6,11 @@
   ;;
   (:use-macros [dommy.macros :only [sel1]]
                [cljs.core.async.macros :only [go-loop]])
+  ;;
   (:require [dommy.core :refer [replace-contents! listen! append! set-html!]]
             [cljs.core.async :as async :refer [put! timeout <! chan]]
+            ;;
+            ;;
             [query-manager.utils :refer [das]]
             ;;
             ;; Events
@@ -17,12 +20,10 @@
             ;;
             ;; Views
             ;;
-            [query-manager.view.status-bar :as status-bar]
-            [query-manager.view.title-bar :as title-bar]
-            [query-manager.view.job-panel :as job-panel]
+            [query-manager.view :as view]
+            ;;
             [query-manager.view.query-panel :as query-panel]
             [query-manager.view.error-panel :as error-panel]
-            [query-manager.view.db-form :as db-form]
             [query-manager.view.query-form :as query-form]
             [query-manager.view.job-viewer :as job-viewer]
             ;;
@@ -76,29 +77,9 @@
   (event-loop! (fn [] (async/put! event-ch [:queries-poke {}])) 2000))
 
 ;;-----------------------------------------------------------------------------
-;; Notes (port to core.async)
-;;-----------------------------------------------------------------------------
-
-;; How about this: each "component" provides two channels. The main app loop
-;; listens to one of those channels. When an event comes in, it publishes to
-;; the other channels.
-;;
-;; A component will return a "filter" channel which will filter out
-;; all the messages it's not interested in consuming.
-;;
-;; When a component generates an event (button click, drag/drop) it
-;; will put a message on its "event" channel, which will be picked up
-;; via alts! at the main loop and broadcast across the other channels.
-;;
-;; Seems simple, though I'm not sure an app of this size really needs
-;; 'components' all that much. Might be worth a try as an experiment,
-;; anyway.
-
-;;-----------------------------------------------------------------------------
 
 (defn- update-state!
   [state outputs msg]
-  ;; Doing nothing for now.
   (doseq [o outputs]
     (put! o msg))
   state)
@@ -108,7 +89,7 @@
   (go-loop [state initial-state]
     (let [[msg ch] (alts! inputs)]
       (when-not (nil? msg)
-        (.log js/console (str msg))
+;;        (.log js/console (str msg))
         (let [new-state (update-state! state outputs msg)]
           (recur new-state)))
       (.log js/console "app-loop terminated"))))
@@ -117,27 +98,18 @@
 ;; Main
 ;;-----------------------------------------------------------------------------
 
-(def ^:private status-bar-view (status-bar/instance))
-(def ^:private title-bar-view (title-bar/instance))
-
-(def ^:private views
-  [status-bar-view
-   title-bar-view])
-
 (def ^:private bus (event/mk-event-bus))
 (def ^:private errorPanel (error-panel/mk-view! bus))
-(def ^:private jobPanel (job-panel/mk-view! bus))
 (def ^:private queryPanel (query-panel/mk-view! bus))
-(def ^:private dbForm (db-form/mk-view! bus))
 (def ^:private queryForm (query-form/mk-view! bus))
 (def ^:private jobViewer (job-viewer/mk-view! bus))
 (def ^:private importPanel (import/mk-view! bus))
 
-(defn main
-  []
-  (.log js/console "loading")
 
-  ;; Clear body
+(def ^:private VIEWS (view/instance))
+
+(defn- render-frame
+  []
   (replace-contents! (sel1 :body) [:div#container
                                    [:div#left]
                                    [:div#right]])
@@ -147,17 +119,19 @@
            (proto/dom queryPanel))
 
   (append! (sel1 :#right)
-
-           (:view title-bar-view)
-           (:view status-bar-view)
-           (proto/dom jobPanel)
-
            (proto/dom errorPanel)
-
-           (proto/dom dbForm)
            (proto/dom queryForm)
            (proto/dom jobViewer)
            (proto/dom importPanel))
+
+  (doseq [v (view/views VIEWS)]
+    (append! (sel1 :#right) v)))
+
+(defn main
+  []
+  (.log js/console "loading")
+
+  (render-frame)
 
   ;; Turn off the stuff we don't want to see right away.
   (proto/publish! bus :error-panel-toggle {})
@@ -187,12 +161,8 @@
 
   (let [net-lib (net/instance)
         app-queue (async/chan)
-        inputs [app-queue
-                (:recv status-bar-view)
-                (:recv net-lib)
-                (:recv title-bar-view)]
-        outputs [(:send net-lib)
-                 (:send status-bar-view)]
+        inputs (conj (view/receivers VIEWS) app-queue)
+        outputs (conj (view/senders VIEWS) (:send net-lib))
         state {}]
 
     (app-loop! state inputs outputs)
