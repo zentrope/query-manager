@@ -1,13 +1,13 @@
 (ns query-manager.import
+  ;;
+  ;; Enables drag/drop of a query file to load it up.
+  ;;
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [show! hide! listen! listen-once! hidden?]]
-            [query-manager.protocols :as proto]
-            [query-manager.view :as view]
+  (:require [dommy.core :as dom ]
+            [cljs.core.async :as async]
             [cljs.reader :as reader]
             [clojure.string :as string]))
 
-;;-----------------------------------------------------------------------------
-;; Implementation
 ;;-----------------------------------------------------------------------------
 
 (defn- template
@@ -16,35 +16,36 @@
 
 (defn- prep-initial-drag!
   []
-  (listen-once! (sel1 :html) :dragenter (fn [e] (show! (sel1 :.import-container)))))
+  (dom/listen-once! (sel1 :html)
+                    :dragenter (fn [e] (dom/show! (sel1 :.import-container)))))
 
 (defn- hide-container!
   []
-  (hide! (sel1 :.import-container))
+  (dom/hide! (sel1 :.import-container))
   (prep-initial-drag!))
 
 (defn- on-text-loaded
-  [mbus]
+  [output-ch]
   (fn [e]
     (let [source (.-result (.-target e))]
       (try
         (let [queries (reader/read-string source)]
           (doseq [q queries]
-            (proto/publish! mbus :query-save {:value q})))
+            (async/put! output-ch [:query-save {:value q}])))
         (catch js/Error e
           (.log js/console "ERROR:" e))
         (finally
           (hide-container!))))))
 
 (defn- on-drop
-  [mbus]
+  [output-ch]
   (fn [e]
     (.preventDefault e)
     (.stopPropagation e)
     (let [f (aget (.-files (.-dataTransfer e)) 0)]
       (if (.-FileReader js/window)
         (let [rdr (js/FileReader.)]
-          (set! (.-onload rdr) (on-text-loaded mbus))
+          (set! (.-onload rdr) (on-text-loaded output-ch))
           (.readAsText rdr f))
         (.log js/console "no file reader")))))
 
@@ -53,13 +54,13 @@
   (.-className (.-target e)))
 
 (defn- on-dragover
-  [mbus]
+  []
   (fn [e]
     (.preventDefault e)
     (.stopPropagation e)
     (let [class (target-class e)]
       (when-not (= class "import-container")
-        (when-not (hidden? (sel1 :.import-container))
+        (when-not (dom/hidden? (sel1 :.import-container))
           ;; (.log js/console "class" class)
           (hide-container!))))))
 
@@ -70,19 +71,21 @@
       (hide-container!))))
 
 (defn- mk-template
-  [mbus]
+  [output-ch]
   (prep-initial-drag!)
-  (listen! (sel1 :html) :dragover (on-dragover mbus))
-  (listen! (sel1 :html) :dragleave (on-drag-leave))
-  (listen! (sel1 :html) :drop (fn [e]
+  (dom/listen! (sel1 :html) :dragover (on-dragover))
+  (dom/listen! (sel1 :html) :dragleave (on-drag-leave))
+  (dom/listen! (sel1 :html) :drop (fn [e]
                                 (if (= (target-class e) "import-container")
-                                  ((on-drop mbus) e))))
+                                  ((on-drop output-ch) e))))
   (template))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template {}))
+(defn instance
+  []
+  (let [recv-ch (async/chan)]
+    {:recv recv-ch
+     :send nil
+     :view (mk-template recv-ch)
+     :block nil}))

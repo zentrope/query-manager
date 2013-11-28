@@ -84,9 +84,7 @@
 (defn- block-loop
   [input-ch]
   (go-loop []
-    (.log js/console "QF: waiting")
     (when-let [msg (async/<! input-ch)]
-      (.log js/console "QF:" (str msg))
       (process msg)
       (recur))))
 

@@ -1,15 +1,24 @@
 (ns query-manager.export
-  (:require [query-manager.protocols :as proto]))
+  (:use-macros [cljs.core.async.macros :only [go-loop]])
+  (:require [cljs.core.async :as async]
+            [query-manager.utils :as utils]))
 
-(defn- on-export!
+(defn- export!
   []
-  (fn [mbus msg]
-    (set! (.-location js/window) "/qman/queries/download")))
+  (set! (.-location js/window) "/qman/queries/download"))
+
+(defn- block-loop
+  [input-ch]
+  (go-loop []
+    (when-let [msg (async/<! input-ch)]
+      (case (first msg)
+        :export-queries (export!)
+        :noop)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Public
-;;-----------------------------------------------------------------------------
 
-(defn init!
-  [mbus]
-  (proto/subscribe! mbus :export-queries (on-export!)))
+(defn instance
+  []
+  (let [send-ch (utils/subscriber-ch :export-queries)]
+    {:send send-ch :block (block-loop send-ch)}))

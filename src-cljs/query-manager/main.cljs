@@ -15,8 +15,8 @@
             ;;
             ;; Events
             ;;
-            [query-manager.event :as event]
-            [query-manager.protocols :as proto]
+            ;; [query-manager.event :as event]
+            ;; [query-manager.protocols :as proto]
             ;;
             ;; Views
             ;;
@@ -25,7 +25,6 @@
             ;;
             ;; IO
             ;;
-            [query-manager.import :as import]
             [query-manager.export :as export]
             [query-manager.net :as net]))
 
@@ -66,11 +65,11 @@
                  (put! ch [x y]))))))
 
 (defn- start-daemons!
-  [event-ch]
+  [event-ch interval]
   (clock-loop!)
   (mouse-loop!)
-  (event-loop! (fn [] (async/put! event-ch [:jobs-poke {}])) 2000)
-  (event-loop! (fn [] (async/put! event-ch [:queries-poke {}])) 2000))
+  (event-loop! (fn [] (async/put! event-ch [:jobs-poke {}])) interval)
+  (event-loop! (fn [] (async/put! event-ch [:queries-poke {}])) interval))
 
 ;;-----------------------------------------------------------------------------
 
@@ -85,7 +84,7 @@
   (go-loop [state initial-state]
     (let [[msg ch] (alts! inputs)]
       (when-not (nil? msg)
-;;        (.log js/console (str msg))
+        ;; (.log js/console "MAIN:" (str msg))
         (let [new-state (update-state! state outputs msg)]
           (recur new-state)))
       (.log js/console "app-loop terminated"))))
@@ -94,67 +93,42 @@
 ;; Main
 ;;-----------------------------------------------------------------------------
 
-(def ^:private qpanel (query-panel/instance))
-
-(def ^:private bus (event/mk-event-bus))
-
-(def ^:private importPanel (import/mk-view! bus))
-
-
-(def ^:private VIEWS (view/instance))
-
-(defn- render-frame
-  []
-  (replace-contents! (sel1 :body) [:div#container
-                                   [:div#left]
-                                   [:div#right]])
-
-  ;; Composite UI components
-  (append! (sel1 :#left)
-           (:view qpanel))
-
-  (append! (sel1 :#right)
-           (proto/dom importPanel))
-
-  (doseq [v (view/views VIEWS)]
+(defn- render-frame!
+  [all-views qpanel]
+  (replace-contents! (sel1 :body) [:div#container [:div#left] [:div#right]])
+  (append! (sel1 :#left) (:view qpanel))
+  (doseq [v (view/views all-views)]
     (append! (sel1 :#right) v)))
 
 (defn main
   []
   (.log js/console "loading")
 
-  (render-frame)
-
-  ;; Register non-UI event subscribers
-  (export/init! bus)
-
-  ;; Only bring up the DB connection form if it hasn't been changed
-  ;; since the app started up.
-
-  (letfn [(handler [mbus {:keys [value]}]
-            (when-not (:updated value)
-              (proto/publish! mbus :db-form-show {})
-              (proto/unsubscribe! mbus :db-change handler)))]
-    (proto/subscribe! bus :db-change handler))
-
-  ;;===========================================================================
-  ;; New stuff
-
-  (let [net-lib (net/instance)
+  (let [all-views (view/instance)
+        net-lib (net/instance)
+        qpanel (query-panel/instance)
+        exporter (export/instance)
         app-queue (async/chan)
-        inputs (conj (view/receivers VIEWS) app-queue (:recv qpanel))
-        outputs (conj (view/senders VIEWS) (:send qpanel) (:send net-lib))
+        inputs (conj (view/receivers all-views) app-queue (:recv net-lib) (:recv qpanel))
+        outputs (conj (view/senders all-views) (:send qpanel) (:send net-lib) (:send exporter))
         state {}]
+
+    (render-frame! all-views qpanel)
 
     (app-loop! state inputs outputs)
 
-    (start-daemons! app-queue)
+    (start-daemons! app-queue 4000)
     (put! app-queue [:db-poke {}])
-    (put! app-queue [:db-form-show {}])
-    (put! app-queue [:error-panel-toggle {}]))
-
-  ;; End New
-  ;;===========================================================================
+    ;;
+    ;; Need to intercept the :db-change and see if there's any
+    ;; data. If not, force the DB ui to show up. Could probably set up
+    ;; a go-loop that "takes over" from the app-loop, though I think
+    ;; that might take some effort. Once solved, though, it prefigures
+    ;; how to do a login thing.
+    ;;
+    (put! app-queue [:error-panel-toggle {}])
+    (put! app-queue [:queries-poke {}])
+    (put! app-queue [:jobs-poke {}]))
 
   (.log js/console " - loaded"))
 

@@ -3,7 +3,7 @@ html, body {
   color: #444;
   margin: 0;
   padding: 0;
-  font-family: helvetica neue, helvetica, optima, helvetica, sans-serif;
+  font-family: optima, helvetica neue, helvetica, optima, helvetica, sans-serif;
   padding-top: 2em;
   padding-bottom: 2em;
 }
@@ -112,6 +112,7 @@ span.spin {
 
 .side-panel-body {
   padding: 5px;
+  overflow: auto;
 }
 
 .side-panel-body .lister td {

@@ -95,9 +95,7 @@
 (defn- block-loop
   [input-ch output-ch]
   (go-loop []
-    (.log js/console "JV: waiting")
     (when-let [msg (async/<! input-ch)]
-      (.log js/console "JV:" (str msg))
       (process output-ch msg)
       (recur))))
 

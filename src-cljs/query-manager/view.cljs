@@ -1,8 +1,5 @@
 (ns query-manager.view
-  (:require [query-manager.protocols :as proto]
-            ;;
-            ;;
-            [query-manager.view.status-bar :as status-bar]
+  (:require [query-manager.view.status-bar :as status-bar]
             [query-manager.view.title-bar :as title-bar]
             [query-manager.view.job-panel :as job-panel]
             [query-manager.view.db-form :as db-form]
@@ -10,21 +7,8 @@
             [query-manager.view.query-form :as query-form]
             [query-manager.view.job-viewer :as job-viewer]
 ;;            [query-manager.view.query-panel :as query-panel]
+            [query-manager.import :as import]
             ))
-
-;;-----------------------------------------------------------------------------
-;; Deprecated
-
-(defrecord View [mbus template-fn]
-  proto/IView
-  (dom [this]
-    (template-fn mbus)))
-
-(defn mk-view
-  [mbus template-fn subscriptions]
-  (doseq [[topic handler] subscriptions]
-    (proto/subscribe! mbus topic handler))
-  (View. mbus template-fn))
 
 ;;-----------------------------------------------------------------------------
 
@@ -54,4 +38,5 @@
            (db-form/instance)
            (error-panel/instance)
            (query-form/instance)
-           (job-viewer/instance)]})
+           (job-viewer/instance)
+           (import/instance)]})

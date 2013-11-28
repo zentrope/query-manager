@@ -90,7 +90,7 @@
 (defn- mk-template
   [output-ch]
   (let [body (template)]
-    (dom/listen! body :click (on-new output-ch))
+    (dom/listen! [body :#qp-new] :click (on-new output-ch))
     body))
 
 (defn- process
@@ -102,9 +102,7 @@
 (defn- block-loop
   [input-ch output-ch]
   (go-loop []
-    (.log js/console "QP: waiting")
     (when-let [msg (async/<! input-ch)]
-      (.log js/console "QP:" (str msg))
       (process output-ch msg)
       (recur))))
 

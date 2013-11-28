@@ -3,7 +3,7 @@
   (:use-macros [cljs.core.async.macros :only [go-loop]])
   ;;
   (:require [query-manager.ajax :refer [ajax]]
-            [query-manager.protocols :as proto]
+            [query-manager.utils :as utils]
             [cljs.core.async :as async]))
 
 ;;-----------------------------------------------------------------------------
@@ -91,7 +91,8 @@
   (ajax :uri "/qman/api/query"
         :method "GET"
         :on-failure (error-handler output-ch)
-        :on-success (fn [data] (async/put! output-ch [:query-change {:value (jread data)}]))
+        :on-success (fn [data]
+                      (async/put! output-ch [:query-change {:value (jread data)}]))
         :type :json))
 
 (defn- poke-query
@@ -147,6 +148,21 @@
     :job-delete (delete-job output-ch (:value msg))
     :noop))
 
+(defn- mk-subscriber
+  []
+  (utils/subscriber-ch :db-save
+                       :db-poke
+                       :db-test
+                       :queries-poke
+                       :query-save
+                       :query-update
+                       :query-delete
+                       :query-run
+                       :query-poke
+                       :jobs-poke
+                       :job-poke
+                       :job-delete))
+
 (defn- block-loop
   [input-ch output-ch]
   (go-loop []
@@ -159,7 +175,7 @@
 (defn instance
   []
   (let [recv-ch (async/chan)
-        send-ch (async/chan)
+        send-ch (mk-subscriber)
         block (block-loop send-ch recv-ch)]
     {:recv recv-ch
      :send send-ch
