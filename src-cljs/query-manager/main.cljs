@@ -21,11 +21,7 @@
             ;; Views
             ;;
             [query-manager.view :as view]
-            ;;
             [query-manager.view.query-panel :as query-panel]
-            [query-manager.view.error-panel :as error-panel]
-            [query-manager.view.query-form :as query-form]
-            [query-manager.view.job-viewer :as job-viewer]
             ;;
             ;; IO
             ;;
@@ -98,11 +94,10 @@
 ;; Main
 ;;-----------------------------------------------------------------------------
 
+(def ^:private qpanel (query-panel/instance))
+
 (def ^:private bus (event/mk-event-bus))
-(def ^:private errorPanel (error-panel/mk-view! bus))
-(def ^:private queryPanel (query-panel/mk-view! bus))
-(def ^:private queryForm (query-form/mk-view! bus))
-(def ^:private jobViewer (job-viewer/mk-view! bus))
+
 (def ^:private importPanel (import/mk-view! bus))
 
 
@@ -116,12 +111,9 @@
 
   ;; Composite UI components
   (append! (sel1 :#left)
-           (proto/dom queryPanel))
+           (:view qpanel))
 
   (append! (sel1 :#right)
-           (proto/dom errorPanel)
-           (proto/dom queryForm)
-           (proto/dom jobViewer)
            (proto/dom importPanel))
 
   (doseq [v (view/views VIEWS)]
@@ -133,17 +125,8 @@
 
   (render-frame)
 
-  ;; Turn off the stuff we don't want to see right away.
-  (proto/publish! bus :error-panel-toggle {})
-
   ;; Register non-UI event subscribers
   (export/init! bus)
-
-  ;; Init
-  (proto/publish! bus :db-poke {})
-  (proto/publish! bus :db-poke {})
-  (proto/publish! bus :queries-poke {})
-  (proto/publish! bus :jobs-poke {})
 
   ;; Only bring up the DB connection form if it hasn't been changed
   ;; since the app started up.
@@ -157,18 +140,18 @@
   ;;===========================================================================
   ;; New stuff
 
-  ;; Eventually: map across view for :recv and :send, filter out nils, etc.
-
   (let [net-lib (net/instance)
         app-queue (async/chan)
-        inputs (conj (view/receivers VIEWS) app-queue)
-        outputs (conj (view/senders VIEWS) (:send net-lib))
+        inputs (conj (view/receivers VIEWS) app-queue (:recv qpanel))
+        outputs (conj (view/senders VIEWS) (:send qpanel) (:send net-lib))
         state {}]
 
     (app-loop! state inputs outputs)
 
     (start-daemons! app-queue)
-    (put! app-queue [:db-form-show {}]))
+    (put! app-queue [:db-poke {}])
+    (put! app-queue [:db-form-show {}])
+    (put! app-queue [:error-panel-toggle {}]))
 
   ;; End New
   ;;===========================================================================

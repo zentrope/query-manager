@@ -1,8 +1,12 @@
 (ns query-manager.view.query-form
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [set-value! set-html! value listen! show! hide!]]
-            [query-manager.view :as view]
-            [query-manager.protocols :refer [publish!]]))
+  ;;
+  ;; Appears when the user wants to create (or edit) a query.
+  ;;
+  (:use-macros [dommy.macros :only [sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]
+            [query-manager.utils :as utils]))
 
 ;;-----------------------------------------------------------------------------
 ;; Implementation
@@ -24,60 +28,76 @@
 ;; Local event handlers
 
 (defn- on-cancel
-  [mbus]
+  [output-ch]
   (fn [e]
-    (publish! mbus :query-form-hide {})))
+    (async/put! output-ch [:query-form-hide {}])))
 
 (defn- on-save
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [query {:id (value (sel1 :#qf-id))
-                 :sql (value (sel1 :#qf-sql))
-                 :description (value (sel1 :#qf-desc))}]
+    (let [query {:id (dom/value (sel1 :#qf-id))
+                 :sql (dom/value (sel1 :#qf-sql))
+                 :description (dom/value (sel1 :#qf-desc))}]
       (if (empty? (:id query))
-        (publish! mbus :query-save {:value query})
-        (publish! mbus :query-update {:value query}))
-      (publish! mbus :query-form-hide {}))))
+        (async/put! output-ch [:query-save {:value query}])
+        (async/put! output-ch [:query-update {:value query}]))
+      (async/put! output-ch [:query-form-hide {}]))))
 
 ;; Incoming event handlers
 
 (defn- on-show
-  [mbus]
-  (let [id (value (sel1 :#qf-id))]
-    (set-html! (sel1 :#qf-save) (if (empty? id) "create" "save")))
-  (show! (sel1 :#query-form-container)))
+  []
+  (let [id (dom/value (sel1 :#qf-id))]
+    (dom/set-html! (sel1 :#qf-save) (if (empty? id) "create" "save")))
+  (dom/show! (sel1 :#query-form-container)))
 
 (defn- on-hide
-  [mbus]
-  (hide! (sel1 :#query-form-container))
-  (set-value! (sel1 :#qf-id) "")
-  (set-value! (sel1 :#qf-desc) "")
-  (set-value! (sel1 :#qf-sql) "")
-  (set-html! (sel1 :#qf-save) "create"))
+  []
+  (dom/hide! (sel1 :#query-form-container))
+  (dom/set-value! (sel1 :#qf-id) "")
+  (dom/set-value! (sel1 :#qf-desc) "")
+  (dom/set-value! (sel1 :#qf-sql) "")
+  (dom/set-html! (sel1 :#qf-save) "create"))
 
 (defn- on-update
-  [mbus {:keys [id sql description]}]
-  (set-value! (sel1 :#qf-id) id)
-  (set-value! (sel1 :#qf-desc) description)
-  (set-value! (sel1 :#qf-sql) sql)
-  (set-html! (sel1 :#qf-save) "save"))
+  [{:keys [id sql description]}]
+  (dom/set-value! (sel1 :#qf-id) id)
+  (dom/set-value! (sel1 :#qf-desc) description)
+  (dom/set-value! (sel1 :#qf-sql) sql)
+  (dom/set-html! (sel1 :#qf-save) "save"))
 
 (defn- mk-template
-  [mbus]
+  [output-ch]
   (let [t (template)]
-    (listen! [t :#qf-save] :click (on-save mbus))
-    (listen! [t :#qf-cancel] :click (on-cancel mbus))
+    (dom/listen! [t :#qf-save] :click (on-save output-ch))
+    (dom/listen! [t :#qf-cancel] :click (on-cancel output-ch))
     t))
 
-(def ^:private subscriptions
-  {:query-form-show (fn [mbus msg] (on-show mbus))
-   :query-form-hide (fn [mbus msg] (on-hide mbus))
-   :query-get (fn [mbus msg] (on-update mbus (:value msg)))})
+(defn- process
+  [[topic msg]]
+  (case topic
+    :query-form-show (on-show)
+    :query-form-hide (on-hide)
+    :query-get (on-update (:value msg))
+    :noop))
+
+(defn- block-loop
+  [input-ch]
+  (go-loop []
+    (.log js/console "QF: waiting")
+    (when-let [msg (async/<! input-ch)]
+      (.log js/console "QF:" (str msg))
+      (process msg)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        send-ch (utils/subscriber-ch :query-form-show :query-form-hide :query-get)
+        block (block-loop send-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :view (mk-template recv-ch)
+     :block block}))

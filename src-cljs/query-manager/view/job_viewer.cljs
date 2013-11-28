@@ -1,8 +1,12 @@
 (ns query-manager.view.job-viewer
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! set-html! show! hide! listen!]]
-            [query-manager.view :as view]
-            [query-manager.protocols :refer [publish!]]))
+  ;;
+  ;; Presents query (job) results.
+  ;;
+  (:use-macros [dommy.macros :only [sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]
+            [query-manager.utils :as utils]))
 
 ;;-----------------------------------------------------------------------------
 ;; DOM
@@ -42,52 +46,69 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- on-done-button-clicked
-  [mbus]
+  [output-ch]
   (fn [e]
-    (publish! mbus :job-view-hide {})))
+    (async/put! output-ch [:job-view-hide {}])))
 
 ;;-----------------------------------------------------------------------------
 ;; Application Events
 ;;-----------------------------------------------------------------------------
 
 (defn- on-show!
-  [mbus]
-  (show! (sel1 :#job-view-container)))
+  []
+  (dom/show! (sel1 :#job-view-container)))
 
 (defn- on-hide!
-  [mbus]
-  (hide! (sel1 :#job-view-container))
-  (set-html! (sel1 :#jv-desc) "job viewer")
-  (set-html! (sel1 :#job-viewer) "loading..."))
+  []
+  (dom/hide! (sel1 :#job-view-container))
+  (dom/set-html! (sel1 :#jv-desc) "job viewer")
+  (dom/set-html! (sel1 :#job-viewer) "loading..."))
 
 (defn- on-update!
-  [mbus job]
-  (set-html! (sel1 :#jv-desc) (:description (:query job)))
+  [job]
+  (dom/set-html! (sel1 :#jv-desc) (:description (:query job)))
   (if-not (nil? (:error job))
-    (replace-contents! (sel1 :#job-viewer) (error-for job))
+    (dom/replace-contents! (sel1 :#job-viewer) (error-for job))
     (if (empty? (:results job))
-      (replace-contents! (sel1 :#job-viewer) (empty-results))
-      (replace-contents! (sel1 :#job-viewer) (table-of (:results job))))))
+      (dom/replace-contents! (sel1 :#job-viewer) (empty-results))
+      (dom/replace-contents! (sel1 :#job-viewer) (table-of (:results job))))))
 
 ;;-----------------------------------------------------------------------------
 ;; Template
 ;;-----------------------------------------------------------------------------
 
 (defn- mk-template
-  [mbus]
-  (let [t (template)]
-    (listen! [t :#jv-done] :click (on-done-button-clicked mbus))
-    t))
+  [output-ch]
+  (let [body (template)]
+    (dom/listen! [body :#jv-done] :click (on-done-button-clicked output-ch))
+    body))
 
-(def ^:private subscriptions
-  {:job-view-show (fn [mbus msg] (on-show! mbus))
-   :job-view-hide (fn [mbus msg] (on-hide! mbus))
-   :job-get (fn [mbus msg] (on-update! mbus (:value msg)))})
+(defn- process
+  [output-ch [topic msg]]
+  (case topic
+    :job-view-show (on-show!)
+    :job-view-hide (on-hide!)
+    :job-get (on-update! (:value msg))
+    :noop))
+
+
+(defn- block-loop
+  [input-ch output-ch]
+  (go-loop []
+    (.log js/console "JV: waiting")
+    (when-let [msg (async/<! input-ch)]
+      (.log js/console "JV:" (str msg))
+      (process output-ch msg)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        send-ch (utils/subscriber-ch :job-view-show :job-view-hide :job-get)
+        block (block-loop send-ch recv-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :view (mk-template recv-ch)
+     :block block}))

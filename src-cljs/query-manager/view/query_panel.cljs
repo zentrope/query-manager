@@ -1,13 +1,15 @@
 (ns query-manager.view.query-panel
-  (:use-macros [dommy.macros :only [sel1 sel node]])
-  (:require [dommy.core :refer [toggle! attr listen! replace-contents!]]
-            [query-manager.view :as view]
-            [query-manager.protocols :refer [publish!]]
-            [query-manager.utils :refer [flash! listen-all!]]
+  ;;
+  ;; List of all the queries loaded into the application.
+  ;;
+  (:use-macros [dommy.macros :only [sel1 sel node]]
+               [cljs.core.async.macros :only [go-loop]])
+
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]
+            [query-manager.utils :as utils]
             [clojure.string :as string]))
 
-;;-----------------------------------------------------------------------------
-;; Implementation
 ;;-----------------------------------------------------------------------------
 
 (defn- template
@@ -19,25 +21,12 @@
            [:p "No queries defined."]
            [:button#qp-new "new"]]]]))
 
-(defn- sql-of
-  [sql]
-  (-> (string/replace sql #"\s+" " ")
-      (subs 0 50)
-      (string/lower-case)
-      (string/trim)
-      (str "...")))
-
 (defn- table-of
   [queries]
   (node (list [:table
-               ;; [:tr
-               ;;  [:th {:width "40%"} "query"]
-               ;;  ;; [:th {:width "45%"} "sql"]
-               ;;  [:th.actions {:width "15%"} "actions"]]
                (for [q queries]
                  [:tr {:id (str "qp-row-" (:id q))}
                   [:td (:description q)]
-                  ;; [:td (sql-of (:sql q))]
                   [:td.actions
                    [:button.qp-run {:qid (:id q)} "run"]
                    [:button.qp-edit {:qid (:id q)} "edit"]
@@ -47,70 +36,86 @@
               [:button#qp-export "export"])))
 
 (defn- on-run-all
-  [mbus qids]
+  [output-ch qids]
   (fn [e]
     (doseq [qid qids]
-      (publish! mbus :query-run {:value qid}))))
+      (async/put! output-ch [:query-run {:value qid}]))))
 
 (defn- on-run
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [id (attr (.-target e) :qid)]
-      (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (publish! mbus :query-run {:value id}))))
+    (let [id (dom/attr (.-target e) :qid)]
+      (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
+      (async/put! output-ch [:query-run {:value id}]))))
 
 (defn- on-delete
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [id (attr (.-target e) :qid)
+    (let [id (dom/attr (.-target e) :qid)
           row (keyword (str "#qp-row-" id))]
-      (flash! (sel1 row) :flash)
-      (publish! mbus :query-delete {:value id}))))
+      (utils/flash! (sel1 row) :flash)
+      (async/put! output-ch [:query-delete {:value id}]))))
 
 (defn- on-new
-  [mbus]
+  [output-ch]
   (fn [e]
-    (publish! mbus :query-form-show {})))
+    (async/put! output-ch [:query-form-show {}])))
 
 (defn- on-edit
-  [mbus]
+  [output-ch]
   (fn [e]
-    (let [id (attr (.-target e) :qid)]
-      (flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (publish! mbus :query-poke {:value id})
-      (publish! mbus :query-form-show {}))))
+    (let [id (dom/attr (.-target e) :qid)]
+      (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
+      (async/put! output-ch [:query-poke {:value id}])
+      (async/put! output-ch [:query-form-show {}]))))
 
 (defn- on-query-change
-  [mbus queries]
+  [output-ch queries]
   (if (empty? queries)
-
-    (do (replace-contents! (sel1 :#queries-table)
-                           (node (list [:p "No queries defined."]
-                                       [:button#qp-new "new"])))
-        (listen! (sel1 :#qp-new) :click (on-new mbus)))
+    (do (dom/replace-contents! (sel1 :#queries-table)
+                               (node (list [:p "No queries defined."]
+                                           [:button#qp-new "new"])))
+        (dom/listen! (sel1 :#qp-new) :click (on-new output-ch)))
 
     (let [table (table-of (sort-by :id queries))]
-      (replace-contents! (sel1 :#queries-table) table)
-      (listen-all! (sel :.qp-run) :click (on-run mbus))
-      (listen-all! (sel :.qp-edit) :click (on-edit mbus))
-      (listen-all! (sel :.qp-del) :click (on-delete mbus))
-      (listen! (sel1 :#qp-new) :click (on-new mbus))
-      (listen! (sel1 :#qp-runall) :click (on-run-all mbus (map :id queries)))
-      (listen! (sel1 :#qp-export) :click (fn [e]
-                                           (publish! mbus :export-queries {}))))))
+      (dom/replace-contents! (sel1 :#queries-table) table)
+      (utils/listen-all! (sel :.qp-run) :click (on-run output-ch))
+      (utils/listen-all! (sel :.qp-edit) :click (on-edit output-ch))
+      (utils/listen-all! (sel :.qp-del) :click (on-delete output-ch))
+      (dom/listen! (sel1 :#qp-new) :click (on-new output-ch))
+      (dom/listen! (sel1 :#qp-runall) :click (on-run-all output-ch (map :id queries)))
+      (dom/listen! (sel1 :#qp-export) :click (fn [e]
+                                               (async/put! output-ch [:export-queries {}]))))))
 
 (defn- mk-template
-  [mbus]
-  (template))
+  [output-ch]
+  (let [body (template)]
+    (dom/listen! body :click (on-new output-ch))
+    body))
 
-(def ^:private subscriptions
-  {:query-change (fn [mbus msg] (on-query-change mbus (:value msg)))})
+(defn- process
+  [output-ch [topic msg]]
+  (case topic
+    :query-change (on-query-change output-ch (:value msg))
+    :noop))
 
+(defn- block-loop
+  [input-ch output-ch]
+  (go-loop []
+    (.log js/console "QP: waiting")
+    (when-let [msg (async/<! input-ch)]
+      (.log js/console "QP:" (str msg))
+      (process output-ch msg)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [recv-ch (async/chan)
+        send-ch (utils/subscriber-ch :query-change)
+        block (block-loop send-ch recv-ch)]
+    {:recv recv-ch
+     :send send-ch
+     :view (mk-template recv-ch)
+     :block block}))

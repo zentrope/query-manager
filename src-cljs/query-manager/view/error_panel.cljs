@@ -1,11 +1,10 @@
 (ns query-manager.view.error-panel
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :refer [replace-contents! listen! toggle!]]
-            [query-manager.view :as view]
-            [query-manager.protocols :refer [publish!]]))
+  (:use-macros [dommy.macros :only [sel1 node]]
+               [cljs.core.async.macros :only [go-loop]])
+  (:require [dommy.core :as dom]
+            [query-manager.utils :as utils]
+            [cljs.core.async :as async]))
 
-;;-----------------------------------------------------------------------------
-;; Implementation
 ;;-----------------------------------------------------------------------------
 
 (def ^:private errors (atom []))
@@ -34,35 +33,48 @@
               [:button#ep-clear "clear"])))
 
 (defn- on-clear
-  [mbus]
+  []
   (fn [e]
     (reset! errors [])
-    (replace-contents! (sel1 :#ep-list) (node [:p "No errors!"]))))
+    (dom/replace-contents! (sel1 :#ep-list) (node [:p "No errors!"]))))
 
 (defn- on-error
-  [mbus error-event]
+  [error-event]
   (let [errs (swap! errors conj error-event)]
-    (replace-contents! (sel1 :#ep-list) (table-of (reverse (sort-by :timestamp errs))))
-    (listen! (sel1 :#ep-clear) :click (on-clear mbus))
+    (dom/replace-contents! (sel1 :#ep-list) (table-of (reverse (sort-by :timestamp errs))))
+    (dom/listen! (sel1 :#ep-clear) :click (on-clear))
     (when (> (count @errors) 15)
       (swap! errors (fn [es] (take 15 es))))))
 
 (defn- on-visibility-toggle!
-  [mbus]
-  (toggle! (sel1 :#error-panel)))
+  []
+  (dom/toggle! (sel1 :#error-panel)))
 
 (defn- mk-template
-  [mbus]
+  []
   template)
 
-(def ^:private subscriptions
-  {:web-error (fn [mbus msg] (on-error mbus (:value msg)))
-   :error-panel-toggle (fn [mbus msg] (on-visibility-toggle! mbus))})
+(defn- process
+  [[topic msg]]
+  (case topic
+    :web-error (on-error (:value msg))
+    :error-panel-toggle (on-visibility-toggle!)
+    :noop))
+
+(defn- block-loop
+  [input-ch]
+  (go-loop []
+    (when-let [msg (async/<! input-ch)]
+      (process msg)
+      (recur))))
 
 ;;-----------------------------------------------------------------------------
-;; Interface
-;;-----------------------------------------------------------------------------
 
-(defn mk-view!
-  [mbus]
-  (view/mk-view mbus mk-template subscriptions))
+(defn instance
+  []
+  (let [send-ch (utils/subscriber-ch :web-error :error-panel-toggle)
+        block (block-loop send-ch)]
+    {:recv nil
+     :send send-ch
+     :view (mk-template)
+     :block block}))
