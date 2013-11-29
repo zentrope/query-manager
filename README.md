@@ -52,6 +52,8 @@ each area of the screen is a separate "concern".
    already been edited by the user. And do it in such a way that the
    client doesn't have a lot of if/then/else crap.
 
+ - Don't allow "saving" the DB until the test works?
+
  - Oh, come on, now. Store the damned credentials on the file system
    so you don't have to re-enter them every time you restart the
    server-side of the app. Sheesh!
