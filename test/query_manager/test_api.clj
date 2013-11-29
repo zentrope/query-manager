@@ -179,7 +179,7 @@
     (is (= "done" (:status job)))
     (is (= (:select statement) (get-in job [:query :sql])))
     (is (= "Test" (get-in job [:query :description])))
-    (is (= job (select-keys job [:id :started :stopped :query :status :size])))))
+    (is (= job (select-keys job [:id :started :stopped :query :status :size :count-col])))))
 
 (deftest find-one-job-among-many
   (drop-db db)
