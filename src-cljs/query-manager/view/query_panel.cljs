@@ -33,14 +33,14 @@
   [output-ch qids]
   (fn [e]
     (doseq [qid qids]
-      (async/put! output-ch [:query-run {:value qid}]))))
+      (async/put! output-ch [:query-run qid]))))
 
 (defn- on-run
   [output-ch]
   (fn [e]
     (let [id (dom/attr (.-target e) :qid)]
       (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (async/put! output-ch [:query-run {:value id}]))))
+      (async/put! output-ch [:query-run id]))))
 
 (defn- on-delete
   [output-ch]
@@ -48,7 +48,7 @@
     (let [id (dom/attr (.-target e) :qid)
           row (keyword (str "#qp-row-" id))]
       (utils/flash! (sel1 row) :flash)
-      (async/put! output-ch [:query-delete {:value id}]))))
+      (async/put! output-ch [:query-delete id]))))
 
 (defn- on-new
   [output-ch]
@@ -60,7 +60,7 @@
   (fn [e]
     (let [id (dom/attr (.-target e) :qid)]
       (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (async/put! output-ch [:query-poke {:value id}])
+      (async/put! output-ch [:query-poke id])
       (async/put! output-ch [:query-form-show {}]))))
 
 (defn- on-query-change

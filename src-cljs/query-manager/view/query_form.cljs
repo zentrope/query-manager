@@ -39,8 +39,8 @@
                  :sql (dom/value (sel1 :#qf-sql))
                  :description (dom/value (sel1 :#qf-desc))}]
       (if (empty? (:id query))
-        (async/put! output-ch [:query-save {:value query}])
-        (async/put! output-ch [:query-update {:value query}]))
+        (async/put! output-ch [:query-save query])
+        (async/put! output-ch [:query-update query]))
       (async/put! output-ch [:query-form-hide {}]))))
 
 ;; Incoming event handlers

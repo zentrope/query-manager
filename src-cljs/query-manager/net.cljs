@@ -12,7 +12,7 @@
 (defn- error-handler
   [output-ch]
   (fn [err]
-    (async/put! output-ch [:web-error {:value err}])))
+    (async/put! output-ch [:web-error err])))
 
 ;;-----------------------------------------------------------------------------
 ;; Database connection API
@@ -23,7 +23,7 @@
   (ajax :uri "/qman/api/db"
         :method "GET"
         :on-failure (error-handler output-ch)
-        :on-success (fn [db] (async/put! output-ch [:db-change {:value (jread db)}]))
+        :on-success (fn [db] (async/put! output-ch [:db-change (jread db)]))
         :type :json))
 
 (defn test-db
@@ -31,7 +31,7 @@
   (ajax :uri "/qman/api/db/test"
         :method "POST"
         :on-failure (error-handler output-ch)
-        :on-success (fn [db] (async/put! output-ch [:db-test-result {:value (jread db)}]))
+        :on-success (fn [db] (async/put! output-ch [:db-test-result (jread db)]))
         :data db
         :type :json))
 
@@ -39,7 +39,7 @@
   [output-ch db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
-        :on-failure (fn [err] (async/put! output-ch [:web-error {:value err}]))
+        :on-failure (fn [err] (async/put! output-ch [:web-error err]))
         :on-success (fn [_] (poke-db output-ch))
         :data db
         :type :json))
@@ -54,7 +54,7 @@
         :method "GET"
         :type :json
         :on-failure (error-handler output-ch)
-        :on-success (fn [jobs] (async/put! output-ch [:job-change {:value (jread jobs)}]))))
+        :on-success (fn [jobs] (async/put! output-ch [:job-change (jread jobs)]))))
 
 (defn poke-job
   [output-ch job-id]
@@ -62,7 +62,7 @@
         :method "GET"
         :type :json
         :on-failure (error-handler output-ch)
-        :on-success (fn [job] (async/put! output-ch [:job-get {:value (jread job)}]))))
+        :on-success (fn [job] (async/put! output-ch [:job-get (jread job)]))))
 
 (defn run-job
   [output-ch query-id]
@@ -89,7 +89,7 @@
         :method "GET"
         :on-failure (error-handler output-ch)
         :on-success (fn [data]
-                      (async/put! output-ch [:query-change {:value (jread data)}]))
+                      (async/put! output-ch [:query-change (jread data)]))
         :type :json))
 
 (defn poke-query
@@ -97,7 +97,7 @@
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
         :on-failure (error-handler output-ch)
-        :on-success (fn [data] (async/put! output-ch [:query-get {:value (jread data)}]))
+        :on-success (fn [data] (async/put! output-ch [:query-get (jread data)]))
         :type :json))
 
 (defn save-query

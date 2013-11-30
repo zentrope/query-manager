@@ -73,7 +73,7 @@
   (fn [e]
     (let [id (dom/attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
-      (async/put! output-ch [:job-delete {:value id}]))))
+      (async/put! output-ch [:job-delete id]))))
 
 (defn- on-view
   [output-ch]
@@ -81,7 +81,7 @@
     (let [id (dom/attr (.-target e) :jid)]
       (flash! (sel1 (keyword (str "#jp-row-" id))) :flash)
       (async/put! output-ch [:job-view-show {}])
-      (async/put! output-ch [:job-poke {:value id}]))))
+      (async/put! output-ch [:job-poke id]))))
 
 ;; incoming events
 

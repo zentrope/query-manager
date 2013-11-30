@@ -56,7 +56,7 @@
 (defn- on-save!
   [output-ch]
   (fn [e]
-    (async/put! output-ch [:db-save {:value (mk-db)}])
+    (async/put! output-ch [:db-save (mk-db)])
     (async/put! output-ch [:db-form-hide {}])))
 
 (defn- on-test!
@@ -66,7 +66,7 @@
         (dom/set-html! "Testing...")
         (set-class! "in-progress"))
     (toggle-buttons! :off)
-    (async/put! output-ch [:db-test {:value (mk-db)}])))
+    (async/put! output-ch [:db-test (mk-db)])))
 
 (defn- on-cancel!
   [output-ch]

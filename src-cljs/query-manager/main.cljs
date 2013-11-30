@@ -21,13 +21,13 @@
   [state queue data]
   (cond
     (and (:db-acquired? state)
-         (:updated (:value data)))
-    (do (view/set-frame-db! (:value (:value data)))
-        (view/fill-db-form! (:value (:value data)))
+         (:updated data))
+    (do (view/set-frame-db! (:value data))
+        (view/fill-db-form! (:value data))
         state)
     (and (not (:db-acquired? state))
-         (:updated (:value data)))
-    (do (view/set-frame-db! (:value (:value data)))
+         (:updated data))
+    (do (view/set-frame-db! (:value data))
         (assoc state :db-acquired? true))
     (not (:db-acquired? state))
     (do (view/show-db-form! queue)
@@ -48,12 +48,12 @@
 
 (defn- test-database!
   [state queue data]
-  (net/test-db queue (:value data))
+  (net/test-db queue data)
   state)
 
 (defn- on-database-test-result!
   [state result]
-  (view/test-db-form! (:value result))
+  (view/test-db-form! result)
   state)
 
 ;;-----------------------------------------------------------------------------
