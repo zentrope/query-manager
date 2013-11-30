@@ -1,6 +1,5 @@
 (ns query-manager.view.job-panel
-  (:use-macros [dommy.macros :only [sel sel1 node]]
-               [cljs.core.async.macros :only [go-loop]])
+  (:use-macros [dommy.macros :only [sel sel1 node]])
   (:require [dommy.core :as dom]
             [cljs.core.async :as async]
             [query-manager.utils :refer [flash! listen-all! das]]))
@@ -100,29 +99,14 @@
   []
   (template))
 
-(defn- process
-  [output-ch [topic msg]]
-  (case topic
-    :job-change (on-job-change output-ch (:value msg))
-    :noop))
-
-(defn- block-loop
-  [input-ch output-ch]
-  (go-loop []
-    (when-let [msg (async/<! input-ch)]
-      (process output-ch msg)
-      (recur))))
-
 ;;-----------------------------------------------------------------------------
 ;; Interface
 ;;-----------------------------------------------------------------------------
 
-(defn instance
-  []
-  (let [recv-ch (async/chan)
-        send-ch (async/chan)
-        block (block-loop send-ch recv-ch)]
-    {:recv recv-ch
-     :send send-ch
-     :view (mk-template)
-     :block block}))
+(defn show!
+  [queue place]
+  (dom/append! (sel1 place) (mk-template)))
+
+(defn fill-jobs!
+  [queue jobs]
+  (on-job-change queue jobs))

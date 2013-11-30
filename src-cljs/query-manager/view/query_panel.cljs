@@ -1,14 +1,8 @@
 (ns query-manager.view.query-panel
-  ;;
-  ;; List of all the queries loaded into the application.
-  ;;
-  (:use-macros [dommy.macros :only [sel1 sel node]]
-               [cljs.core.async.macros :only [go-loop]])
-
+  (:use-macros [dommy.macros :only [sel1 sel node]])
   (:require [dommy.core :as dom]
             [cljs.core.async :as async]
-            [query-manager.utils :as utils]
-            [clojure.string :as string]))
+            [query-manager.utils :as utils]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -93,27 +87,13 @@
     (dom/listen! [body :#qp-new] :click (on-new output-ch))
     body))
 
-(defn- process
-  [output-ch [topic msg]]
-  (case topic
-    :query-change (on-query-change output-ch (:value msg))
-    :noop))
-
-(defn- block-loop
-  [input-ch output-ch]
-  (go-loop []
-    (when-let [msg (async/<! input-ch)]
-      (process output-ch msg)
-      (recur))))
-
 ;;-----------------------------------------------------------------------------
 
-(defn instance
-  []
-  (let [recv-ch (async/chan)
-        send-ch (utils/subscriber-ch :query-change)
-        block (block-loop send-ch recv-ch)]
-    {:recv recv-ch
-     :send send-ch
-     :view (mk-template recv-ch)
-     :block block}))
+(defn show!
+  [queue where]
+  (let [doc (mk-template queue)]
+    (dom/append! (sel1 where) doc)))
+
+(defn fill-queries!
+  [queue queries]
+  (on-query-change queue queries))

@@ -1,17 +1,13 @@
 (ns query-manager.view.db-form
-  ;;
-  (:use-macros [cljs.core.async.macros :only [go-loop]]
-               [dommy.macros           :only [sel1 node]])
-  ;;
-  (:require [dommy.core          :as dom]
-            [query-manager.utils :as utils]
-            [cljs.core.async     :as async]))
+  (:use-macros [dommy.macros :only [sel1 node]])
+  (:require [dommy.core :as dom]
+            [cljs.core.async :as async]))
 
 ;;-----------------------------------------------------------------------------
 
 (defn- template
   []
-  (node [:div#db-form-container.form-container {:style {:display "none"}}
+  (node [:div#db-form-container.form-container
          [:div#db-form.form
           [:h2 "Database Connection Info"]
           [:table
@@ -19,15 +15,14 @@
                                    [:option {:value "h2"} "h2"]
                                    [:option {:value "mysql"} "mysql"]
                                    [:option {:value "oracle"} "oracle"]
-                                   [:option {:value "sqlserver"} "sqlserver"]
-                                   [:option {:value "postgresql"} "postgresql"]]]]
+                                   [:option {:value "postgresql"} "postgresql"]
+                                   [:option {:value "sqlserver"} "sqlserver"]]]]
            [:tr [:th "database"] [:td [:input#dbf-database {:type "text"}]]]
            [:tr [:th "user"] [:td [:input#dbf-user {:type "text"}]]]
            [:tr [:th "password"] [:td [:input#dbf-pass {:type "password"}]]]
            [:tr [:th "host"] [:td [:input#dbf-host {:type "text"}]]]
            [:tr [:th "port"] [:td [:input#dbf-port {:type "text"}]]]]
-          [:div.form-message
-           ""]
+          [:div.form-message ""]
           [:div.form-buttons
            [:button#dbf-save "save"]
            [:button#dbf-test "test"]
@@ -87,8 +82,20 @@
     (dom/listen! [t :#dbf-cancel] :click (on-cancel! output-ch))
     t))
 
-(defn- on-db-test-result!
-  [{:keys [okay reason]}]
+;;-----------------------------------------------------------------------------
+
+(defn set-values!
+  [{:keys [type host port user database password] :as db}]
+  (when-let [place (sel1 :#db-form-container)]
+    (dom/set-value! (sel1 :#dbf-type) type)
+    (dom/set-value! (sel1 :#dbf-host) host)
+    (dom/set-value! (sel1 :#dbf-user) user)
+    (dom/set-value! (sel1 :#dbf-pass) password)
+    (dom/set-value! (sel1 :#dbf-port) port)
+    (dom/set-value! (sel1 :#dbf-database) database)))
+
+(defn set-test-result!
+  [{:keys [okay reason] :as result}]
   (toggle-buttons! :on)
   (if okay
     (-> (sel1 :.form-message)
@@ -98,51 +105,12 @@
         (dom/set-html! (str "Database is unreachable: " reason))
         (set-class! "snafu"))))
 
-(defn- on-update!
-  [output-ch {:keys [type host port user database password]}]
-  (dom/set-value! (sel1 :#dbf-type) type)
-  (dom/set-value! (sel1 :#dbf-host) host)
-  (dom/set-value! (sel1 :#dbf-user) user)
-  (dom/set-value! (sel1 :#dbf-pass) password)
-  (dom/set-value! (sel1 :#dbf-port) port)
-  (dom/set-value! (sel1 :#dbf-database) database))
+(defn show!
+  [queue]
+  (let [body (mk-template queue)]
+    (dom/append! (sel1 :body) body)))
 
-(defn- on-show!
-  [output-ch db-info]
-  (-> (sel1 :.form-message)
-      (set-class! "")
-      (dom/set-html! "&nbsp;"))
-  (toggle-buttons! :on)
-  (dom/show! (sel1 :#db-form-container)))
-
-(defn- on-hide!
-  [output-ch db-info]
-  (dom/hide! (sel1 :#db-form-container)))
-
-(defn- process
-  [output-ch [topic msg]]
-  (case topic
-    :db-test-result (on-db-test-result! (:value msg))
-    :db-change (on-update! output-ch (:value msg))
-    :db-form-show (on-show! output-ch (:value msg))
-    :db-form-hide (on-hide! output-ch (:value msg))
-    :noop))
-
-(defn- block-loop
-  [input-ch output-ch]
-  (go-loop []
-    (when-let [msg (async/<! input-ch)]
-      (process output-ch msg)
-      (recur))))
-
-;;-----------------------------------------------------------------------------
-
-(defn instance
+(defn hide!
   []
-  (let [recv-ch (async/chan)
-        send-ch (utils/subscriber-ch :db-test-result :db-change :db-form-show :db-form-hide)
-        block (block-loop send-ch recv-ch)]
-    {:recv recv-ch
-     :send send-ch
-     :view (mk-template recv-ch)
-     :block block}))
+  (when-let [place (sel1 :#db-form-container)]
+    (dom/remove! place)))

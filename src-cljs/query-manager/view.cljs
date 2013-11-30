@@ -1,42 +1,41 @@
 (ns query-manager.view
-  (:require [query-manager.view.status-bar :as status-bar]
-            [query-manager.view.title-bar :as title-bar]
+  (:require [query-manager.view.db-form :as db-form]
+            [query-manager.view.query-panel :as query-panel]
             [query-manager.view.job-panel :as job-panel]
-            [query-manager.view.db-form :as db-form]
-            [query-manager.view.error-panel :as error-panel]
-            [query-manager.view.query-form :as query-form]
-            [query-manager.view.job-viewer :as job-viewer]
-;;            [query-manager.view.query-panel :as query-panel]
+            ;; [query-manager.view.query-form :as query-form]
+            ;; [query-manager.view.job-viewer :as job-viewer]
             [query-manager.import :as import]
-            ))
+            [query-manager.view.frame :as frame]))
 
 ;;-----------------------------------------------------------------------------
 
-(defn- parts-of
-  [state pred]
-  (filter (fn [v] (not (nil? v))) (map pred (:views state))))
+(defn show-app-frame!
+  [queue]
+  (frame/show! queue)
+  (query-panel/show! queue :#left)
+  (job-panel/show! queue :#right)
+  (import/show! queue :body))
 
-;;-----------------------------------------------------------------------------
+(defn set-frame-db!
+  [db]
+  (frame/set-db! db))
 
-(defn receivers
-  [state]
-  (parts-of state :recv))
+(defn fill-queries!
+  [queue queries]
+  (query-panel/fill-queries! queue queries))
 
-(defn senders
-  [state]
-  (parts-of state :send))
+(defn show-db-form!
+  [queue]
+  (db-form/show! queue))
 
-(defn views
-  [state]
-  (parts-of state :view))
+(defn fill-db-form!
+  [db]
+  (db-form/set-values! db))
 
-(defn instance
+(defn test-db-form!
+  [result]
+  (db-form/set-test-result! result))
+
+(defn hide-db-form!
   []
-  {:views [(status-bar/instance)
-           (title-bar/instance)
-           (job-panel/instance)
-           (db-form/instance)
-           (error-panel/instance)
-           (query-form/instance)
-           (job-viewer/instance)
-           (import/instance)]})
+  (db-form/hide!))

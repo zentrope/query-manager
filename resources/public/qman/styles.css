@@ -512,15 +512,6 @@ div.lister td {
   letter-spacing: 1.2pt;
 }
 
-#title-clock {
-  position: absolute;
-  top: 6pt;
-  left: 15px;
-  font-size: 8pt;
-  color: #555;
-  text-shadow: 1px 1px 3px #ccc;
-}
-
 #title-version {
   position: absolute;
   top: 6pt;

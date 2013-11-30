@@ -1,9 +1,6 @@
 (ns query-manager.import
-  ;;
-  ;; Enables drag/drop of a query file to load it up.
-  ;;
   (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :as dom ]
+  (:require [dommy.core :as dom]
             [cljs.core.async :as async]
             [cljs.reader :as reader]
             [clojure.string :as string]))
@@ -82,10 +79,6 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn instance
-  []
-  (let [recv-ch (async/chan)]
-    {:recv recv-ch
-     :send nil
-     :view (mk-template recv-ch)
-     :block nil}))
+(defn show!
+  [queue place]
+  (dom/append! (sel1 place) (mk-template queue)))
