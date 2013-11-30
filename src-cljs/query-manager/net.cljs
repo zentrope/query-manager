@@ -10,37 +10,37 @@
   (js->clj json :keywordize-keys true))
 
 (defn- error-handler
-  [output-ch]
+  [queue]
   (fn [err]
-    (async/put! output-ch [:web-error err])))
+    (async/put! queue [:web-error err])))
 
 ;;-----------------------------------------------------------------------------
 ;; Database connection API
 ;;-----------------------------------------------------------------------------
 
 (defn poke-db
-  [output-ch]
+  [queue]
   (ajax :uri "/qman/api/db"
         :method "GET"
-        :on-failure (error-handler output-ch)
-        :on-success (fn [db] (async/put! output-ch [:db-change (jread db)]))
+        :on-failure (error-handler queue)
+        :on-success (fn [db] (async/put! queue [:db-change (jread db)]))
         :type :json))
 
 (defn test-db
-  [output-ch db]
+  [queue db]
   (ajax :uri "/qman/api/db/test"
         :method "POST"
-        :on-failure (error-handler output-ch)
-        :on-success (fn [db] (async/put! output-ch [:db-test-result (jread db)]))
+        :on-failure (error-handler queue)
+        :on-success (fn [db] (async/put! queue [:db-test-result (jread db)]))
         :data db
         :type :json))
 
 (defn save-db
-  [output-ch db]
+  [queue db]
   (ajax :uri "/qman/api/db"
         :method "PUT"
-        :on-failure (fn [err] (async/put! output-ch [:web-error err]))
-        :on-success (fn [_] (poke-db output-ch))
+        :on-failure (fn [err] (async/put! queue [:web-error err]))
+        :on-success (fn [_] (poke-db queue))
         :data db
         :type :json))
 
@@ -49,79 +49,79 @@
 ;;-----------------------------------------------------------------------------
 
 (defn poke-jobs
-  [output-ch]
+  [queue]
   (ajax :uri "/qman/api/job"
         :method "GET"
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [jobs] (async/put! output-ch [:job-change (jread jobs)]))))
+        :on-failure (error-handler queue)
+        :on-success (fn [jobs] (async/put! queue [:job-change (jread jobs)]))))
 
 (defn poke-job
-  [output-ch job-id]
+  [queue job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "GET"
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [job] (async/put! output-ch [:job-get (jread job)]))))
+        :on-failure (error-handler queue)
+        :on-success (fn [job] (async/put! queue [:job-get (jread job)]))))
 
 (defn run-job
-  [output-ch query-id]
+  [queue query-id]
   (ajax :uri (str "/qman/api/job/" query-id)
         :method "POST"
-        :on-failure (error-handler output-ch)
-        :on-success (fn [_] (poke-jobs output-ch))))
+        :on-failure (error-handler queue)
+        :on-success (fn [_] (poke-jobs queue))))
 
 (defn delete-job
-  [output-ch job-id]
+  [queue job-id]
   (ajax :uri (str "/qman/api/job/" job-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [_] (poke-jobs output-ch))))
+        :on-failure (error-handler queue)
+        :on-success (fn [_] (poke-jobs queue))))
 
 ;;-----------------------------------------------------------------------------
 ;; Queries API
 ;;-----------------------------------------------------------------------------
 
 (defn poke-queries
-  [output-ch]
+  [queue]
   (ajax :uri "/qman/api/query"
         :method "GET"
-        :on-failure (error-handler output-ch)
+        :on-failure (error-handler queue)
         :on-success (fn [data]
-                      (async/put! output-ch [:query-change (jread data)]))
+                      (async/put! queue [:query-change (jread data)]))
         :type :json))
 
 (defn poke-query
-  [output-ch id]
+  [queue id]
   (ajax :uri (str "/qman/api/query/" id)
         :method "GET"
-        :on-failure (error-handler output-ch)
-        :on-success (fn [data] (async/put! output-ch [:query-get (jread data)]))
+        :on-failure (error-handler queue)
+        :on-success (fn [data] (async/put! queue [:query-get (jread data)]))
         :type :json))
 
 (defn save-query
-  [output-ch query]
+  [queue query]
   (ajax :uri "/qman/api/query"
         :method "POST"
         :data query
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [_] (poke-queries output-ch))))
+        :on-failure (error-handler queue)
+        :on-success (fn [_] (poke-queries queue))))
 
 (defn update-query
-  [output-ch query]
+  [queue query]
   (ajax :uri (str "/qman/api/query/" (:id query))
         :method "PUT"
         :data query
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [_] (poke-queries output-ch))))
+        :on-failure (error-handler queue)
+        :on-success (fn [_] (poke-queries queue))))
 
 (defn delete-query
-  [output-ch query-id]
+  [queue query-id]
   (ajax :uri (str "/qman/api/query/" query-id)
         :method "DELETE"
         :type :json
-        :on-failure (error-handler output-ch)
-        :on-success (fn [_] (poke-queries output-ch))))
+        :on-failure (error-handler queue)
+        :on-success (fn [_] (poke-queries queue))))

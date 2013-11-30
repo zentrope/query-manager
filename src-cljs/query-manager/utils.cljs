@@ -17,10 +17,6 @@
   (unflash! elem class)
   (dom/add-class! elem class))
 
-(defn spawn-after!
-  [millis f]
-  (js/setTimeout f millis))
-
 (defn das
   [part date]
   (let [num (case part
@@ -34,9 +30,3 @@
     (if (< num 10)
       (str "0" num)
       (str num))))
-
-(defn subscriber-ch
-  [& topics]
-  (let [ch (async/chan)
-        topics (set topics)]
-    (async/filter> (fn [value] (contains? topics (first value))) ch)))

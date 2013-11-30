@@ -1,4 +1,4 @@
-(ns query-manager.import
+(ns query-manager.view.import
   (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :as dom]
             [cljs.core.async :as async]

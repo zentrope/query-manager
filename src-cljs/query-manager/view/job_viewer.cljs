@@ -1,20 +1,11 @@
 (ns query-manager.view.job-viewer
-  ;;
-  ;; Presents query (job) results.
-  ;;
-  (:use-macros [dommy.macros :only [sel1 node]]
-               [cljs.core.async.macros :only [go-loop]])
+  (:use-macros [dommy.macros :only [sel1 node]])
   (:require [dommy.core :as dom]
-            [cljs.core.async :as async]
-            [query-manager.utils :as utils]))
-
-;;-----------------------------------------------------------------------------
-;; DOM
-;;-----------------------------------------------------------------------------
+            [cljs.core.async :as async]))
 
 (defn- template
   []
-  (node [:div#job-view-container {:style {:display "none"}}
+  (node [:div#job-view-container ;;{:style {:display "none"}}
          [:div.job-view
           [:h2#jv-desc "-"]
           [:p#jv-title.sub-title "Job Results Viewer"]
@@ -41,18 +32,10 @@
               [:tr (for [v (vals row)]
                      [:td (str v)])])]])))
 
-;;-----------------------------------------------------------------------------
-;; DOM Events
-;;-----------------------------------------------------------------------------
-
 (defn- on-done-button-clicked
-  [output-ch]
+  [queue]
   (fn [e]
-    (async/put! output-ch [:job-view-hide {}])))
-
-;;-----------------------------------------------------------------------------
-;; Application Events
-;;-----------------------------------------------------------------------------
+    (async/put! queue [:job-view-hide {}])))
 
 (defn- on-show!
   []
@@ -73,40 +56,24 @@
       (dom/replace-contents! (sel1 :#job-viewer) (empty-results))
       (dom/replace-contents! (sel1 :#job-viewer) (table-of (:results job))))))
 
-;;-----------------------------------------------------------------------------
-;; Template
-;;-----------------------------------------------------------------------------
-
 (defn- mk-template
-  [output-ch]
+  [queue]
   (let [body (template)]
-    (dom/listen! [body :#jv-done] :click (on-done-button-clicked output-ch))
+    (dom/listen! [body :#jv-done] :click (on-done-button-clicked queue))
     body))
 
-(defn- process
-  [output-ch [topic msg]]
-  (case topic
-    :job-view-show (on-show!)
-    :job-view-hide (on-hide!)
-    :job-get (on-update! (:value msg))
-    :noop))
-
-
-(defn- block-loop
-  [input-ch output-ch]
-  (go-loop []
-    (when-let [msg (async/<! input-ch)]
-      (process output-ch msg)
-      (recur))))
-
 ;;-----------------------------------------------------------------------------
 
-(defn instance
+(defn show!
+  [queue]
+  (let [body (mk-template queue)]
+    (dom/append! (sel1 :body) body)))
+
+(defn hide!
   []
-  (let [recv-ch (async/chan)
-        send-ch (utils/subscriber-ch :job-view-show :job-view-hide :job-get)
-        block (block-loop send-ch recv-ch)]
-    {:recv recv-ch
-     :send send-ch
-     :view (mk-template recv-ch)
-     :block block}))
+  (when-let [place (sel1 :#job-view-container)]
+    (dom/remove! place)))
+
+(defn fill!
+  [job]
+  (on-update! job))

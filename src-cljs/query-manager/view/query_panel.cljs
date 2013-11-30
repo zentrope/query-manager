@@ -30,61 +30,61 @@
               [:button#qp-export "export"])))
 
 (defn- on-run-all
-  [output-ch qids]
+  [queue qids]
   (fn [e]
     (doseq [qid qids]
-      (async/put! output-ch [:query-run qid]))))
+      (async/put! queue [:query-run qid]))))
 
 (defn- on-run
-  [output-ch]
+  [queue]
   (fn [e]
     (let [id (dom/attr (.-target e) :qid)]
       (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (async/put! output-ch [:query-run id]))))
+      (async/put! queue [:query-run id]))))
 
 (defn- on-delete
-  [output-ch]
+  [queue]
   (fn [e]
     (let [id (dom/attr (.-target e) :qid)
           row (keyword (str "#qp-row-" id))]
       (utils/flash! (sel1 row) :flash)
-      (async/put! output-ch [:query-delete id]))))
+      (async/put! queue [:query-delete id]))))
 
 (defn- on-new
-  [output-ch]
+  [queue]
   (fn [e]
-    (async/put! output-ch [:query-form-show {}])))
+    (async/put! queue [:query-form-show {}])))
 
 (defn- on-edit
-  [output-ch]
+  [queue]
   (fn [e]
     (let [id (dom/attr (.-target e) :qid)]
       (utils/flash! (sel1 (keyword (str "#qp-row-" id))) :flash)
-      (async/put! output-ch [:query-poke id])
-      (async/put! output-ch [:query-form-show {}]))))
+      (async/put! queue [:query-poke id])
+      (async/put! queue [:query-form-show {}]))))
 
 (defn- on-query-change
-  [output-ch queries]
+  [queue queries]
   (if (empty? queries)
     (do (dom/replace-contents! (sel1 :#queries-table)
                                (node (list [:p "No queries defined."]
                                            [:button#qp-new "new"])))
-        (dom/listen! (sel1 :#qp-new) :click (on-new output-ch)))
+        (dom/listen! (sel1 :#qp-new) :click (on-new queue)))
 
     (let [table (table-of (sort-by :id queries))]
       (dom/replace-contents! (sel1 :#queries-table) table)
-      (utils/listen-all! (sel :.qp-run) :click (on-run output-ch))
-      (utils/listen-all! (sel :.qp-edit) :click (on-edit output-ch))
-      (utils/listen-all! (sel :.qp-del) :click (on-delete output-ch))
-      (dom/listen! (sel1 :#qp-new) :click (on-new output-ch))
-      (dom/listen! (sel1 :#qp-runall) :click (on-run-all output-ch (map :id queries)))
+      (utils/listen-all! (sel :.qp-run) :click (on-run queue))
+      (utils/listen-all! (sel :.qp-edit) :click (on-edit queue))
+      (utils/listen-all! (sel :.qp-del) :click (on-delete queue))
+      (dom/listen! (sel1 :#qp-new) :click (on-new queue))
+      (dom/listen! (sel1 :#qp-runall) :click (on-run-all queue (map :id queries)))
       (dom/listen! (sel1 :#qp-export) :click (fn [e]
-                                               (async/put! output-ch [:export-queries {}]))))))
+                                               (async/put! queue [:export-queries {}]))))))
 
 (defn- mk-template
-  [output-ch]
+  [queue]
   (let [body (template)]
-    (dom/listen! [body :#qp-new] :click (on-new output-ch))
+    ;;(dom/listen! [body :#qp-new] :click (on-new queue))
     body))
 
 ;;-----------------------------------------------------------------------------

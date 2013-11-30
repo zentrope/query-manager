@@ -66,7 +66,7 @@
   [output-ch jids]
   (fn [e]
     (doseq [id jids]
-      (async/put! output-ch [:job-delete {:value id}]))))
+      (async/put! output-ch [:job-delete id]))))
 
 (defn- on-delete
   [output-ch]
