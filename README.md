@@ -42,9 +42,10 @@ That's about it!
 
 ## Status
 
-The client ([ClojureScript][cs]) is moving to [core.async][ca]. Once
-that's done, I'll probably refactor it to get rid of the idea that
-each area of the screen is a separate "concern".
+Works. The client and server communicate via a GET and POST API on a
+single resource called "/messages". Seems to work reasonably well
+enough as a mechanism. Great potential for simplication on either
+side.
 
 ## Future
 
