@@ -88,8 +88,7 @@
           (swap! jobs assoc (:id job) update))
         (error t))
       (finally
-        (info " - putting job complete into the event queue, right?")
-        (async/put! event-queue [:job-complete {}])
+        (async/put! event-queue [:job-complete job])
         (info " - job complete: [" (:description (:query job)) "]")))))
 
 ;;-----------------------------------------------------------------------------

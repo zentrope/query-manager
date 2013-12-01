@@ -45,48 +45,43 @@
   [request]
   (json/read-str (sread (:body request)) :key-fn keyword))
 
-(defn- as-json
-  [doc]
-  (-> (response doc)
-      (header "Content-Type" "application/json")
-      (status 200)))
-
-(defn- as-empty
-  [code]
-  (-> (response "")
-      (header "Content-Type" "plain/text")
-      (status code)))
-
 ;;-----------------------------------------------------------------------------
 
-;; Long poll experiment stuff
+(defn- mk-response
+  ([status]
+     (mk-response "{}"))
+  ([status body]
+     {:status status
+      :body body
+      :headers {"content-type" "application/json"}}))
+
+(defn- log-event!
+  [name event]
+  (let [s (format "%s" event)]
+    (try
+      (log/info name (subs s 0 76) "... ]")
+      (catch Throwable t
+        (log/info name s)))))
+
+(defn- wait-loop!
+  "Terminate when there's a web-channel avaliable for publishing."
+  [channel-hub]
+  (async/go-loop []
+    (if (> (count @channel-hub) 0)
+      :done
+      (do (async/<! (async/timeout 10))
+          (recur)))))
 
 (defn- publish-loop!
   [channel-hub publish-ch]
-  ;;
-  ;; When something is put in the queue, it's send to all pending
-  ;; web-channels.
-  ;;
-  ;; PROBLEM: If you send one message to a web-channel, it'll close,
-  ;;          thus allowing you to miss the next few messages while
-  ;;          it reconnects.
-  ;;
   (async/go-loop []
     (when-let [msg (async/<! publish-ch)]
-      (log/info "publish-loop: " msg)
+      (log-event! "pub:" msg)
       (doseq [[web-channel req] @channel-hub]
         (if (= (first msg) (:http-error msg))
-          (httpd/send! web-channel {:status (second msg)
-                                    :headers {"content-type" "application/json"}
-                                    :body ""})
-          (httpd/send! web-channel {:status 200
-                                    :headers {"content-type" "application/json"}
-                                    :body (jwrite msg)})))
-      ;;
-      ;; Wait awhile to allow a client to reconnect if there are
-      ;; pending messages.
-      ;;
-      (<! (async/timeout 50)) ;; should wait in a loop until len channel-hub non-zero
+          (httpd/send! web-channel (mk-response (second msg)))
+          (httpd/send! web-channel (mk-response 200 (jwrite msg)))))
+      (<! (wait-loop! channel-hub))
       (recur))))
 
 (defn- process!
@@ -157,9 +152,10 @@
   [jobs control-ch publish-ch]
   (async/go-loop []
     (when-let [msg (async/<! control-ch)]
-      (log/info "control-loop: " (normalize msg))
-      (process! jobs control-ch publish-ch (normalize msg))
-      (recur))))
+      (let [event (normalize msg)]
+        (log-event! "con:" event)
+        (process! jobs control-ch publish-ch event)
+        (recur)))))
 
 (defn- message-handler
   [channel-hub]
