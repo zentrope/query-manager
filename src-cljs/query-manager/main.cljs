@@ -1,20 +1,44 @@
 (ns query-manager.main
   (:use-macros [cljs.core.async.macros :only [go-loop]])
   (:require [cljs.core.async :as async]
-            [query-manager.view :as view]
-            [query-manager.net :as net]))
+            [query-manager.ajax :refer [ajax]]
+            [query-manager.view :as view]))
+
+;;-----------------------------------------------------------------------------
+
+(defn- mread
+  [json]
+  (let [[topic msg] (js->clj json :keywordize-keys true)]
+    [(keyword topic) msg]))
+
+(defn- recv-message
+  [queue]
+  (ajax :uri "/qman/api/messages"
+        :method "GET"
+        :on-failure (fn [err] (async/put! queue [:web-error err]))
+        :on-success (fn [msg] (async/put! queue (mread msg)))
+        :type :json))
+
+(defn- send-message
+  [queue msg]
+  (ajax :uri "/qman/api/messages"
+        :method "POST"
+        :on-failure (fn [err] (async/put! queue [:web-error err]))
+        :on-success (fn [_] )
+        :data msg
+        :type :json))
 
 ;;-----------------------------------------------------------------------------
 
 (defn- retrieve-db-info!
   [state queue]
-  (net/poke-db queue)
+  (send-message queue [:db-get {}])
   state)
 
 (defn- save-database-params!
-  [state queue data]
+  [state queue db]
   (view/hide-db-form!)
-  (net/save-db queue data)
+  (send-message queue [:db-save db])
   (assoc state :db-acquired? true))
 
 (defn- database-connection-changed
@@ -23,12 +47,12 @@
     (and (:db-acquired? state) (:updated data))
     (do (view/set-frame-db! data)
         (view/fill-db-form! data)
-        (net/send-message queue [:app-init {}])
+        (send-message queue [:app-init {}])
         state)
     ;;
     (and (not (:db-acquired? state)) (:updated data))
     (do (view/set-frame-db! data)
-        (net/send-message queue [:app-init {}])
+        (send-message queue [:app-init {}])
         (assoc state :db-acquired? true))
     ;;
     (not (:db-acquired? state))
@@ -41,7 +65,7 @@
 (defn- transition-to-database-form
   [state queue]
   (view/show-db-form! queue)
-  (net/poke-db queue)
+  (send-message queue [:db-get {}])
   state)
 
 (defn- transition-from-database-form
@@ -50,8 +74,8 @@
   state)
 
 (defn- test-database!
-  [state queue data]
-  (net/test-db queue data)
+  [state queue db]
+  (send-message queue [:db-test db])
   state)
 
 (defn- on-database-test-result!
@@ -61,22 +85,22 @@
 
 (defn- retrieve-query-info!
   [state queue]
-  (net/poke-queries queue)
+  (send-message queue [:query-list {}])
   state)
 
 (defn- retrieve-jobs-info!
   [state queue]
-  (net/poke-jobs queue)
+  (send-message queue [:job-list {}])
   state)
 
 (defn- retrieve-job!
   [state queue job-id]
-  (net/poke-job queue job-id)
+  (send-message queue [:job-get job-id])
   state)
 
 (defn- on-job-delete!
   [state queue job-id]
-  (net/delete-job queue job-id)
+  (send-message queue [:job-delete job-id])
   state)
 
 (defn- on-jobs-refresh!
@@ -86,17 +110,17 @@
 
 (defn- on-query-save!
   [state queue query]
-  (net/save-query queue query)
+  (send-message queue [:query-create query])
   state)
 
 (defn- on-query-run!
   [state queue query-id]
-  (net/run-job queue query-id)
+  (send-message queue [:job-run query-id])
   state)
 
 (defn- on-query-delete!
   [state queue query-id]
-  (net/delete-query queue query-id)
+  (send-message queue [:query-delete query-id])
   state)
 
 (defn- on-queries-refresh!
@@ -136,12 +160,12 @@
 
 (defn- on-query-request!
   [state queue query-id]
-  (net/poke-query queue query-id)
+  (send-message queue [:query-get query-id])
   state)
 
 (defn- on-query-update!
   [state queue query]
-  (net/update-query queue query)
+  (send-message queue [:query-update query])
   state)
 
 (defn- on-query-export!
@@ -156,7 +180,7 @@
   [queue]
   (let [buffer (async/chan)]
     (go-loop []
-      (net/recv-message buffer)
+      (recv-message buffer)
       (when-let [msg (<! buffer)]
         (async/put! queue msg)
         (when (and (= (first msg) :web-error)
@@ -206,7 +230,7 @@
       (.log js/console "ERROR:" (str e))
       state)))
 
-(defn- log-event-stream!
+(defn- log-event!
   [[topic data]]
   (let [skips #{:query-change :job-change :queries-poke :jobs-poke}]
     (when-not (contains? skips topic)
@@ -216,7 +240,7 @@
   [initial-state queue]
   (go-loop [state initial-state]
     (when-let [msg (async/<! queue)]
-      (log-event-stream! msg)
+      (log-event! msg)
       (let [new-state (process! state queue msg)]
         (recur new-state)))
     :done))
@@ -231,10 +255,7 @@
     (view/show-app-frame! queue)
     (recv-loop! queue)
     (application-loop! state queue)
-    (async/put! queue [:db-poke {}])
-    ;; (async/put! queue [:queries-poke {}])
-    ;;(async/put! queue [:jobs-poke {}])
-    )
+    (async/put! queue [:db-poke {}]))
 
   (.log js/console ":initialization-complete"))
 
