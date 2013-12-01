@@ -1,9 +1,9 @@
 (ns query-manager.main
   (:gen-class)
-  (:require [query-manager.http         :refer [mk-web-app]]
-            [query-manager.job          :refer [mk-jobs]]
-            [clojure.tools.logging      :refer [info]]
-            [org.httpkit.server         :refer [run-server]]))
+  (:require [query-manager.http :refer [mk-web-app]]
+            [query-manager.job :refer [mk-jobs]]
+            [clojure.tools.logging :refer [info]]
+            [org.httpkit.server :refer [run-server]]))
 
 (defn- on-jvm-shutdown
   [f]

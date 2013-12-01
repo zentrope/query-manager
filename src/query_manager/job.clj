@@ -2,7 +2,8 @@
   "Experimental at this point. Beware!"
   (:refer-clojure :exclude [reset!])
   (:import [java.util.concurrent Executors ThreadFactory])
-  (:require [clojure.tools.logging :refer [info error]]
+  (:require [clojure.core.async :as async]
+            [clojure.tools.logging :refer [info error]]
             [clojure.java.jdbc :as jdbc]))
 
 ;;-----------------------------------------------------------------------------
@@ -61,7 +62,7 @@
       nil)))
 
 (defn- mk-runner
-  [db jobs job]
+  [db jobs job event-queue]
   (fn []
     (info " - job start: [" (:description (:query job)) "]")
     (try
@@ -87,6 +88,8 @@
           (swap! jobs assoc (:id job) update))
         (error t))
       (finally
+        (info " - putting job complete into the event queue, right?")
+        (async/put! event-queue [:job-complete {}])
         (info " - job complete: [" (:description (:query job)) "]")))))
 
 ;;-----------------------------------------------------------------------------
@@ -100,9 +103,9 @@
    :jobs (atom {})})
 
 (defn create
-  [jobs db query]
+  [jobs db query event-queue]
   (let [new-job (mk-job query)
-        runner (mk-runner db (:jobs jobs) new-job)]
+        runner (mk-runner db (:jobs jobs) new-job event-queue)]
     (swap! (:jobs jobs) assoc (:id new-job) new-job)
     (.submit (:pool jobs) runner)
     new-job))

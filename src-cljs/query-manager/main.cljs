@@ -23,10 +23,12 @@
     (and (:db-acquired? state) (:updated data))
     (do (view/set-frame-db! data)
         (view/fill-db-form! data)
+        (net/send-message queue [:app-init {}])
         state)
     ;;
     (and (not (:db-acquired? state)) (:updated data))
     (do (view/set-frame-db! data)
+        (net/send-message queue [:app-init {}])
         (assoc state :db-acquired? true))
     ;;
     (not (:db-acquired? state))
@@ -149,12 +151,19 @@
 
 ;;-----------------------------------------------------------------------------
 
-(defn- poll-loop!
-  [queue topic interval]
-  (go-loop []
-    (<! (async/timeout interval))
-    (async/put! queue [topic {}])
-    (recur)))
+(defn- recv-loop!
+  "Long poll the server for incoming events."
+  [queue]
+  (let [buffer (async/chan)]
+    (go-loop []
+      (net/recv-message buffer)
+      (when-let [msg (<! buffer)]
+        (async/put! queue msg)
+        (when (and (= (first msg) :web-error)
+                   (= (:status (second msg) 0)))
+          (.log js/console "RECV: waiting 5 seconds due to server down.")
+          (<! (async/timeout 5000)))
+        (recur)))))
 
 (defn- do-process!
   [state queue [topic data]]
@@ -217,15 +226,16 @@
 (defn main
   []
   (.log js/console ":initializing")
-  (let [queue (async/chan)
+  (let [queue (async/chan 10000)
         state {:db-acquired? false}]
     (view/show-app-frame! queue)
+    (recv-loop! queue)
     (application-loop! state queue)
     (async/put! queue [:db-poke {}])
-    (async/put! queue [:queries-poke {}])
-    (async/put! queue [:jobs-poke {}])
-    (poll-loop! queue :queries-poke 10000)
-    (poll-loop! queue :jobs-poke 1000))
+    ;; (async/put! queue [:queries-poke {}])
+    ;;(async/put! queue [:jobs-poke {}])
+    )
+
   (.log js/console ":initialization-complete"))
 
 ;;-----------------------------------------------------------------------------

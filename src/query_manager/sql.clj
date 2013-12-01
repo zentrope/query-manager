@@ -1,9 +1,4 @@
-(ns query-manager.sql
-  (:refer-clojure :exclude [replace find])
-  (:require [clojure.tools.logging :refer [info]]
-            [clojure.string :refer [replace]]))
-
-(defrecord Query [id sql description])
+(ns query-manager.sql)
 
 (def ^:private query-db (atom {}))
 
@@ -20,7 +15,7 @@
 
 (defn create!
   [sql description]
-  (let [q (Query. (id-gen) sql description)]
+  (let [q {:id (id-gen) :sql sql :description description}]
     (swap! query-db assoc (:id q) q)))
 
 (defn delete!

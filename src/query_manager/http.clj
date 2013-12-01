@@ -1,16 +1,19 @@
 (ns query-manager.http
-  (:require [query-manager.db :as db]
+  (:require [clojure.core.async :as async]
+            [org.httpkit.server :as httpd]
+            [query-manager.db :as db]
             [query-manager.sql :as sql]
             [query-manager.job :as job]
             [query-manager.test-db :as test-db]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :as json]
-            [clojure.tools.logging :refer [info]]
+            [clojure.tools.logging :as log :refer [info]]
             [compojure.core :refer [routes GET POST DELETE PUT]]
             [compojure.handler :refer [site]]
             [compojure.route :refer [resources not-found]]
             [ring.util.response :refer [redirect status response header]]
             [hiccup.page :refer [html5 include-js include-css]]))
+
 
 ;;-----------------------------------------------------------------------------
 
@@ -56,98 +59,130 @@
 
 ;;-----------------------------------------------------------------------------
 
+;; Long poll experiment stuff
+
+(defn- publish-loop!
+  [channel-hub publish-ch]
+  ;;
+  ;; When something is put in the queue, it's send to all pending
+  ;; web-channels.
+  ;;
+  ;; PROBLEM: If you send one message to a web-channel, it'll close,
+  ;;          thus allowing you to miss the next few messages while
+  ;;          it reconnects.
+  ;;
+  (async/go-loop []
+    (when-let [msg (async/<! publish-ch)]
+      (log/info "publish-loop: " msg)
+      (doseq [[web-channel req] @channel-hub]
+        (if (= (first msg) (:http-error msg))
+          (httpd/send! web-channel {:status (second msg)
+                                    :headers {"content-type" "application/json"}
+                                    :body ""})
+          (httpd/send! web-channel {:status 200
+                                    :headers {"content-type" "application/json"}
+                                    :body (jwrite msg)})))
+      ;;
+      ;; Wait awhile to allow a client to reconnect if there are
+      ;; pending messages.
+      ;;
+      (<! (async/timeout 50)) ;; should wait in a loop until len channel-hub non-zero
+      (recur))))
+
+(defn- process!
+  [jobs control-ch publish-ch [topic msg]]
+  (case topic
+
+    :app-init
+    (do (async/put! publish-ch [:job-change (job/all jobs)])
+        (async/put! publish-ch [:query-change (sql/all)]))
+
+    :db-get
+    (async/put! publish-ch [:db-change (db/get)])
+
+    :db-test
+    (let [result (test-db/test-connection (db/specialize msg))]
+      (async/put! publish-ch [:db-test-result result]))
+
+    :db-save
+    (do (db/put msg)
+        (async/put! publish-ch [:db-change (db/get)]))
+
+    :job-list
+    (async/put! publish-ch [:job-change (job/all jobs)])
+
+    :job-run
+    (do (job/create jobs (db/spec) (sql/one msg) control-ch)
+        (async/put! publish-ch [:job-change (job/all jobs)]))
+
+    :job-get
+    (async/put! publish-ch [:job-get (job/one jobs (Long/parseLong msg))])
+
+    :job-delete
+    (do (job/delete! jobs (str msg))
+        (async/put! publish-ch [:job-change (job/all jobs)]))
+
+    :job-complete
+    (async/put! publish-ch [:job-change (job/all jobs)])
+
+    :query-get
+    (async/put! publish-ch [:query-get (sql/one msg)])
+
+    :query-list
+    (async/put! publish-ch [:query-change (sql/all)])
+
+    :query-update
+    (if-let [query (sql/one (:id msg))]
+      (let [update (merge query msg)]
+        (sql/update! update)
+        (async/put! publish-ch [:query-change (sql/all)]))
+      (async/put! [:http-error 404]))
+
+    :query-create
+    (let [{:keys [sql description]} msg]
+      (sql/create! sql description)
+      (async/put! publish-ch [:query-change (sql/all)]))
+
+    :query-delete
+    (do (sql/delete! msg)
+        (async/put! publish-ch [:query-change (sql/all)]))
+
+    :noop))
+
+(defn- normalize
+  [[topic msg]]
+  [(keyword topic) msg])
+
+(defn- control-loop!
+  [jobs control-ch publish-ch]
+  (async/go-loop []
+    (when-let [msg (async/<! control-ch)]
+      (log/info "control-loop: " (normalize msg))
+      (process! jobs control-ch publish-ch (normalize msg))
+      (recur))))
+
+(defn- message-handler
+  [channel-hub]
+  (fn [request]
+    (httpd/with-channel request web-channel
+      (swap! channel-hub assoc web-channel request)
+      (httpd/on-close web-channel (fn [status]
+                                    (swap! channel-hub dissoc web-channel))))))
+
+;;-----------------------------------------------------------------------------
+
 (defn- main-routes
-  [jobs]
+  [jobs channel-hub publish-ch control-ch]
   (routes
 
-   ;;---------------------------------------------------------------------------
-   ;;DATABASE API
-   ;;
-   ;; For now, any given instance of the app should only have one
-   ;; configured database, so we'll just implement a GET and PUT so
-   ;; client UIs can change it.
-   ;;---------------------------------------------------------------------------
-
-   (GET "/qman/api/db"
+   (GET "/qman/api/messages"
        []
-     (as-json (jwrite (db/get))))
+     (message-handler channel-hub))
 
-   (PUT "/qman/api/db"
+   (POST "/qman/api/messages"
        [:as r]
-     (db/put (jread r))
-     (as-empty 201))
-
-   (POST "/qman/api/db/test"
-       [:as r]
-     ;;
-     ;; Returning a result from a POST is a no-no, but, well it's the
-     ;; simplist thing that can possible work, so foo.
-     ;;
-     (-> (jread r)
-         (db/specialize)
-         (test-db/test-connection)
-         (jwrite)
-         (as-json)))
-
-   ;;---------------------------------------------------------------------------
-   ;; QUERY API
-   ;;
-   ;; For getting and putting queries-to-be-run, but not for actually
-   ;; running the queries. Use the /api/job API for that.
-   ;;---------------------------------------------------------------------------
-
-   (GET "/qman/api/query/:id"
-       [id]
-     (if-let [query (sql/one id)]
-       (as-json (jwrite query))
-       (as-empty 404)))
-
-   (GET "/qman/api/query"
-       []
-     (as-json (jwrite (sql/all))))
-
-   (PUT "/qman/api/query/:id"
-       [id :as r]
-     (if-let [query (sql/one id)]
-       (let [update (merge query (jread r))]
-         (sql/update! update)
-         (as-empty 201))
-       (as-empty 404)))
-
-   (POST "/qman/api/query"
-       [:as r]
-     (let [{:keys [sql description]} (jread r)]
-       (sql/create! sql description))
-     (as-empty 201))
-
-   (DELETE "/qman/api/query/:id"
-       [id]
-     (sql/delete! id)
-     (as-empty 201))
-
-   ;;---------------------------------------------------------------------------
-   ;; JOB API
-   ;;---------------------------------------------------------------------------
-
-   (GET "/qman/api/job/:id"
-       [id :as req]
-     (if-let [result (job/one jobs (Long/parseLong id))]
-       (as-json (jwrite result))
-       (as-empty 404)))
-
-   (GET "/qman/api/job"
-       [:as req]
-     (as-json (jwrite (job/all jobs))))
-
-   (POST "/qman/api/job/:query-id"
-       [query-id :as req]
-     (job/create jobs (db/spec) (sql/one query-id))
-     (as-empty 201))
-
-   (DELETE "/qman/api/job/:id"
-       [id :as req]
-     (job/delete! jobs id)
-     (as-empty 201))
+     (async/put! control-ch (jread r))
+     {:status 201 :body "{}"})
 
    ;;---------------------------------------------------------------------------
    ;; BUILT-IN CLIENT
@@ -183,5 +218,12 @@
 
 (defn mk-web-app
   [jobs]
-  (fn [request]
-    ((-> (main-routes jobs) (site)) request)))
+  (let [publish-ch (async/chan)
+        control-ch (async/chan)
+        channel-hub (atom {})]
+    (publish-loop! channel-hub publish-ch)
+    (control-loop! jobs control-ch publish-ch)
+    (fn [request]
+      ((-> (main-routes jobs channel-hub publish-ch control-ch)
+           (site))
+       request))))
