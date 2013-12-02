@@ -123,6 +123,10 @@
   [jobs id]
   (swap! (:jobs jobs) dissoc (Long/parseLong id)))
 
+(defn delete-all!
+  [jobs]
+  (clojure.core/reset! (:jobs jobs) {}))
+
 (defn reset!
   [jobs]
   (.shutdownNow (:pool jobs))

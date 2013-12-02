@@ -117,6 +117,10 @@
     (do (job/delete! jobs (str msg))
         (async/put! publish-ch [:job-change (job/all jobs)]))
 
+    :job-delete-all
+    (do (job/delete-all! jobs)
+        (async/put! publish-ch [:job-change (job/all jobs)]))
+
     :job-complete
     (async/put! publish-ch [:job-change (job/all jobs)])
 

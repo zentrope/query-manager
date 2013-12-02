@@ -103,6 +103,11 @@
   (send-message queue [:job-delete job-id])
   state)
 
+(defn- on-job-delete-all!
+  [state queue]
+  (send-message queue [:job-delete-all {}])
+  state)
+
 (defn- on-jobs-refresh!
   [state queue jobs]
   (view/fill-jobs! queue jobs)
@@ -215,6 +220,7 @@
     :job-poke (retrieve-job! state queue data)
     :job-change (on-jobs-refresh! state queue data)
     :job-delete (on-job-delete! state queue data)
+    :job-delete-all (on-job-delete-all! state queue)
     :job-view-show (transition->job-viewer! state queue)
     :job-view-hide (transition<-job-viewer! state)
     :job-get (on-job-refresh! state data)
