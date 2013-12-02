@@ -75,7 +75,7 @@
       (utils/listen-all! (sel :.qp-run) :click (on-run queue))
       (utils/listen-all! (sel :.qp-edit) :click (on-edit queue))
       (utils/listen-all! (sel :.qp-del) :click (on-delete queue))
-      ;;(dom/listen! (sel1 :#qp-new) :click (on-new queue))
+      (dom/listen! (sel1 :#qp-new) :click (on-new queue))
       (dom/listen! (sel1 :#qp-runall) :click (on-run-all queue))
       (dom/listen! (sel1 :#qp-export) :click (fn [e]
                                                (async/put! queue [:export-queries {}]))))))
@@ -83,7 +83,7 @@
 (defn- mk-template
   [queue]
   (let [body (template)]
-    (dom/listen! [body :#qp-new] :click (on-new queue))
+;;    (dom/listen! [body :#qp-new] :click (on-new queue))
     body))
 
 ;;-----------------------------------------------------------------------------

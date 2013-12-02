@@ -61,11 +61,19 @@
       (:count row)
       nil)))
 
+(defn- throw-if-not-runnable
+  [sql]
+  (let [q (clojure.string/lower-case (clojure.string/trim sql))
+        runnable? (.startsWith q "select")]
+    (if (not runnable?)
+      (throw (Exception. "Query must start with 'select'. Sorry!")))))
+
 (defn- mk-runner
   [db jobs job event-queue]
   (fn []
     (info " - job start: [" (:description (:query job)) "]")
     (try
+      (throw-if-not-runnable (:sql (:query job)))
       (let [sql (:sql (:query job))
             results (doall (take 500 (jdbc/query db [sql] :identifiers identity)))
             update (assoc job
