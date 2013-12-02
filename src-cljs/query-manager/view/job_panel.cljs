@@ -63,7 +63,7 @@
 ;; local events
 
 (defn- on-clear
-  [output-ch jids]
+  [output-ch]
   (fn [e]
     (async/put! output-ch [:job-delete-all {}])))
 
@@ -92,7 +92,7 @@
     (dom/replace-contents! (sel1 :#jobs-table) (table-of (sort-by :id jobs)))
     (listen-all! (sel :.jp-del) :click (on-delete output-ch))
     (listen-all! (sel :.jp-view) :click (on-view output-ch))
-    (dom/listen! (sel1 :#jp-clear) :click (on-clear output-ch (map :id jobs)))))
+    (dom/listen! (sel1 :#jp-clear) :click (on-clear output-ch))))
 
 (defn- mk-template
   []

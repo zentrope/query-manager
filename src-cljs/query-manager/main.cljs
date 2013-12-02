@@ -123,6 +123,11 @@
   (send-message queue [:job-run query-id])
   state)
 
+(defn- on-run-all-queries!
+  [state queue]
+  (send-message queue [:job-run-all {}])
+  state)
+
 (defn- on-query-delete!
   [state queue query-id]
   (send-message queue [:query-delete query-id])
@@ -215,6 +220,7 @@
     :query-get (on-query-refresh! state data)
     :query-poke (on-query-request! state queue data)
     :query-update (on-query-update! state queue data)
+    :query-run-all (on-run-all-queries! state queue)
 
     :jobs-poke (retrieve-jobs-info! state queue)
     :job-poke (retrieve-job! state queue data)

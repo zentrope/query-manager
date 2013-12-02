@@ -30,10 +30,9 @@
               [:button#qp-export "export"])))
 
 (defn- on-run-all
-  [queue qids]
+  [queue]
   (fn [e]
-    (doseq [qid qids]
-      (async/put! queue [:query-run qid]))))
+    (async/put! queue [:query-run-all {}])))
 
 (defn- on-run
   [queue]
@@ -77,7 +76,7 @@
       (utils/listen-all! (sel :.qp-edit) :click (on-edit queue))
       (utils/listen-all! (sel :.qp-del) :click (on-delete queue))
       ;;(dom/listen! (sel1 :#qp-new) :click (on-new queue))
-      (dom/listen! (sel1 :#qp-runall) :click (on-run-all queue (map :id queries)))
+      (dom/listen! (sel1 :#qp-runall) :click (on-run-all queue))
       (dom/listen! (sel1 :#qp-export) :click (fn [e]
                                                (async/put! queue [:export-queries {}]))))))
 

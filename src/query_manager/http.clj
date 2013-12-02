@@ -106,6 +106,11 @@
     :job-list
     (async/put! publish-ch [:job-change (job/all jobs)])
 
+    :job-run-all
+    (do (doseq [query (sql/all)]
+          (job/create jobs (db/spec) query control-ch))
+        (async/put! publish-ch [:job-change (job/all jobs)]))
+
     :job-run
     (do (job/create jobs (db/spec) (sql/one msg) control-ch)
         (async/put! publish-ch [:job-change (job/all jobs)]))
