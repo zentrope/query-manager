@@ -1,4 +1,4 @@
-(defproject query-manager "0.2"
+(defproject query-manager "2"
 
   :description "Submitting, monitoring and viewing the results of long-running queries."
 

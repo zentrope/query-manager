@@ -101,6 +101,7 @@
 
     :db-save
     (do (db/put msg)
+        (db/save)
         (async/put! publish-ch [:db-change (db/get)]))
 
     :job-list

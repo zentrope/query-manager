@@ -1,7 +1,8 @@
 (ns query-manager.main
   (:gen-class)
-  (:require [query-manager.http :refer [mk-web-app]]
-            [query-manager.job :refer [mk-jobs]]
+  (:require [query-manager.http :as web]
+            [query-manager.job :as job]
+            [query-manager.db :as db]
             [clojure.tools.logging :refer [info]]
             [org.httpkit.server :refer [run-server]]))
 
@@ -21,9 +22,10 @@
 (defn- start-http
   []
   (let [port (evar "PORT" "8081")
-        job-state (mk-jobs 100)
-        http (run-server (mk-web-app job-state) {:port port})]
+        job-state (job/mk-jobs 100)
+        http (run-server (web/mk-web-app job-state) {:port port})]
     (info "Running http on port" port)
+    (info " - set PORT env var to change default port.")
     (swap! system-state assoc :http http)))
 
 (defn- stop-http
@@ -40,7 +42,9 @@
 
 (defn -main
   [& args]
+  (db/load)
   (let [lock (promise)]
+    (on-jvm-shutdown (fn [] (db/save)))
     (on-jvm-shutdown (fn [] (stop-http)))
     (on-jvm-shutdown (fn [] (release-lock lock)))
     (start-http)
