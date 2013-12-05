@@ -14,7 +14,6 @@
             [ring.util.response :refer [redirect status response header]]
             [hiccup.page :refer [html5 include-js include-css]]))
 
-
 ;;-----------------------------------------------------------------------------
 
 (defn- sread
@@ -53,7 +52,7 @@
   ([status body]
      {:status status
       :body body
-      :headers {"content-type" "application/json"}}))
+      :headers {"Content-Type" "application/json"}}))
 
 (defn- log-event!
   [name event]
@@ -64,7 +63,7 @@
         (log/info name s)))))
 
 (defn- wait-loop!
-  "Terminate when there's a web-channel avaliable for publishing."
+  "Terminate when there's a web-channel available for publishing."
   [channel-hub]
   (async/go-loop []
     (if (> (count @channel-hub) 0)
@@ -188,7 +187,7 @@
    (POST "/qman/api/messages"
        [:as r]
      (async/put! control-ch (jread r))
-     {:status 201 :body "{}"})
+     {:status 201 :headers {"content-type" "application/json"} :body "{}"})
 
    ;;---------------------------------------------------------------------------
    ;; BUILT-IN CLIENT

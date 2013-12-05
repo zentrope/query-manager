@@ -68,14 +68,15 @@
     (do (dom/replace-contents! (sel1 :#queries-table)
                                (node (list [:p "No queries defined."]
                                            [:button#qp-new "new"])))
-        (dom/listen! (sel1 :#qp-new) :click (on-new queue)))
+        ;; (dom/listen! (sel1 :#qp-new) :click (on-new queue))
+        )
 
     (let [table (table-of (sort-by :id queries))]
       (dom/replace-contents! (sel1 :#queries-table) table)
       (utils/listen-all! (sel :.qp-run) :click (on-run queue))
       (utils/listen-all! (sel :.qp-edit) :click (on-edit queue))
       (utils/listen-all! (sel :.qp-del) :click (on-delete queue))
-      (dom/listen! (sel1 :#qp-new) :click (on-new queue))
+      ;; (dom/listen! (sel1 :#qp-new) :click (on-new queue))
       (dom/listen! (sel1 :#qp-runall) :click (on-run-all queue))
       (dom/listen! (sel1 :#qp-export) :click (fn [e]
                                                (async/put! queue [:export-queries {}]))))))
@@ -83,7 +84,7 @@
 (defn- mk-template
   [queue]
   (let [body (template)]
-;;    (dom/listen! [body :#qp-new] :click (on-new queue))
+    (dom/listen! [body :#qp-new] :click (on-new queue))
     body))
 
 ;;-----------------------------------------------------------------------------

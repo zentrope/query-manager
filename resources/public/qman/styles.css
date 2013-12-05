@@ -1,5 +1,5 @@
 html, body {
-  background: white;
+  background-color: white;
   color: #444;
   margin: 0;
   padding: 0;
@@ -42,7 +42,7 @@ p {
   right: 0px;
   border-left: 1px solid #ccc;
   overflow: hidden;
-  background: #d0d6df;
+  background-color: #d0d6df;
   padding-top: 30px;
   margin-bottom: 30px;
 }
@@ -85,12 +85,12 @@ span.spin {
 
 .snafu {
   color: firebrick !important;
-  text-shadow: 2px 2px 2px 1px #666;
+  text-shadow: 2px 2px 2px #666;
   letter-spacing: 1.2px !important;
 }
 
 .flash {
-  background: yellow !important;
+  background-color: yellow !important;
 }
 
 /*---------------------------------------------------------------------------*/
@@ -116,15 +116,15 @@ span.spin {
 }
 
 .side-panel-body .lister td {
-  background: #d0d6df;
+  background-color: #d0d6df;
   color: #222;
-  text-shadow: 1px 1px 1px 4px white !important;
+  text-shadow: 1px 1px 1px white !important;
   border-bottom: 1px dotted #999;
   padding: 6px 2px 6px 2px;
 }
 
 .side-panel-body .lister tr:hover > td {
-  background: white !important;
+  background-color: white !important;
 }
 
 .side-panel-body .lister tr {
@@ -140,7 +140,7 @@ span.spin {
 
 .panel {
   margin: 10px;
-  background: white;
+  background-color: white;
 }
 
 .panel-header {
@@ -149,7 +149,7 @@ span.spin {
   margin-top: 20pt;
   color: #444;
   letter-spacing: 1.3px;
-  text-shadow: 1px 1px 5px 2px #aaa;
+  text-shadow: 1px 1px 5px #aaa;
   font-size: 14pt;
   border-bottom: 1px dotted #999;
   margin-left: 10pt;
@@ -181,7 +181,7 @@ span.spin {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
+  background-color: rgba(0, 0, 0, 0.8);
   z-index: 99999;
 }
 
@@ -194,7 +194,7 @@ span.spin {
   border-radius: 3px;
   box-shadow: 0 8px 6px -6px black;
   margin-bottom: 2em;
-  background: #ddd;
+  background-color: #ddd;
   padding: 0.5em;
   text-align: center;
 }
@@ -209,7 +209,7 @@ span.spin {
 
 .job-view-area {
   position: absolute;
-  background: #f6f6f6;
+  background-color: #f6f6f6;
   border: 1px solid #aaa;
   top: 70px;
   left: 10px;
@@ -257,7 +257,7 @@ span.spin {
   margin: 0;
 
   color: #222;
-  background: #bbb;
+  background-color: #bbb;
   border: 1px solid #222;
 
   border-radius: 5px;
@@ -277,12 +277,12 @@ span.spin {
 }
 
 .status-buttons button:active {
-  background: darkred !important;
+  background-color: darkred !important;
 }
 
 .not-showing {
   color: #ccc !important;
-  background: #888 !important;
+  background-color: #888 !important;
   border: 1px solid #444 !important;
   text-shadow: -1px -1px 1px #555 !important;
 }
