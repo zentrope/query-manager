@@ -64,7 +64,8 @@
 (defn- throw-if-not-runnable
   [sql]
   (let [q (clojure.string/lower-case (clojure.string/trim sql))
-        runnable? (.startsWith q "select")]
+        runnable? (or (.startsWith q "select")
+                      (.startsWith q "show"))]
     (if (not runnable?)
       (throw (Exception. "Query must start with 'select'. Sorry!")))))
 

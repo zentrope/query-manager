@@ -65,9 +65,12 @@
 (defn- wait-loop!
   "Terminate when there's a web-channel available for publishing."
   [channel-hub]
+  (log/debug "waiting for connection.")
   (async/go-loop []
     (if (> (count @channel-hub) 0)
-      :done
+      (do
+        (log/debug " -" (count @channel-hub) " web-channels available")
+        :done)
       (do (async/<! (async/timeout 10))
           (recur)))))
 
@@ -76,11 +79,13 @@
   (async/go-loop []
     (when-let [msg (async/<! publish-ch)]
       (log-event! "pub:" msg)
+      (log/debug " - channels pending" (count @channel-hub))
+      (<! (wait-loop! channel-hub))
       (doseq [[web-channel req] @channel-hub]
+        (log/debug " - sending " (first msg) "to" web-channel)
         (if (= (first msg) (:http-error msg))
           (httpd/send! web-channel (mk-response (second msg)))
           (httpd/send! web-channel (mk-response 200 (jwrite msg)))))
-      (<! (wait-loop! channel-hub))
       (recur))))
 
 (defn- process!
@@ -172,6 +177,7 @@
     (httpd/with-channel request web-channel
       (swap! channel-hub assoc web-channel request)
       (httpd/on-close web-channel (fn [status]
+                                    (log/debug " - closing" web-channel)
                                     (swap! channel-hub dissoc web-channel))))))
 
 ;;-----------------------------------------------------------------------------
@@ -189,8 +195,6 @@
      (async/put! control-ch (jread r))
      {:status 201 :headers {"content-type" "application/json"} :body "{}"})
 
-   ;;---------------------------------------------------------------------------
-   ;; BUILT-IN CLIENT
    ;;---------------------------------------------------------------------------
 
    (GET "/"

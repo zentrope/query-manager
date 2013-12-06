@@ -262,7 +262,7 @@
 (defn main
   []
   (.log js/console ":initializing")
-  (let [queue (async/chan 10000)
+  (let [queue (async/chan)
         state {:db-acquired? false}]
     (view/show-app-frame! queue)
     (recv-loop! queue)
