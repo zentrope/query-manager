@@ -225,14 +225,37 @@
    (resources "/")
    (not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
-(defn mk-web-app
-  [jobs]
-  (let [publish-ch (async/chan)
-        control-ch (async/chan)
-        channel-hub (atom {})]
-    (publish-loop! channel-hub publish-ch)
-    (control-loop! jobs control-ch publish-ch)
+(defn- mk-app
+  [app]
+  (let [{:keys [port jobs channel-hub publish-ch control-ch]} @app]
     (fn [request]
       ((-> (main-routes jobs channel-hub publish-ch control-ch)
            (site))
        request))))
+
+(defn instance
+  [port jobs]
+  (atom {:jobs jobs
+         :port port
+         :httpd nil
+         :publish-ch (async/chan)
+         :control-ch (async/chan)
+         :channel-hub (atom {})}))
+
+(defn start!
+  [app]
+  (let [{:keys [port jobs channel-hub publish-ch control-ch]} @app]
+    (publish-loop! channel-hub publish-ch)
+    (control-loop! jobs control-ch publish-ch)
+    (swap! app assoc :httpd (httpd/run-server (mk-app app) {:port port}))
+    (log/info "Starting web application on port" port)))
+
+(defn stop!
+  [app]
+  (log/info "Stopping web application.")
+  (async/close! (:publish-ch @app))
+  (async/close! (:control-ch @app))
+  (when-let [server (:httpd @app)]
+    (server))
+  (reset! app (instance (:port @app) (:jobs app)))
+  :stopped)

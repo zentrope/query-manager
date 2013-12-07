@@ -93,7 +93,7 @@
   (try
     (ensure-parent! db-file)
     (with-open [w (io/writer db-file)]
-      (pprint [@conn-spec] w)
+      (pprint @conn-spec w)
       (log/info "Wrote currently defined database spec file:" (path-> db-file)))
     (catch Throwable t
       (log/error "Unable to write database spec file: " t))))
@@ -102,7 +102,7 @@
   []
   (try
     (when (.exists db-file)
-      (let [spec (first (edn/read-string (slurp db-file)))]
+      (let [spec (edn/read-string (slurp db-file))]
         (put spec)
         (log/info "Loaded previously cached database spec file:" (path-> db-file))))
     (catch Throwable t
