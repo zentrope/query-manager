@@ -20,14 +20,23 @@
 (defn- start!
   []
   (let [port (evar "PORT" "8081")
-        job-state (job/mk-jobs 100)
         file-repo (repo/instance)
-        web-app (web/instance port job-state)]
+        db-state (db/instance)
+        job-state (job/mk-jobs 100)
+        web-app (web/instance port job-state db-state file-repo)]
+
 
     (reset! system-state {:web-app web-app :file-repo file-repo})
 
     (log/info "Starting application.")
     (repo/start! file-repo)
+
+    ;; Something very wrong here. Start/stop dependencies
+    ;; seem self defeating. I think I need a queue system.
+
+    (when-let [saved-db (repo/load-database! file-repo)]
+      (db/put db-state saved-db))
+
     (web/start! web-app)))
 
 (defn- stop!
@@ -46,9 +55,7 @@
 
 (defn -main
   [& args]
-  (db/load)
   (let [lock (promise)]
-    (on-jvm-shutdown (fn [] (db/save)))
     (on-jvm-shutdown (fn [] (stop!)))
     (on-jvm-shutdown (fn [] (release-lock lock)))
     (start!)

@@ -4,6 +4,7 @@
             [query-manager.db :as db]
             [query-manager.sql :as sql]
             [query-manager.job :as job]
+            [query-manager.repo :as repo]
             [query-manager.test-db :as test-db]
             [clojure.pprint :refer [pprint]]
             [clojure.data.json :as json]
@@ -89,7 +90,7 @@
       (recur))))
 
 (defn- process!
-  [jobs control-ch publish-ch [topic msg]]
+  [jobs db files control-ch publish-ch [topic msg]]
   (case topic
 
     :app-init
@@ -97,27 +98,27 @@
         (async/put! publish-ch [:query-change (sql/all)]))
 
     :db-get
-    (async/put! publish-ch [:db-change (db/get)])
+    (async/put! publish-ch [:db-change (db/get db)])
 
     :db-test
     (let [result (test-db/test-connection (db/specialize msg))]
       (async/put! publish-ch [:db-test-result result]))
 
     :db-save
-    (do (db/put msg)
-        (db/save)
-        (async/put! publish-ch [:db-change (db/get)]))
+    (do (db/put db msg)
+        (repo/save-database! files (db/get db))
+        (async/put! publish-ch [:db-change (db/get db)]))
 
     :job-list
     (async/put! publish-ch [:job-change (job/all jobs)])
 
     :job-run-all
     (do (doseq [query (sql/all)]
-          (job/create jobs (db/spec) query control-ch))
+          (job/create jobs (db/spec db) query control-ch))
         (async/put! publish-ch [:job-change (job/all jobs)]))
 
     :job-run
-    (do (job/create jobs (db/spec) (sql/one msg) control-ch)
+    (do (job/create jobs (db/spec db) (sql/one msg) control-ch)
         (async/put! publish-ch [:job-change (job/all jobs)]))
 
     :job-get
@@ -163,12 +164,12 @@
   [(keyword topic) msg])
 
 (defn- control-loop!
-  [jobs control-ch publish-ch]
+  [jobs db files control-ch publish-ch]
   (async/go-loop []
     (when-let [msg (async/<! control-ch)]
       (let [event (normalize msg)]
         (log-event! "con:" event)
-        (process! jobs control-ch publish-ch event)
+        (process! jobs db files control-ch publish-ch event)
         (recur)))))
 
 (defn- message-handler
@@ -234,8 +235,10 @@
        request))))
 
 (defn instance
-  [port jobs]
+  [port jobs db files]
   (atom {:jobs jobs
+         :db db
+         :files files
          :port port
          :httpd nil
          :publish-ch (async/chan)
@@ -244,9 +247,9 @@
 
 (defn start!
   [app]
-  (let [{:keys [port jobs channel-hub publish-ch control-ch]} @app]
+  (let [{:keys [port jobs db files channel-hub publish-ch control-ch]} @app]
     (publish-loop! channel-hub publish-ch)
-    (control-loop! jobs control-ch publish-ch)
+    (control-loop! jobs db files control-ch publish-ch)
     (swap! app assoc :httpd (httpd/run-server (mk-app app) {:port port}))
     (log/info "Starting web application on port" port)))
 
