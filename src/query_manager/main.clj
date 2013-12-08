@@ -1,9 +1,20 @@
 (ns query-manager.main
   (:gen-class)
-  (:require [query-manager.http :as web]
+
+  (:require [query-manager.web :as web]
+            [query-manager.events :as events]
+
+            ;;[query-manager.http :as web]
+            ;;
+            ;; Consider moving all this stuff to a single "namespace"
+            ;; called something like 'state' so we don't have so many
+            ;; APIs. In fact, consider having something that'll listen
+            ;; to queues and do the right thing. Maybe.
+            ;;
             [query-manager.job :as job]
             [query-manager.db :as db]
             [query-manager.repo :as repo]
+            ;;
             [clojure.tools.logging :as log]))
 
 (defn- on-jvm-shutdown
@@ -20,11 +31,22 @@
 (defn- start!
   []
   (let [port (evar "PORT" "8081")
+        state (state/initialize)
+        event-mgr (events/manager state)
+        [event-q broadcast-q] (queues event-mgr)
+        web-app (web/make port event-q broadcast-q)]
+
+    (events/start! event-mgr)
+    (web/start! web-app)))
+
+(defn- start!
+  []
+  (let [port (evar "PORT" "8081")
         file-repo (repo/instance)
         db-state (db/instance)
         job-state (job/mk-jobs 100)
-        web-app (web/instance port job-state db-state file-repo)]
-
+        event-mgr (events/manager [] job-state db-state file-repo)
+        web-app (web/client port (event-queue event-mgr))]
 
     (reset! system-state {:web-app web-app :file-repo file-repo})
 

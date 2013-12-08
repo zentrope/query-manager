@@ -30,7 +30,7 @@
 
   :plugins [[lein-cljsbuild "1.0.0"]]
 
-  :hooks [leiningen.cljsbuild]
+  ;; :hooks [leiningen.cljsbuild]
 
   :cljsbuild {:builds {:dev
                        {:source-paths ["src-cljs"]

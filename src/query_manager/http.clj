@@ -234,6 +234,8 @@
            (site))
        request))))
 
+;;-----------------------------------------------------------------------------
+
 (defn instance
   [port jobs db files]
   (atom {:jobs jobs
