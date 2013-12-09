@@ -3,7 +3,6 @@
             [clojure.tools.logging :as log]
             [query-manager.repo :as repo]
             [query-manager.job :as job]
-            [query-manager.test-db :as test-db]
             [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
@@ -39,7 +38,7 @@
     (broadcast! output-q [:db-change (state/get-db)])
 
     :db-test
-    (let [result (test-db/test-connection (state/db-specialize msg))]
+    (let [result (state/test-conn! (state/db-specialize msg))]
       (broadcast! output-q [:db-test-result result]))
 
     :db-save

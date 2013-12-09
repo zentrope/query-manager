@@ -1,4 +1,6 @@
-(ns query-manager.state)
+(ns query-manager.state
+  (:require [clojure.core.async :as async]
+            [clojure.java.jdbc :as jdbc]))
 
 ;;-----------------------------------------------------------------------------
 ;; Query Stuff
@@ -104,3 +106,18 @@
 (defn db-spec
   []
   (db-specialize @conn-spec))
+
+(defn test-conn!
+  [spec]
+  (let [sql (case (keyword (:type spec)) :oracle "select 1 from dual" "select 1")
+        ch (async/chan)]
+    (async/go
+     (try
+       (jdbc/query spec [sql])
+       (async/put! ch {:okay true})
+       (catch Throwable t
+         (async/put! ch {:okay false :reason (.getMessage t)}))))
+    (let [[result _] (async/alts!! [(async/timeout (* 5 1000)) ch])]
+      (if (nil? result)
+        {:okay false :reason "Network connection attempt timed out."}
+        result))))
