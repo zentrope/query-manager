@@ -27,15 +27,10 @@
 (defn- jconvert
   [k v]
   (cond
-    (instance? java.sql.Timestamp v)
-    (str v)
-    (and (number? v)
-         (< v 0))
-    (str v)
-    (and (instance? java.lang.Long v)
-         (< v 0))
-    (str v)
-    :else v))
+    (instance? java.sql.Timestamp v)           (str v)
+    (and (number? v) (< v 0))                  (str v)
+    (and (instance? java.lang.Long v) (< v 0)) (str v)
+    :else                                      v))
 
 (defn- jwrite
   [value]
@@ -50,7 +45,7 @@
       :headers {"Content-Type" "application/json"}}))
 
 ;;-----------------------------------------------------------------------------
-;; Publishing
+;; Response Handling
 ;;-----------------------------------------------------------------------------
 
 (defn- message-handler
@@ -64,7 +59,6 @@
          (if (= (first msg) (:http-error msg))
            (httpd/send! web-chan (mk-response (second msg)))
            (httpd/send! web-chan (mk-response 200 (jwrite msg)))))))))
-
 
 ;;-----------------------------------------------------------------------------
 ;; Routing
@@ -100,10 +94,6 @@
    (route/resources "/")
    (route/not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
-;;-----------------------------------------------------------------------------
-;; Service
-;;-----------------------------------------------------------------------------
-
 (defn- mk-app
   [{:keys [request-q response-q]}]
   (fn [request]
@@ -112,7 +102,11 @@
          (wrap-keyword-params))
      request)))
 
-(defn service
+;;-----------------------------------------------------------------------------
+;; Service
+;;-----------------------------------------------------------------------------
+
+(defn make
   [port request-q response-q]
   (atom {:port port
          :request-q request-q
@@ -120,17 +114,17 @@
          :httpd nil}))
 
 (defn start!
-  [client]
-  (log/info "Starting web application on port: " (str (:port @client) "."))
-  (let [port (:port @client)
-        app (mk-app client)
+  [this]
+  (log/info "Starting web application on port: " (str (:port @this) "."))
+  (let [port (:port @this)
+        app (mk-app @this)
         params {:port port :worker-name-prefix "httpkit-"}
         server (httpd/run-server app params)]
-    (swap! client assoc :httpd server)))
+    (swap! this assoc :httpd server)))
 
 (defn stop!
-  [client]
+  [this]
   (log/info "Stopping web application.")
-  (when-let [server (:httpd @client)]
+  (when-let [server (:httpd @this)]
     (server))
-  (swap! client (fn [s] (assoc s :httpd nil))))
+  (swap! this (fn [s] (assoc s :httpd nil))))

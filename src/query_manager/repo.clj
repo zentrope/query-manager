@@ -14,6 +14,7 @@
 (def ^:private user-dir
   (System/getProperty "user.dir"))
 
+
 (defn- path->
   [& strings]
   (string/join sep strings))
@@ -51,32 +52,17 @@
       (log/error "unable to read from" (path-of f))
       nil)))
 
+;; GLOBAL
+(def ^:private root-dir
+  (atom (path-> user-dir "qm-work")))
+
 ;;-----------------------------------------------------------------------------
 
 (defn save-database!
-  [repo database]
-  (let [place (file-> (:root-dir repo) "database.clj")]
+  [database]
+  (let [place (file-> root-dir "database.clj")]
     (write-to! place database)))
 
 (defn load-database!
-  [repo]
-  (read-from! (file-> (:root-dir repo) "database.clj")))
-
-(defn start!
-  [repo]
-  (log/info "Starting file repo service.")
-  (doseq [[_ path] repo]
-    (ensure-dir! (io/as-file path)))
-  :started)
-
-(defn stop!
-  [repo]
-  (log/info "Stopping file repo service.")
-  :stopped)
-
-(defn instance
   []
-  (let [root (path-> user-dir "qm-work")]
-    {:root-dir root
-     :query-dir (path-> root "queries")
-     :job-dir (path-> root "jobs")}))
+  (read-from! (file-> root-dir "database.clj")))

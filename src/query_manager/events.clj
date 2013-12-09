@@ -1,5 +1,9 @@
 (ns query-manager.events
-  (:require [clojure.core.async :as async]))
+  (:require [clojure.core.async :as async]
+            [clojure.tools.logging :as log]
+            [query-manager.repo :as repo]
+            [query-manager.job :as job]
+            [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
 ;; Event Processing
@@ -14,114 +18,123 @@
         (log/info name s)))))
 
 (defn- broadcast!
-  [client-queues event]
+  [output-q event]
   (log-event! "pub:" event)
-  (doseq [q client-queues]
-    (async/put! q event)))
+  (async/put! output-q event))
 
 (defn- process!
-  [{:keys [event-queue job-state db-state file-repo client-queues] :as manager} [topic data]]
+  [input-q output-q job-state [topic data]]
+  ;;
+  ;; TODO: Move each of these handlers to a separate function so that
+  ;;       it's easier to get the gist of the topics.
+  ;;
   (case topic
 
     :app-init
-    (do (broadcast! client-queues [:job-change (job/all job-state)])
-        (broadcast! client-queues [:query-change (sql/all)]))
+    (do (broadcast! output-q [:job-change (job/all job-state)])
+        (broadcast! output-q [:query-change (state/all-queries)]))
 
     :db-get
-    (broadcast! client-queues [:db-change (db/get db-state)])
+    (broadcast! output-q [:db-change (state/get-db)])
 
     :db-test
-    (let [result (test-db/test-connection (db/specialize msg))]
-      (broadcast! client-queues [:db-test-result result]))
+    (let [result (test-db/test-connection (state/db-specialize msg))]
+      (broadcast! output-q [:db-test-result result]))
 
     :db-save
-    (do (db/put db-state msg)
-        (repo/save-database! file-repo (db/get db-state))
-        (broadcast! client-queues [:db-change (db/get db-state)]))
+    (do (state/put-db msg)
+        (repo/save-database! (state/get-db))
+        (broadcast! output-q [:db-change (state/get-db)]))
 
     :job-list
-    (broadcast! client-queues [:job-change (job/all job-state)])
+    (broadcast! output-q [:job-change (job/all job-state)])
 
     :job-run-all
-    (do (doseq [query (sql/all)]
-          (job/create job-state (db/spec db-state) query control-ch))
-        (broadcast! client-queues [:job-change (job/all job-state)]))
+    (do (doseq [query (state/all-queries)]
+          (job/create job-state (state/db-spec) query control-ch))
+        (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-run
-    (do (job/create job-state (db/spec db-state) (sql/one msg) control-ch)
-        (broadcast! client-queues [:job-change (job/all job-state)]))
+    (do (job/create job-state (state/db-spec) (state/one-query msg) control-ch)
+        (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-get
-    (broadcast! client-queues [:job-get (job/one job-state (Long/parseLong msg))])
+    (broadcast! output-q [:job-get (job/one job-state (Long/parseLong msg))])
 
     :job-delete
     (do (job/delete! job-state (str msg))
-        (broadcast! client-queues [:job-change (job/all job-state)]))
+        (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-delete-all
     (do (job/delete-all! job-state)
-        (broadcast! client-queues [:job-change (job/all job-state)]))
+        (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-complete
-    (broadcast! client-queues [:job-change (job/all job-state)])
+    (broadcast! output-q [:job-change (job/all job-state)])
 
     :query-get
-    (broadcast! client-queues [:query-get (sql/one msg)])
+    (broadcast! output-q [:query-get (state/one-query msg)])
 
     :query-list
-    (broadcast! client-queues [:query-change (sql/all)])
+    (broadcast! output-q [:query-change (state/all-queries)])
 
     :query-update
-    (if-let [query (sql/one (:id msg))]
+    (if-let [query (state/one-query (:id msg))]
       (let [update (merge query msg)]
-        (sql/update! update)
-        (broadcast! client-queues [:query-change (sql/all)]))
-      (async/put! [:http-error 404]))
+        (state/update-query! update)
+        (broadcast! output-q [:query-change (state/all-queries)]))
+      (broadcast! output-q [:http-error 404]))
 
     :query-create
     (let [{:keys [sql description]} msg]
-      (sql/create! sql description)
-      (broadcast! client-queues [:query-change (sql/all)]))
+      (state/create-query! sql description)
+      (broadcast! output-q [:query-change (state/all-queries)]))
 
     :query-delete
-    (do (sql/delete! msg)
-        (broadcast! client-queues [:query-change (sql/all)]))
+    (do (state/delete-query! msg)
+        (broadcast! output-q [:query-change (state/all-queries)]))
 
     :noop))
 
 (defn- event-loop!
-  [{:keys [event-queue] :as manager}]
+  [input-q output-q job-state]
   (async/go-loop []
-    (when-let [msg (async/<! event-queue)]
+    (when-let [msg (async/<! input-q)]
       (log-event! "con:" msg)
-      (process! manager msg)
+      (process! input-q output-q job-state msg)
       (recur))))
 
 ;;-----------------------------------------------------------------------------
 ;; Service
 ;;-----------------------------------------------------------------------------
 
-(defn event-queue
-  [manager]
-  (:event-queue @manager))
+(defn put-event-q
+  "Return a queue you can use to send events to the event manager."
+  [this]
+  (:input-q @this))
 
-(defn manager
-  [clients job-state db-state file-repo]
-  (atom {:event-queue (async/chan)
-         :client-queues (set clients)
-         :job-state job-state
-         :db-state db-state
-         :file-repo file-repo}))
+(defn get-event-q
+  "Return a queue you can use to consume events published by the event
+  manager."
+  [this]
+  (:output-q @this))
+
+(defn make
+  "Make a new event manager."
+  [job-state]
+  (atom {:input-q (async/chan)
+         :output-q (async/chan)
+         :job-state job-state}))
 
 (defn start!
-  [manager]
-  (event-loop! @manager))
+  "Start the event manager."
+  [this]
+  (log/info "Starting event manager.")
+  (event-loop! (:input-q @this) (:output-q @this) (:job-state @this)))
 
 (defn stop!
-  [manager]
-  (async/close! (:event-queue @manager))
-  ;;
-  ;; Does this make sense? If other modules have a handle on the old
-  ;; queue, they'll never get a handle on the new one. Hm.
-  ;;
-  (swap! manager assoc :event-queue (async/chan)))
+  "Stop the event manager. Note: closes all put/get queues."
+  [this]
+  (log/info "Stopping event manager.")
+  (async/close! (:input-q @this) (:output-q @this))
+  (reset! this (make (:job-state @this))))
