@@ -3,10 +3,11 @@
             [clojure.tools.logging :as log]
             [clojure.core.async :as async]
             [clojure.data.json :as json]
+            [compojure.route :as route]
+            [hiccup.page :as html]
             [compojure.core :refer [routes GET POST]]
-            [compojure.handler :refer [site]]
-            [compojure.route :refer [resources not-found]]
-            [hiccup.page :refer [html5 include-js include-css]]))
+            [ring.middleware.params :refer [wrap-params]]
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]))
 
 ;;-----------------------------------------------------------------------------
 ;; Utilities
@@ -52,33 +53,18 @@
 ;; Publishing
 ;;-----------------------------------------------------------------------------
 
-(defn- wait-loop!
-  [channel-hub]
-  (async/go-loop []
-    (if (> (count @channel-hub) 0)
-      :done
-      (do (async/<! (async/timeout 10))
-          (recur)))))
-
-(defn- publish-loop!
-  [channel-hub pub-q]
-  (async/go-loop []
-    (when-let [msg (async/<! pub-q)]
-      (<! (wait-loop! channel-hub))
-      (doseq [[web-channel req] @channel-hub]
-        (if (= (first msg) (:http-error msg))
-          (httpd/send! web-channel (mk-response (second msg)))
-          (httpd/send! web-channel (mk-response 200 (jwrite msg)))))
-      (recur))))
-
 (defn- message-handler
-  [channel-hub]
-  (fn [request]
-    (httpd/with-channel request web-channel
-      (swap! channel-hub assoc web-channel request)
-      (httpd/on-close web-channel (fn [status]
-                                    (log/debug " - closing" web-channel)
-                                    (swap! channel-hub dissoc web-channel))))))
+  [event-queue]
+  (fn [_]
+    (httpd/with-channel request web-chan
+      (httpd/on-close web-chan (fn [status]
+                                 (log/info "closing channel, status:" status)))
+      (async/go
+       (when-let [msg (<! event-queue)]
+         (if (= (first msg) (:http-error msg))
+           (httpd/send! web-chan (mk-response (second msg)))
+           (httpd/send! web-chan (mk-response 200 (jwrite msg)))))))))
+
 
 ;;-----------------------------------------------------------------------------
 ;; Routing
@@ -89,58 +75,57 @@
   [(keyword topic) msg])
 
 (defn- main-routes
-  [client]
+  [request-q response-q]
   (routes
 
    (GET "/qmain/api/messages"
        []
-     (message-handler (:hub @client)))
+     (message-handler (response-q @client)))
 
    (POST "/qman/api/messages"
        [:as r]
-     (async/put! (:event-q @client) (normalize (jread r)))
+     (async/put! request-q (normalize (jread r)))
      {:status 201 :headers {"content-type" "application/json"} :body "{}"})
 
    (GET "/qman"
        []
-     (html5 [:head
-             [:title "Query Manager"]
-             [:link {:rel "shortcut icon" :href "/qman/favicon.ico"}]
-             (include-css "qman/styles.css")
-             (include-js "qman/main.js")]
-            [:body "Loading..."]))
+     (html/html5
+      [:head
+       [:title "Query Manager"]
+       [:link {:rel "shortcut icon" :href "/qman/favicon.ico"}]
+       (html/include-css "qman/styles.css")
+       (html/include-js "qman/main.js")]
+      [:body "Loading..."]))
 
-   (resources "/")
-   (not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
+   (route/resources "/")
+   (route/not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
 ;;-----------------------------------------------------------------------------
 ;; Service
 ;;-----------------------------------------------------------------------------
 
 (defn- mk-app
-  [client]
+  [{:keys [request-q response-q]}]
   (fn [request]
-    ((-> (main-routes client)
-         (site))
+    ((-> (main-routes request-q response-q)
+         (wrap-params)
+         (wrap-keyword-params))
      request)))
 
-(defn publisher
-  [client]
-  (:pub-q @client))
-
-(defn client
-  [port event-q]
+(defn service
+  [port request-q response-q]
   (atom {:port port
-         :event-q event-q
-         :hub (atom {})
-         :httpd nil
-         :pub-q (async/chan)}))
+         :request-q request-q
+         :response-q response-q
+         :httpd nil}))
 
 (defn start!
   [client]
-  (log/info "DID YOU REMEMBER TO START THE PUB LOOP?")
   (log/info "Starting web application on port: " (str (:port @client) "."))
-  (let [server (httpd/run-server (mk-app client) {:port (:port @client)})]
+  (let [port (:port @client)
+        app (mk-app client)
+        params {:port port :worker-name-prefix "httpkit-"}
+        server (httpd/run-server app params)]
     (swap! client assoc :httpd server)))
 
 (defn stop!
@@ -148,4 +133,4 @@
   (log/info "Stopping web application.")
   (when-let [server (:httpd @client)]
     (server))
-  (reset! client (client (:port @client) (:event-q @client))))
+  (swap! client (fn [s] (assoc s :httpd nil))))
