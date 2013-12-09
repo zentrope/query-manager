@@ -95,12 +95,12 @@
 
 (defn put-db!
   [new-spec]
-  (swap! conn-spec (assoc new-spec :updated true)))
+  (reset! conn-spec (assoc new-spec :updated true)))
 
 (defn get-db
   []
-  @instance)
+  @conn-spec)
 
 (defn db-spec
   []
-  (specialize @conn-spec))
+  (db-specialize @conn-spec))

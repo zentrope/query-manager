@@ -3,6 +3,7 @@
             [clojure.tools.logging :as log]
             [query-manager.repo :as repo]
             [query-manager.job :as job]
+            [query-manager.test-db :as test-db]
             [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
@@ -19,13 +20,13 @@
 
 (defn- broadcast!
   [output-q event]
-  (log-event! "pub:" event)
+  (log-event! "send:" event)
   (async/put! output-q event))
 
 (defn- process!
-  [input-q output-q job-state [topic data]]
+  [input-q output-q job-state [topic msg]]
   ;;
-  ;; TODO: Move each of these handlers to a separate function so that
+  ;; TODO: Move each of these handlers to a separate functions so that
   ;;       it's easier to get the gist of the topics.
   ;;
   (case topic
@@ -42,7 +43,7 @@
       (broadcast! output-q [:db-test-result result]))
 
     :db-save
-    (do (state/put-db msg)
+    (do (state/put-db! msg)
         (repo/save-database! (state/get-db))
         (broadcast! output-q [:db-change (state/get-db)]))
 
@@ -51,11 +52,11 @@
 
     :job-run-all
     (do (doseq [query (state/all-queries)]
-          (job/create job-state (state/db-spec) query control-ch))
+          (job/create job-state (state/db-spec) query input-q))
         (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-run
-    (do (job/create job-state (state/db-spec) (state/one-query msg) control-ch)
+    (do (job/create job-state (state/db-spec) (state/one-query msg) input-q)
         (broadcast! output-q [:job-change (job/all job-state)]))
 
     :job-get
@@ -100,7 +101,7 @@
   [input-q output-q job-state]
   (async/go-loop []
     (when-let [msg (async/<! input-q)]
-      (log-event! "con:" msg)
+      (log-event! "recv:" msg)
       (process! input-q output-q job-state msg)
       (recur))))
 

@@ -14,7 +14,6 @@
 (def ^:private user-dir
   (System/getProperty "user.dir"))
 
-
 (defn- path->
   [& strings]
   (string/join sep strings))
@@ -60,9 +59,9 @@
 
 (defn save-database!
   [database]
-  (let [place (file-> root-dir "database.clj")]
+  (let [place (file-> @root-dir "database.clj")]
     (write-to! place database)))
 
 (defn load-database!
   []
-  (read-from! (file-> root-dir "database.clj")))
+  (read-from! (file-> @root-dir "database.clj")))

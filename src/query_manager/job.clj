@@ -72,7 +72,7 @@
 (defn- mk-runner
   [db jobs job event-queue]
   (fn []
-    (info " - job start: [" (:description (:query job)) "]")
+    (info " --: job start: [" (:description (:query job)) "]")
     (try
       (throw-if-not-runnable (:sql (:query job)))
       (let [sql (:sql (:query job))
@@ -98,7 +98,7 @@
         (error t))
       (finally
         (async/put! event-queue [:job-complete job])
-        (info " - job complete: [" (:description (:query job)) "]")))))
+        (info " --: job complete: [" (:description (:query job)) "]")))))
 
 ;;-----------------------------------------------------------------------------
 ;; Public API

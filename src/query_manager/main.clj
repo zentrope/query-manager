@@ -1,21 +1,14 @@
 (ns query-manager.main
   (:gen-class)
-
   (:require [query-manager.web :as web]
             [query-manager.events :as events]
-
-            ;;[query-manager.http :as web]
-            ;;
-            ;; Consider moving all this stuff to a single "namespace"
-            ;; called something like 'state' so we don't have so many
-            ;; APIs. In fact, consider having something that'll listen
-            ;; to queues and do the right thing. Maybe.
-            ;;
             [query-manager.job :as job]
-            [query-manager.db :as db]
-            [query-manager.repo :as repo]
-            ;;
+            [query-manager.state :as state]
             [clojure.tools.logging :as log]))
+
+;;-----------------------------------------------------------------------------
+;; JVM Host
+;;-----------------------------------------------------------------------------
 
 (defn- on-jvm-shutdown
   [f]
@@ -26,58 +19,70 @@
   [name default-value]
   (Integer/parseInt (get (System/getenv) name default-value)))
 
-(defonce ^:private system-state (atom {}))
-
-(defn- start!
-  []
-  (let [port (evar "PORT" "8081")
-        state (state/initialize)
-        event-mgr (events/manager state)
-        [event-q broadcast-q] (queues event-mgr)
-        web-app (web/make port event-q broadcast-q)]
-
-    (events/start! event-mgr)
-    (web/start! web-app)))
-
-(defn- start!
-  []
-  (let [port (evar "PORT" "8081")
-        file-repo (repo/instance)
-        db-state (db/instance)
-        job-state (job/mk-jobs 100)
-        event-mgr (events/manager [] job-state db-state file-repo)
-        web-app (web/client port (event-queue event-mgr))]
-
-    (reset! system-state {:web-app web-app :file-repo file-repo})
-
-    (log/info "Starting application.")
-    (repo/start! file-repo)
-
-    ;; Something very wrong here. Start/stop dependencies
-    ;; seem self defeating. I think I need a queue system.
-
-    (when-let [saved-db (repo/load-database! file-repo)]
-      (db/put db-state saved-db))
-
-    (web/start! web-app)))
-
-(defn- stop!
-  []
-  (log/info "Stopping application.")
-  (when-let [file-repo (:file-repo @system-state)]
-    (repo/stop! file-repo))
-  (when-let [web-app (:web-app @system-state)]
-    (web/stop! web-app))
-  (reset! system-state {}))
-
 (defn- release-lock
   [lock]
   (Thread/sleep 2000)
   (deliver lock :done))
 
+;;-----------------------------------------------------------------------------
+;; Service Harnass (for now)
+;;-----------------------------------------------------------------------------
+
+(def ^:private +web-app+ (atom nil))
+(def ^:private +evt-mgr+ (atom nil))
+
+(defn- start-svc!
+  [svc instance start-fn]
+  (reset! svc instance)
+  (start-fn instance))
+
+(defn- stop-svc!
+  [svc stop-fn]
+  (when-let [instance @svc]
+    (stop-fn instance)
+    (reset! svc nil)))
+
+;;-----------------------------------------------------------------------------
+;; Application
+;;-----------------------------------------------------------------------------
+
+(defn- start!
+  []
+  (log/info "Starting query manager application.")
+  ;;
+  (let [port (evar "PORT" "8081")
+        job-state (job/mk-jobs 100)
+        event-manager (events/make job-state)
+        request-q (events/put-event-q event-manager)
+        response-q (events/get-event-q event-manager)
+        web-app (web/make port request-q response-q)]
+    (start-svc! +evt-mgr+ event-manager events/start!)
+    (start-svc! +web-app+ web-app web/start!)))
+
+(defn- stop!
+  []
+  (log/info "Stopping query manager application.")
+  ;;
+  (stop-svc! +web-app+ web/stop!)
+  (stop-svc! +evt-mgr+ events/stop!))
+
+;;-----------------------------------------------------------------------------
+;; Main entry point
+;;-----------------------------------------------------------------------------
+
+(defn- load-db!
+  []
+  ;;
+  ;; Temporary, until I work out proper state management for this
+  ;; whole thing.
+  ;;
+  (when-let [db (query-manager.repo/load-database!)]
+    (state/put-db! db)))
+
 (defn -main
   [& args]
   (let [lock (promise)]
+    (load-db!)
     (on-jvm-shutdown (fn [] (stop!)))
     (on-jvm-shutdown (fn [] (release-lock lock)))
     (start!)

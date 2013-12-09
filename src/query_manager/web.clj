@@ -48,17 +48,31 @@
 ;; Response Handling
 ;;-----------------------------------------------------------------------------
 
+(defn- wait-loop!
+  "Block until the client has connected."
+  [hub]
+  (async/go-loop []
+    (if (> (count @hub) 0)
+      :done
+      (do (async/<! (async/timeout 10))
+          (recur)))))
+
 (defn- message-handler
-  [event-queue]
-  (fn [_]
+  [hub event-queue]
+  (fn [request]
     (httpd/with-channel request web-chan
+      (swap! hub assoc web-chan request)
       (httpd/on-close web-chan (fn [status]
-                                 (log/info "closing channel, status:" status)))
+                                 (swap! hub dissoc web-chan)
+                                 (when-not (= status :server-close)
+                                   (log/warn "abnormal connection close:" status))))
       (async/go
        (when-let [msg (<! event-queue)]
-         (if (= (first msg) (:http-error msg))
-           (httpd/send! web-chan (mk-response (second msg)))
-           (httpd/send! web-chan (mk-response 200 (jwrite msg)))))))))
+         (async/<! (wait-loop! hub))
+         (doseq [[web-chan req] @hub]
+           (if (= (first msg) (:http-error msg))
+             (httpd/send! web-chan (mk-response (second msg)))
+             (httpd/send! web-chan (mk-response 200 (jwrite msg))))))))))
 
 ;;-----------------------------------------------------------------------------
 ;; Routing
@@ -69,12 +83,12 @@
   [(keyword topic) msg])
 
 (defn- main-routes
-  [request-q response-q]
+  [request-q response-q hub]
   (routes
 
-   (GET "/qmain/api/messages"
+   (GET "/qman/api/messages"
        []
-     (message-handler (response-q @client)))
+     (message-handler hub response-q))
 
    (POST "/qman/api/messages"
        [:as r]
@@ -95,9 +109,9 @@
    (route/not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
 (defn- mk-app
-  [{:keys [request-q response-q]}]
+  [{:keys [request-q response-q hub]}]
   (fn [request]
-    ((-> (main-routes request-q response-q)
+    ((-> (main-routes request-q response-q hub)
          (wrap-params)
          (wrap-keyword-params))
      request)))
@@ -111,11 +125,13 @@
   (atom {:port port
          :request-q request-q
          :response-q response-q
+         :hub (atom {})
          :httpd nil}))
 
 (defn start!
   [this]
-  (log/info "Starting web application on port: " (str (:port @this) "."))
+  (log/info "Starting web application on port:" (str (:port @this) "."))
+  ;;
   (let [port (:port @this)
         app (mk-app @this)
         params {:port port :worker-name-prefix "httpkit-"}
@@ -125,6 +141,7 @@
 (defn stop!
   [this]
   (log/info "Stopping web application.")
+  ;;
   (when-let [server (:httpd @this)]
     (server))
   (swap! this (fn [s] (assoc s :httpd nil))))
