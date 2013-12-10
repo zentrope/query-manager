@@ -245,6 +245,11 @@
 (defn- log-event!
   [[topic data]]
   (let [skips #{:query-change :job-change :queries-poke :jobs-poke}]
+    (when (contains? skips topic)
+      (let [s (str [topic data])]
+        (if (> (count s) 70)
+          (.log js/console "main:" (subs s 0 70))
+          (.log js/console "main:" s))))
     (when-not (contains? skips topic)
       (.log js/console "main:" (str [topic data])))))
 

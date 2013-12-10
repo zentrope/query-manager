@@ -1,10 +1,10 @@
 (ns query-manager.web
   (:require [org.httpkit.server :as httpd]
             [clojure.tools.logging :as log]
-            [clojure.core.async :as async]
             [clojure.data.json :as json]
             [compojure.route :as route]
             [hiccup.page :as html]
+            [clojure.core.async :as async :refer [go-loop <! timeout go put!]]
             [compojure.core :refer [routes GET POST]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]))
@@ -48,31 +48,30 @@
 ;; Response Handling
 ;;-----------------------------------------------------------------------------
 
-(defn- wait-loop!
-  "Block until the client has connected."
+(defn- wait-until-client-connected!
   [hub]
-  (async/go-loop []
-    (if (> (count @hub) 0)
-      :done
-      (do (async/<! (async/timeout 10))
-          (recur)))))
+  (go-loop []
+    (when (zero? (count @hub))
+      (<! (timeout 10))
+      (recur))))
+
+(defn- response-loop!
+  [hub event-queue]
+  (go-loop []
+    (when-let [msg (<! event-queue)]
+      (<! (wait-until-client-connected! hub))
+      (doseq [[web-chan req] @hub]
+       (if (= (first msg) (:http-error msg))
+         (httpd/send! web-chan (mk-response (second msg)))
+         (httpd/send! web-chan (mk-response 200 (jwrite msg)))))
+      (recur))))
 
 (defn- message-handler
   [hub event-queue]
   (fn [request]
     (httpd/with-channel request web-chan
       (swap! hub assoc web-chan request)
-      (httpd/on-close web-chan (fn [status]
-                                 (swap! hub dissoc web-chan)
-                                 (when-not (= status :server-close)
-                                   (log/warn "abnormal connection close:" status))))
-      (async/go
-       (when-let [msg (<! event-queue)]
-         (async/<! (wait-loop! hub))
-         (doseq [[web-chan req] @hub]
-           (if (= (first msg) (:http-error msg))
-             (httpd/send! web-chan (mk-response (second msg)))
-             (httpd/send! web-chan (mk-response 200 (jwrite msg))))))))))
+      (httpd/on-close web-chan (fn [status] (swap! hub dissoc web-chan))))))
 
 ;;-----------------------------------------------------------------------------
 ;; Routing
@@ -92,7 +91,7 @@
 
    (POST "/qman/api/messages"
        [:as r]
-     (async/put! request-q (normalize (jread r)))
+     (put! request-q (normalize (jread r)))
      {:status 201 :headers {"content-type" "application/json"} :body "{}"})
 
    (GET "/qman"
@@ -136,6 +135,7 @@
         app (mk-app @this)
         params {:port port :worker-name-prefix "httpkit-"}
         server (httpd/run-server app params)]
+    (response-loop! (:hub @this) (:response-q @this))
     (swap! this assoc :httpd server)))
 
 (defn stop!
