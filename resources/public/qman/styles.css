@@ -119,8 +119,8 @@ span.spin {
   background-color: #d0d6df;
   color: #222;
   text-shadow: 1px 1px 1px white !important;
-  border-bottom: 1px dotted #999;
   padding: 6px 2px 6px 2px;
+  border: 0;
 }
 
 .side-panel-body .lister tr:hover > td {
@@ -128,14 +128,7 @@ span.spin {
 }
 
 .side-panel-body .lister tr {
-  border: 1px solid #d0d6df;
   cursor: default;
-  border-top: 1px dotted #999;
-  border-bottom: 1px dotted #999;
-}
-
-.side-panel-body .lister tr:hover {
-  border: 1px solid #999;
 }
 
 /*---------------------------------------------------------------------------*/
