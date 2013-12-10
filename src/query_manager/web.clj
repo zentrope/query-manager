@@ -4,7 +4,7 @@
             [clojure.data.json :as json]
             [compojure.route :as route]
             [hiccup.page :as html]
-            [clojure.core.async :as async :refer [go-loop <! timeout go put!]]
+            [clojure.core.async :refer [go-loop <! timeout go put! chan close!]]
             [compojure.core :refer [routes GET POST]]
             [ring.middleware.params :refer [wrap-params]]
             [ring.middleware.keyword-params :refer [wrap-keyword-params]]))
@@ -43,6 +43,15 @@
      {:status status
       :body body
       :headers {"Content-Type" "application/json"}}))
+
+(defn- delegate-ch
+  [response-q]
+  (let [delegate (chan)]
+    (go-loop []
+      (when-let [value (<! response-q)]
+        (put! delegate value)
+        (recur)))
+    delegate))
 
 ;;-----------------------------------------------------------------------------
 ;; Response Handling
@@ -134,9 +143,10 @@
   (let [port (:port @this)
         app (mk-app @this)
         params {:port port :worker-name-prefix "httpkit-"}
-        server (httpd/run-server app params)]
-    (response-loop! (:hub @this) (:response-q @this))
-    (swap! this assoc :httpd server)))
+        server (httpd/run-server app params)
+        delegate (delegate-ch (:response-q @this))]
+    (response-loop! (:hub @this) delegate)
+    (swap! this assoc :httpd server :delegate delegate)))
 
 (defn stop!
   [this]
@@ -144,4 +154,5 @@
   ;;
   (when-let [server (:httpd @this)]
     (server))
+  (close! (:delegate @this))
   (swap! this (fn [s] (assoc s :httpd nil))))
