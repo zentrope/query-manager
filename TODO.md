@@ -7,11 +7,12 @@ be a good idea.
  - [x] port jobs to be core.async
  - [x] move jobs to state
  - [X] fix lousy CSS around query selection (that jumpy thing)
+ - [x] when importing queries, send them to the server all at once
+
  - [ ] move repo to state
  - [ ] merge with master
  - [ ] improve query parsing error messages (if present)
  - [ ] some way to display error messages?
- - [ ] when importing queries, send them to the server all at once
  - [ ] persist jobs to local disk cache
  - [ ] persist queries to local disk cache
  - [ ] provide facility to zip up cache for transport

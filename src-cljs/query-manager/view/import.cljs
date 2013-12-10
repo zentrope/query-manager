@@ -27,8 +27,7 @@
     (let [source (.-result (.-target e))]
       (try
         (let [queries (reader/read-string source)]
-          (doseq [q queries]
-            (async/put! output-ch [:query-save q])))
+          (async/put! output-ch [:query-save-all queries]))
         (catch js/Error e
           (.log js/console "ERROR:" e))
         (finally

@@ -89,6 +89,12 @@
       (state/create-query! sql description)
       (broadcast! output-q [:query-change (state/all-queries)]))
 
+    :query-create-all
+    (do (doseq [q msg]
+          (let [{:keys [sql description]} q]
+            (state/create-query! sql description)))
+        (broadcast! output-q [:query-change (state/all-queries)]))
+
     :query-delete
     (do (state/delete-query! msg)
         (broadcast! output-q [:query-change (state/all-queries)]))
