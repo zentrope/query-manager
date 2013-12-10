@@ -2,7 +2,6 @@
   (:gen-class)
   (:require [query-manager.web :as web]
             [query-manager.events :as events]
-            [query-manager.job :as job]
             [query-manager.state :as state]
             [clojure.tools.logging :as log]))
 
@@ -51,8 +50,7 @@
   (log/info "Starting query manager application.")
   ;;
   (let [port (evar "PORT" "8081")
-        job-state (job/mk-jobs 100)
-        event-manager (events/make job-state)
+        event-manager (events/make)
         request-q (events/put-event-q event-manager)
         response-q (events/get-event-q event-manager)
         web-app (web/make port request-q response-q)]

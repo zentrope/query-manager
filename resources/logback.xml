@@ -2,7 +2,7 @@
 
   <appender name="stdout" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
-      <pattern>%d{ISO8601} | qman | %-17t | %-5level %-10c{15} | %msg%n</pattern>
+      <pattern>%d{ISO8601} | qman | %-21t | %-5level %-10c{15} | %msg%n</pattern>
     </encoder>
   </appender>
 

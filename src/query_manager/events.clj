@@ -2,7 +2,6 @@
   (:require [clojure.core.async :as async]
             [clojure.tools.logging :as log]
             [query-manager.repo :as repo]
-            [query-manager.job :as job]
             [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
@@ -23,7 +22,7 @@
   (async/put! output-q event))
 
 (defn- process!
-  [input-q output-q job-state [topic msg]]
+  [input-q output-q [topic msg]]
   ;;
   ;; TODO: Move each of these handlers to a separate functions so that
   ;;       it's easier to get the gist of the topics.
@@ -31,7 +30,7 @@
   (case topic
 
     :app-init
-    (do (broadcast! output-q [:job-change (job/all job-state)])
+    (do (broadcast! output-q [:job-change (state/all-jobs)])
         (broadcast! output-q [:query-change (state/all-queries)]))
 
     :db-get
@@ -47,30 +46,30 @@
         (broadcast! output-q [:db-change (state/get-db)]))
 
     :job-list
-    (broadcast! output-q [:job-change (job/all job-state)])
+    (broadcast! output-q [:job-change (state/all-jobs)])
 
     :job-run-all
     (do (doseq [query (state/all-queries)]
-          (job/create job-state (state/db-spec) query input-q))
-        (broadcast! output-q [:job-change (job/all job-state)]))
+          (state/create-job! (state/db-spec) query input-q))
+        (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-run
-    (do (job/create job-state (state/db-spec) (state/one-query msg) input-q)
-        (broadcast! output-q [:job-change (job/all job-state)]))
+    (do (state/create-job! (state/db-spec) (state/one-query msg) input-q)
+        (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-get
-    (broadcast! output-q [:job-get (job/one job-state (Long/parseLong msg))])
+    (broadcast! output-q [:job-get (state/one-job (Long/parseLong msg))])
 
     :job-delete
-    (do (job/delete! job-state (str msg))
-        (broadcast! output-q [:job-change (job/all job-state)]))
+    (do (state/delete-job! (str msg))
+        (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-delete-all
-    (do (job/delete-all! job-state)
-        (broadcast! output-q [:job-change (job/all job-state)]))
+    (do (state/delete-all-jobs!)
+        (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-complete
-    (broadcast! output-q [:job-change (job/all job-state)])
+    (broadcast! output-q [:job-change (state/all-jobs)])
 
     :query-get
     (broadcast! output-q [:query-get (state/one-query msg)])
@@ -97,11 +96,11 @@
     :noop))
 
 (defn- event-loop!
-  [input-q output-q job-state]
+  [input-q output-q]
   (async/go-loop []
     (when-let [msg (async/<! input-q)]
       (log-event! "recv:" msg)
-      (process! input-q output-q job-state msg)
+      (process! input-q output-q msg)
       (recur))))
 
 ;;-----------------------------------------------------------------------------
@@ -121,16 +120,15 @@
 
 (defn make
   "Make a new event manager."
-  [job-state]
+  []
   (atom {:input-q (async/chan)
-         :output-q (async/chan)
-         :job-state job-state}))
+         :output-q (async/chan)}))
 
 (defn start!
   "Start the event manager."
   [this]
   (log/info "Starting event manager.")
-  (event-loop! (:input-q @this) (:output-q @this) (:job-state @this)))
+  (event-loop! (:input-q @this) (:output-q @this)))
 
 (defn stop!
   "Stop the event manager. Note: closes all put/get queues."
