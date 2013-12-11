@@ -24,7 +24,7 @@
                  [org.clojars.zentrope/ojdbc "11.2.0.3.0"] ;; oracle
 
                  ;; ClojureScript
-                 [org.clojure/core.async "0.1.256.0-1bf8cf-alpha"]
+                 [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/clojurescript "0.0-2080"]
                  [prismatic/dommy "0.1.2"]]
 

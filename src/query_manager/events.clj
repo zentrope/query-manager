@@ -1,7 +1,6 @@
 (ns query-manager.events
   (:require [clojure.core.async :as async]
             [clojure.tools.logging :as log]
-            [query-manager.repo :as repo]
             [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
@@ -42,7 +41,7 @@
 
     :db-save
     (do (state/put-db! msg)
-        (repo/save-database! (state/get-db))
+        (state/save-database! (state/get-db))
         (broadcast! output-q [:db-change (state/get-db)]))
 
     :job-list

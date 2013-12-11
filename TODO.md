@@ -8,8 +8,8 @@ be a good idea.
  - [x] move jobs to state
  - [X] fix lousy CSS around query selection (that jumpy thing)
  - [x] when importing queries, send them to the server all at once
+ - [x] move repo to state
 
- - [ ] move repo to state
  - [ ] merge with master
  - [ ] improve query parsing error messages (if present)
  - [ ] some way to display error messages?

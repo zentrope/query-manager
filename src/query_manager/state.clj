@@ -1,8 +1,81 @@
 (ns query-manager.state
+  ;;
+  ;; This module stores everything regarding state, and uses plenty of
+  ;; global variables! I know, I know. Not kosher. But once
+  ;; everything's in place and the rest of the APP is how I want it
+  ;; (for now), I can take a look at all the concerns here and
+  ;; refactor appropriately. How's that for defensiveness?
+  ;;
+  (:import (java.io File))
   (:require [clojure.core.async :refer [put! timeout alts!! go thread-call chan]]
-            [clojure.tools.logging :refer [info error]]
-            [clojure.string :refer [lower-case trim]]
+            [clojure.tools.logging :as log]
+            [clojure.pprint :refer [pprint]]
+            [clojure.string :refer [lower-case trim join]]
+            [clojure.edn :as edn]
+            [clojure.java.io :as io]
             [clojure.java.jdbc :as jdbc]))
+
+;;-----------------------------------------------------------------------------
+;; Repo
+;;-----------------------------------------------------------------------------
+
+(def ^:private sep
+  File/separator)
+
+(def ^:private user-dir
+  (System/getProperty "user.dir"))
+
+(defn- path->
+  [& strings]
+  (join sep strings))
+
+(defn- file->
+  [& strings]
+  (io/as-file (apply path-> strings)))
+
+(defn- path-of
+  [^File f]
+  (.getAbsolutePath f))
+
+(defn- ensure-dir!
+  [^File dir]
+  (when-not (.exists dir)
+    (log/info  "creating cache directory: " (path-> dir))
+    (.mkdirs dir)))
+
+(defn- write-to!
+  [^File f doc]
+  (try
+    (with-open [out (io/writer f)]
+      (ensure-dir! (.getParentFile f))
+      (pprint doc out)
+      (log/info "wrote a document to" (path-of f)))
+    (catch Throwable t
+      (log/error "unable to write a document to" (path-of f)))))
+
+(defn- read-from!
+  [^File f]
+  (try
+    (when (.exists f)
+      (edn/read-string (slurp f)))
+    (catch Throwable t
+      (log/error "unable to read from" (path-of f))
+      nil)))
+
+;; GLOBAL
+(def ^:private root-dir
+  (atom (path-> user-dir "qm-work")))
+
+;;-----------------------------------------------------------------------------
+
+(defn save-database!
+  [database]
+  (let [place (file-> @root-dir "database.clj")]
+    (write-to! place database)))
+
+(defn load-database!
+  []
+  (read-from! (file-> @root-dir "database.clj")))
 
 ;;-----------------------------------------------------------------------------
 ;; Query Stuff
@@ -77,7 +150,7 @@
 (defn- mk-runner
   [db jobs job response-q]
   (fn []
-    (info " --: job start: [" (:description (:query job)) "]")
+    (log/info " --: job start: [" (:description (:query job)) "]")
     (try
       (throw-if-not-runnable (:sql (:query job)))
       (let [sql (:sql (:query job))
@@ -101,10 +174,10 @@
       (catch Throwable t
         (let [update (assoc job :status :failed :stopped (now) :error (str t))]
           (swap! jobs assoc (:id job) update))
-        (error t))
+        (log/error t))
       (finally
         (put! response-q [:job-complete job])
-        (info " --: job complete: [" (:description (:query job)) "]")))))
+        (log/info " --: job complete: [" (:description (:query job)) "]")))))
 
 ;; GLOBAL!!!
 (def ^:private +jobs+

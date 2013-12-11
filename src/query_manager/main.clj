@@ -74,7 +74,7 @@
   ;; Temporary, until I work out proper state management for this
   ;; whole thing.
   ;;
-  (when-let [db (query-manager.repo/load-database!)]
+  (when-let [db (query-manager.state/load-database!)]
     (state/put-db! db)))
 
 (defn -main
