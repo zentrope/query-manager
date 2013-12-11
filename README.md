@@ -5,27 +5,30 @@ long-running RDBMS queries.
 
 ## Rationale
 
-This is mostly a web-app I can use at work. We sell software to
-customers who (as a result) have large databases. From time to time,
-we need to run custom, domain-specific queries to diagnose potential
-problems. Thing is, those queries can take a _long time_ to run. Much
-longer than a typical browser request timeout.
+This is mostly a web-app I can use at work. We sell "Enterprise"
+software to customers who (as a result) have large databases. From
+time to time, we need to run custom, domain-specific queries to
+diagnose potential problems. Thing is, those queries can take a _long
+time_ to run. Much longer than a typical browser's request timeout.
 
-I thought it would be fun to write a small, uberjar app we could hand
-to customer so that they could run those diagnostic queries, maybe a
-bunch of them, track whether or not they were still running (in the
-background, so to speak) and then view or send us the results.
+Wouldn't it be fun to write a small, uberjar app we could hand to
+customers so that they could run diagnostic queries, maybe a bunch of
+them, track whether or not they were still running (in the background,
+so to speak) and then view or send us the results?
+
+Yes!
 
 [Ben Glasser](https://github.com/BenGlasser) came to intern in our
-little group and because we didn't have much legitimate QA work for
-him to do, he started this app. He's moved on, so now I'm going to
-finish it.
+little group to get a taste of the QA world and because we didn't have
+much legitimate QA work for him to do, he started this app. He's moved
+on to much greater endeavors, so I've finished it. (And rewrote
+it. And rewrote it again.)
 
 ## Aims
 
 Some simple goals:
 
- - An app on the small end of medium level complexity so that I can
+ - An app on the small end of medium-level complexity so that I can
    use it to "practice" web-app development and try new things.
 
  - No proprietary business information so this can be open source.
@@ -42,10 +45,9 @@ That's about it!
 
 ## Status
 
-Works. The client and server communicate via a GET and POST API on a
-single resource called "/messages". Seems to work reasonably well
-enough as a mechanism. Great potential for simplication on either
-side.
+Works. Uses a single REST route as a long-polling style messaging kind
+of thing. An event on the server ends up in a queue on the client, and
+the other way around.
 
 ## Future
 
@@ -53,23 +55,20 @@ side.
    already been edited by the user. And do it in such a way that the
    client doesn't have a lot of if/then/else crap.
 
- - Don't allow "saving" the DB until the test works?
+ - Fix the "state" module to support working at the REPL, perhaps by
+   being just a bunch of functions working on a state object held by
+   the main name space.
 
- - Oh, come on, now. Store the damned credentials on the file system
-   so you don't have to re-enter them every time you restart the
-   server-side of the app. Sheesh!
+ - Persist "state" to disk so that it can be resumed on start up, and
+   also so that it can be zipped up an exported.
 
- - Right now, the app is a ClojureScript client talking to a fully
-   REST style back-end web service API. I'd prefer to remove most of
-   the REST API and make the back-end web-service implement queue
-   semantics.
-
- - Resist web-sockets for as long as possible. I love the idea, but I
-   want to learn the other stuff, too.
+ - Some kind of "plugin" thing that allows the app to load a class as
+   a means of snarfing connection credentials from proprietary
+   systems.
 
 ## License
 
-Copyright &copy; 2013 Ben Glasser, Keith Irwin
+Copyright &copy; 2013 Keith Irwin, Ben Glasser,
 
 Distributed under the Eclipse Public License, the same as Clojure.
 
