@@ -16,6 +16,12 @@
             [clojure.java.jdbc :as jdbc]))
 
 ;;-----------------------------------------------------------------------------
+
+(defn- id-gen
+  []
+  (clojure.string/replace (str (java.util.UUID/randomUUID)) #"-" ""))
+
+;;-----------------------------------------------------------------------------
 ;; Repo
 ;;-----------------------------------------------------------------------------
 
@@ -43,15 +49,20 @@
     (log/info  "creating cache directory: " (path-> dir))
     (.mkdirs dir)))
 
+(defn- delete!
+  [^File file]
+  (when (.exists file)
+    (.delete file)))
+
 (defn- write-to!
   [^File f doc]
   (try
+    (ensure-dir! (.getParentFile f))
     (with-open [out (io/writer f)]
-      (ensure-dir! (.getParentFile f))
       (pprint doc out)
       (log/info "wrote a document to" (path-of f)))
     (catch Throwable t
-      (log/error "unable to write a document to" (path-of f)))))
+      (log/error "unable to write a document to" (path-of f) " : " (.getMessage t)))))
 
 (defn- read-from!
   [^File f]
@@ -62,9 +73,29 @@
       (log/error "unable to read from" (path-of f))
       nil)))
 
+(defn- file-name
+  [id]
+  (if (> (count id) 10)
+    (str id ".clj")
+    (let [zs "0000000000"
+          sid (str id)]
+      (str (subs zs 0 (- 10 (count sid))) sid ".clj"))))
+
 ;; GLOBAL
 (def ^:private root-dir
   (atom (path-> user-dir "qm-work")))
+
+(defn- file-only-seq
+  [^File place]
+  (filter (fn [f] (.isFile f)) (file-seq place)))
+
+(defn- batch-load!
+  [subdir load-fn]
+  (let [place (file-> @root-dir subdir)
+        files (file-only-seq place)]
+    (doseq [f files]
+      (let [q (read-from! f)]
+        (load-fn q)))))
 
 ;;-----------------------------------------------------------------------------
 
@@ -73,9 +104,46 @@
   (let [place (file-> @root-dir "database.clj")]
     (write-to! place database)))
 
+(declare put-db!)
+
 (defn load-database!
   []
-  (read-from! (file-> @root-dir "database.clj")))
+  (when-let [db (read-from! (file-> @root-dir "database.clj"))]
+    (put-db! db)))
+
+;;-----
+
+(defn- save-job-to-disk!
+  [job]
+  (let [place (file-> @root-dir "jobs" (file-name (:id job)))]
+    (write-to! place job)))
+
+(defn- remove-job-from-disk!
+  [job]
+  (delete! (file-> @root-dir "jobs" (file-name (:id job)))))
+
+(declare load-job!)
+
+(defn load-jobs-from-disk!
+  []
+  (batch-load! "jobs" load-job!))
+
+;;-----
+
+(declare load-query!)
+
+(defn load-queries-from-disk!
+  []
+  (batch-load! "queries" load-query!))
+
+(defn- save-query-to-disk!
+  [query]
+  (let [place (file-> @root-dir "queries" (file-name (:id query)))]
+    (write-to! place query)))
+
+(defn- remove-query-from-disk!
+  [query]
+  (delete! (file-> @root-dir "queries" (file-name (:id query)))))
 
 ;;-----------------------------------------------------------------------------
 ;; Query Stuff
@@ -83,9 +151,6 @@
 
 ;; GLOBAL!!!
 (def ^:private query-db (atom {}))
-
-(let [id (atom 0)]
-  (defn- id-gen [] (str (swap! id inc))))
 
 (defn all-queries
   []
@@ -95,17 +160,24 @@
   [query-id]
   (get @query-db query-id))
 
+(defn- load-query!
+  [query]
+  (swap! query-db assoc (:id query) query))
+
 (defn create-query!
   [sql description]
   (let [q {:id (id-gen) :sql sql :description description}]
+    (save-query-to-disk! q)
     (swap! query-db assoc (:id q) q)))
 
 (defn delete-query!
   [query-id]
+  (remove-query-from-disk! {:id query-id})
   (swap! query-db dissoc query-id))
 
 (defn update-query!
   [query]
+  (save-query-to-disk! query)
   (swap! query-db assoc (:id query) query))
 
 ;;-----------------------------------------------------------------------------
@@ -116,12 +188,9 @@
   []
   (System/currentTimeMillis))
 
-(let [id (atom 0)]
-  (defn- job-id [] (swap! id inc)))
-
 (defn- mk-job
   [query]
-  {:id (job-id)
+  {:id (id-gen)
    :started (now)
    :stopped -1
    :query query
@@ -161,6 +230,7 @@
                      :size (count results)
                      :count-col (calc-count-or-size results)
                      :stopped (now))]
+        (save-job-to-disk! update)
         (swap! jobs (fn [js]
                       ;;
                       ;; If the job isn't in the current collection,
@@ -173,6 +243,7 @@
                         js))))
       (catch Throwable t
         (let [update (assoc job :status :failed :stopped (now) :error (str t))]
+          (save-job-to-disk! update)
           (swap! jobs assoc (:id job) update))
         (log/error t))
       (finally
@@ -183,10 +254,15 @@
 (def ^:private +jobs+
   (atom {}))
 
+(defn- load-job!
+  [job]
+  (swap! +jobs+ assoc (:id job) job))
+
 (defn create-job!
   [db query response-q]
   (let [new-job (mk-job query)
         runner (mk-runner db +jobs+ new-job response-q)]
+    (save-job-to-disk! new-job)
     (swap! +jobs+ assoc (:id new-job) new-job)
     (thread-call runner)
     new-job))
@@ -203,10 +279,13 @@
 
 (defn delete-job!
   [id]
-  (swap! +jobs+ dissoc (Long/parseLong id)))
+  (remove-job-from-disk! {:id id})
+  (swap! +jobs+ dissoc id))
 
 (defn delete-all-jobs!
   []
+  (doseq [[id job] @+jobs+]
+    (remove-job-from-disk! {:id id}))
   (reset! +jobs+ {}))
 
 ;;-----------------------------------------------------------------------------

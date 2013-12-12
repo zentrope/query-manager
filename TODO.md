@@ -10,10 +10,10 @@ be a good idea.
  - [x] when importing queries, send them to the server all at once
  - [x] move repo to state
  - [X] merge with master
+ - [x] persist jobs to local disk cache
+ - [x] persist queries to local disk cache
 
  - [ ] improve query parsing error messages (if present)
  - [ ] some way to display error messages?
- - [ ] persist jobs to local disk cache
- - [ ] persist queries to local disk cache
  - [ ] provide facility to zip up cache for transport
  - [ ] all state should be in an "instance" var in main

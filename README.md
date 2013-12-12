@@ -59,8 +59,8 @@ the other way around.
    being just a bunch of functions working on a state object held by
    the main name space.
 
- - Persist "state" to disk so that it can be resumed on start up, and
-   also so that it can be zipped up an exported.
+ - ~Persist "state" to disk so that it can be resumed on start up~,
+   and also so that it can be zipped up an exported.
 
  - Some kind of "plugin" thing that allows the app to load a class as
    a means of snarfing connection credentials from proprietary

@@ -57,7 +57,7 @@
         (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-get
-    (broadcast! output-q [:job-get (state/one-job (Long/parseLong msg))])
+    (broadcast! output-q [:job-get (state/one-job msg)])
 
     :job-delete
     (do (state/delete-job! (str msg))
