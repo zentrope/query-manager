@@ -6,10 +6,10 @@ be a good idea.
  - [x] fix web.clj go-blocks to be simpler
  - [x] port jobs to be core.async
  - [x] move jobs to state
- - [X] fix lousy CSS around query selection (that jumpy thing)
+ - [x] fix lousy CSS around query selection (that jumpy thing)
  - [x] when importing queries, send them to the server all at once
  - [x] move repo to state
- - [X] merge with master
+ - [x] merge with master
  - [x] persist jobs to local disk cache
  - [x] persist queries to local disk cache
  - [x] restore "export" for queries. oops!
