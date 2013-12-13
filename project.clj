@@ -16,7 +16,7 @@
                  [ch.qos.logback/logback-classic "1.0.13"]
 
                  ;; Database
-                 [org.clojure/java.jdbc "0.3.0-beta2"]     ;; jdbc
+                 [org.clojure/java.jdbc "0.3.0-rc1"]       ;; jdbc
                  [mysql/mysql-connector-java "5.1.27"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database

@@ -12,8 +12,8 @@ be a good idea.
  - [X] merge with master
  - [x] persist jobs to local disk cache
  - [x] persist queries to local disk cache
+ - [x] restore "export" for queries. oops!
 
- - [ ] restore "export" for queries. oops!
  - [ ] provide facility to zip up cache for transport
  - [ ] improve query parsing error messages (if present)
  - [ ] some way to display error messages?

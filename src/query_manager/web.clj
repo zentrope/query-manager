@@ -6,8 +6,10 @@
             [hiccup.page :as html]
             [clojure.core.async :refer [go-loop <! timeout go put! chan close!]]
             [compojure.core :refer [routes GET POST]]
+            [ring.util.response :refer [redirect status response header]]
             [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.keyword-params :refer [wrap-keyword-params]]))
+            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+            [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
 ;; Utilities
@@ -102,6 +104,18 @@
        [:as r]
      (put! request-q (normalize (jread r)))
      {:status 201 :headers {"content-type" "application/json"} :body "{}"})
+
+   (GET "/qman/queries/download"
+       []
+     (-> (state/all-queries)
+         (as-> queries
+               (mapv #(dissoc % :id) queries)
+               (with-out-str (clojure.pprint/pprint queries))
+               (clojure.string/replace (str queries) #"\\n" "\n"))
+         (response)
+         (status 200)
+         (header "Content-Type" "application/octet-stream")
+         (header "Content-Disposition" "attachment;filename=\"queries.clj\"")))
 
    (GET "/qman"
        []
