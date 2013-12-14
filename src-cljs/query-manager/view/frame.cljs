@@ -1,6 +1,6 @@
 (ns query-manager.view.frame
   (:use-macros [dommy.macros :only [node sel1]])
-  (:require [cljs.core.async :as async]
+  (:require [cljs.core.async :as async :refer [put!]]
             [dommy.core :as dom]))
 
 (defn- container-frame
@@ -13,16 +13,22 @@
            [:span#title-version "Vers 2"]]
           [:div#status-bar
            [:div.status-buttons
+            [:button#sb-ar {:class "not-showing"} "archive"]
             [:button#sb-db {:class "not-showing"} "db"]]]]]))
 
-(defn- show-db-form!
+(defn- on-db-button-click!
   [queue]
-  (fn [e] (async/put! queue [:db-form-show {}])))
+  (fn [e] (put! queue [:db-form-show {}])))
+
+(defn- on-archive-button-click!
+  [queue]
+  (fn [e] (put! queue [:archive {}])))
 
 (defn- make-template
   [queue]
   (let [body (container-frame)]
-    (dom/listen! [body :#sb-db] :click (show-db-form! queue))
+    (dom/listen! [body :#sb-db] :click (on-db-button-click! queue))
+    (dom/listen! [body :#sb-ar] :click (on-archive-button-click! queue))
     body))
 
 ;;-----------------------------------------------------------------------------

@@ -20,6 +20,50 @@
   (log-event! "send:" event)
   (async/put! output-q event))
 
+;;-----------------------------------------------------------------------------
+;; Event Handlers
+;;-----------------------------------------------------------------------------
+
+(defn- do-app-init!
+  [output-q]
+  (broadcast! output-q [:job-change (state/all-jobs)])
+  (broadcast! output-q [:query-change (state/all-queries)]))
+
+(defn- do-database-get!
+  [output-q]
+  (broadcast! output-q [:db-change (state/get-db)]))
+
+(defn- do-database-test!
+  [output-q db-spec]
+  (let [result (state/test-conn! (state/db-specialize db-spec))]
+    (broadcast! output-q [:db-test-result result])))
+
+(defn- do-database-save!
+  [output-q db-spec]
+  (state/put-db! db-spec)
+  (state/save-database! (state/get-db))
+  (broadcast! output-q [:db-change (state/get-db)]))
+
+(defn- do-job-list!
+  [output-q]
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+(defn- do-job-runall!
+  [input-q output-q]
+  (doseq [query (state/all-queries)]
+    (state/create-job! (state/db-spec) query input-q))
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+(defn- do-job-run!
+  [input-q output-q job]
+  (state/create-job! (state/db-spec) (state/one-query job) input-q)
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+(defn- do-archive!
+  [output-q]
+  (let [name (state/archive)]
+    (broadcast! output-q [:archive-created name])))
+
 (defn- process!
   [input-q output-q [topic msg]]
   ;;
@@ -28,33 +72,17 @@
   ;;
   (case topic
 
-    :app-init
-    (do (broadcast! output-q [:job-change (state/all-jobs)])
-        (broadcast! output-q [:query-change (state/all-queries)]))
+    :archive-state (do-archive! output-q)
+    :app-init      (do-app-init! output-q)
 
-    :db-get
-    (broadcast! output-q [:db-change (state/get-db)])
+    :db-get        (do-database-get! output-q)
+    :db-test       (do-database-test! output-q msg)
+    :db-save       (do-database-save! output-q msg)
 
-    :db-test
-    (let [result (state/test-conn! (state/db-specialize msg))]
-      (broadcast! output-q [:db-test-result result]))
+    :job-list      (do-job-list! output-q)
+    :job-run-all   (do-job-runall! input-q output-q)
+    :job-run       (do-job-run! input-q output-q msg)
 
-    :db-save
-    (do (state/put-db! msg)
-        (state/save-database! (state/get-db))
-        (broadcast! output-q [:db-change (state/get-db)]))
-
-    :job-list
-    (broadcast! output-q [:job-change (state/all-jobs)])
-
-    :job-run-all
-    (do (doseq [query (state/all-queries)]
-          (state/create-job! (state/db-spec) query input-q))
-        (broadcast! output-q [:job-change (state/all-jobs)]))
-
-    :job-run
-    (do (state/create-job! (state/db-spec) (state/one-query msg) input-q)
-        (broadcast! output-q [:job-change (state/all-jobs)]))
 
     :job-get
     (broadcast! output-q [:job-get (state/one-job msg)])

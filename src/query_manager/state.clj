@@ -13,13 +13,23 @@
             [clojure.string :refer [lower-case trim join]]
             [clojure.edn :as edn]
             [clojure.java.io :as io]
-            [clojure.java.jdbc :as jdbc]))
+            [clojure.java.jdbc :as jdbc]
+            [ me.raynes.fs.compression :as compress]))
 
 ;;-----------------------------------------------------------------------------
 
 (defn- id-gen
   []
   (clojure.string/replace (str (java.util.UUID/randomUUID)) #"-" ""))
+
+(defn- now
+  []
+  (System/currentTimeMillis))
+
+(defn- ends-with?
+  [s1 s2]
+  (.endsWith (lower-case (trim s1))
+             (lower-case (trim s2))))
 
 ;;-----------------------------------------------------------------------------
 ;; Repo
@@ -89,13 +99,38 @@
   [^File place]
   (filter (fn [f] (.isFile f)) (file-seq place)))
 
+(defn- file-type-only-seq
+  [type ^File place]
+  (filter (fn [f] (ends-with? (.getName f) type)) (file-only-seq place)))
+
 (defn- batch-load!
   [subdir load-fn]
   (let [place (file-> @root-dir subdir)
-        files (file-only-seq place)]
+        files (file-type-only-seq "clj" place)]
     (doseq [f files]
       (let [q (read-from! f)]
         (load-fn q)))))
+
+(defn- archive-name
+  [^File f stamp]
+  (path-> (str "archive-" stamp)
+          (if (= (.getName f) "database.clj")
+            (.getName f)
+            (path-> (.getName (.getParentFile f)) (.getName f)))))
+
+(defn archive
+  []
+  (let [stamp (str (now))
+        archive-fname (path-> @root-dir "archives" (str "archive-" stamp ".zip"))
+        archive-file (file-> archive-fname)
+        files (file-type-only-seq ".clj" (file-> @root-dir))]
+    (ensure-dir! (.getParentFile archive-file))
+    (apply compress/zip
+           archive-fname
+           (for [f files]
+             [(archive-name f stamp) (slurp f)]))
+    (log/info "wrote zip file to " (path-of archive-file))
+    archive-fname))
 
 ;;-----------------------------------------------------------------------------
 

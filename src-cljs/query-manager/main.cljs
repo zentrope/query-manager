@@ -188,6 +188,11 @@
   (set! (.-location js/window) "/qman/queries/download")
   state)
 
+(defn- on-archive-state!
+  [state queue]
+  (send-message queue [:archive-state {}])
+  state)
+
 ;;-----------------------------------------------------------------------------
 
 (defn- recv-loop!
@@ -238,6 +243,7 @@
     :job-get (on-job-refresh! state data)
 
     :export-queries (on-query-export! state)
+    :archive (on-archive-state! state queue)
     state))
 
 (defn- process!

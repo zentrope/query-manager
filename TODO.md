@@ -13,8 +13,11 @@ be a good idea.
  - [x] persist jobs to local disk cache
  - [x] persist queries to local disk cache
  - [x] restore "export" for queries. oops!
+ - [x] provide facility to zip up cache for transport
 
- - [ ] provide facility to zip up cache for transport
+ - [ ] allow export of zip file
  - [ ] improve query parsing error messages (if present)
  - [ ] some way to display error messages?
+ - [ ] modal screen thing for when server is down
+ - [ ] when server returns, refresh?
  - [ ] all state should be in an "instance" var in main
