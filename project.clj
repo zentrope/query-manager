@@ -16,7 +16,7 @@
                  [ch.qos.logback/logback-classic "1.0.13"]
 
                  ;; Utils
-                 [me.raynes/fs "1.4.4"]
+                 [me.raynes/fs "1.4.5"]
 
                  ;; Database
                  [org.clojure/java.jdbc "0.3.0-rc1"]       ;; jdbc
