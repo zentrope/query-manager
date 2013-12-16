@@ -3,6 +3,20 @@
 Just random stuff I may or may not want to do, or that may or may not
 be a good idea.
 
+## Client
+
+ - [ ] improve query parsing error messages (if present)
+ - [ ] some way to display error messages?
+ - [ ] modal screen thing for when server is down
+ - [ ] when server returns, refresh?
+
+## Server
+
+ - [ ] all state should be in an "instance" var in main
+ - [ ] scrub database password from archive database
+
+## Done
+
  - [x] fix web.clj go-blocks to be simpler
  - [x] port jobs to be core.async
  - [x] move jobs to state
@@ -14,10 +28,4 @@ be a good idea.
  - [x] persist queries to local disk cache
  - [x] restore "export" for queries. oops!
  - [x] provide facility to zip up cache for transport
-
- - [ ] allow export of zip file
- - [ ] improve query parsing error messages (if present)
- - [ ] some way to display error messages?
- - [ ] modal screen thing for when server is down
- - [ ] when server returns, refresh?
- - [ ] all state should be in an "instance" var in main
+ - [x] allow export of zip file

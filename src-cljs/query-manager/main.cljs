@@ -188,6 +188,11 @@
   (set! (.-location js/window) "/qman/queries/download")
   state)
 
+(defn- on-archive-export!
+  [state archive-name]
+  (set! (.-location js/window) (str "/qman/archive/" archive-name "/download"))
+  state)
+
 (defn- on-archive-state!
   [state queue]
   (send-message queue [:archive-state {}])
@@ -244,6 +249,7 @@
 
     :export-queries (on-query-export! state)
     :archive (on-archive-state! state queue)
+    :archive-created (on-archive-export! state data)
     state))
 
 (defn- process!

@@ -107,6 +107,7 @@
 
    (GET "/qman/queries/download"
        []
+     (log/info " [[ exporting queries ]]")
      (-> (state/all-queries)
          (as-> queries
                (mapv #(dissoc % :id) queries)
@@ -116,6 +117,15 @@
          (status 200)
          (header "Content-Type" "application/octet-stream")
          (header "Content-Disposition" "attachment;filename=\"queries.clj\"")))
+
+   (GET "/qman/archive/:archive-name/download"
+       [archive-name]
+     (log/info " [[ exporting file:" archive-name "]]")
+     (-> (response (state/archive-file archive-name))
+         (status 200)
+         (header "Content-Type" "application/zip")
+         (header "Content-Disposition"
+                 (str "attachment;filename=\"" archive-name "\""))))
 
    (GET "/qman"
        []

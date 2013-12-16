@@ -130,7 +130,11 @@
            (for [f files]
              [(archive-name f stamp) (slurp f)]))
     (log/info "wrote zip file to " (path-of archive-file))
-    archive-fname))
+    (.getName archive-file)))
+
+(defn archive-file
+  [file-name]
+  (file-> (path-> @root-dir "archives" file-name)))
 
 ;;-----------------------------------------------------------------------------
 
