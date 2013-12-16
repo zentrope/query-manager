@@ -1,4 +1,4 @@
-# TO DO
+# TODO
 
 Just random stuff I may or may not want to do, or that may or may not
 be a good idea.
@@ -17,6 +17,7 @@ be a good idea.
 
 ## Done
 
+ - [x] separate event logic from event delagation
  - [x] fix web.clj go-blocks to be simpler
  - [x] port jobs to be core.async
  - [x] move jobs to state

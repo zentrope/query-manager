@@ -24,11 +24,6 @@
 ;; Event Handlers
 ;;-----------------------------------------------------------------------------
 
-(defn- do-app-init!
-  [output-q]
-  (broadcast! output-q [:job-change (state/all-jobs)])
-  (broadcast! output-q [:query-change (state/all-queries)]))
-
 (defn- do-database-get!
   [output-q]
   (broadcast! output-q [:db-change (state/get-db)]))
@@ -43,6 +38,8 @@
   (state/put-db! db-spec)
   (state/save-database! (state/get-db))
   (broadcast! output-q [:db-change (state/get-db)]))
+
+;;-----------------------------------------------------------------------------
 
 (defn- do-job-list!
   [output-q]
@@ -59,74 +56,103 @@
   (state/create-job! (state/db-spec) (state/one-query job) input-q)
   (broadcast! output-q [:job-change (state/all-jobs)]))
 
+(defn- do-job-get!
+  [output-q job-id]
+  (broadcast! output-q [:job-get (state/one-job job-id)]))
+
+(defn- do-job-delete!
+  [output-q job-id]
+  (state/delete-job! (str job-id))
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+(defn- do-job-delete-all!
+  [output-q]
+  (state/delete-all-jobs!)
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+(defn- do-job-complete!
+  [output-q]
+  (broadcast! output-q [:job-change (state/all-jobs)]))
+
+;;-----------------------------------------------------------------------------
+
+(defn- do-query-get!
+  [output-q qid]
+  (broadcast! output-q [:query-get (state/one-query qid)]))
+
+(defn- do-query-list!
+  [output-q]
+  (broadcast! output-q [:query-change (state/all-queries)]))
+
+(defn- do-query-update!
+  [output-q new-query]
+  (if-let [query (state/one-query (:id new-query))]
+    (let [update (merge query new-query)]
+      (state/update-query! update)
+      (broadcast! output-q [:query-change (state/all-queries)]))
+    (broadcast! output-q [:http-error 404])))
+
+(defn- do-query-create!
+  [output-q query]
+  (let [{:keys [sql description]} query]
+    (state/create-query! sql description)
+    (broadcast! output-q [:query-change (state/all-queries)])))
+
+(defn- do-query-create-all!
+  [output-q queries]
+  (doseq [q queries]
+    (let [{:keys [sql description]} q]
+      (state/create-query! sql description)))
+  (broadcast! output-q [:query-change (state/all-queries)]))
+
+(defn- do-query-delete!
+  [output-q qid]
+  (state/delete-query! qid)
+  (broadcast! output-q [:query-change (state/all-queries)]))
+
+;;-----------------------------------------------------------------------------
+
+(defn- do-app-init!
+  [output-q]
+  (broadcast! output-q [:job-change (state/all-jobs)])
+  (broadcast! output-q [:query-change (state/all-queries)]))
+
 (defn- do-archive!
   [output-q]
   (let [name (state/archive)]
     (broadcast! output-q [:archive-created name])))
 
+(defn- do-noop!
+  [output-q topic msg]
+  (log/info "Unable to process message: " [topic msg]))
+
+;;-----------------------------------------------------------------------------
+
 (defn- process!
   [input-q output-q [topic msg]]
-  ;;
-  ;; TODO: Move each of these handlers to a separate functions so that
-  ;;       it's easier to get the gist of the topics.
-  ;;
   (case topic
+    :db-get           (do-database-get! output-q)
+    :db-test          (do-database-test! output-q msg)
+    :db-save          (do-database-save! output-q msg)
 
-    :archive-state (do-archive! output-q)
-    :app-init      (do-app-init! output-q)
+    :job-list         (do-job-list! output-q)
+    :job-run-all      (do-job-runall! input-q output-q)
+    :job-run          (do-job-run! input-q output-q msg)
+    :job-get          (do-job-get! output-q msg)
+    :job-delete       (do-job-delete! output-q msg)
+    :job-delete-all   (do-job-delete-all! output-q)
+    :job-complete     (do-job-complete! output-q)
 
-    :db-get        (do-database-get! output-q)
-    :db-test       (do-database-test! output-q msg)
-    :db-save       (do-database-save! output-q msg)
+    :query-get        (do-query-get! output-q msg)
+    :query-list       (do-query-list! output-q)
+    :query-update     (do-query-update! output-q msg)
+    :query-create     (do-query-create! output-q msg)
+    :query-create-all (do-query-create-all! output-q msg)
+    :query-delete     (do-query-delete! output-q msg)
 
-    :job-list      (do-job-list! output-q)
-    :job-run-all   (do-job-runall! input-q output-q)
-    :job-run       (do-job-run! input-q output-q msg)
-
-
-    :job-get
-    (broadcast! output-q [:job-get (state/one-job msg)])
-
-    :job-delete
-    (do (state/delete-job! (str msg))
-        (broadcast! output-q [:job-change (state/all-jobs)]))
-
-    :job-delete-all
-    (do (state/delete-all-jobs!)
-        (broadcast! output-q [:job-change (state/all-jobs)]))
-
-    :job-complete
-    (broadcast! output-q [:job-change (state/all-jobs)])
-
-    :query-get
-    (broadcast! output-q [:query-get (state/one-query msg)])
-
-    :query-list
-    (broadcast! output-q [:query-change (state/all-queries)])
-
-    :query-update
-    (if-let [query (state/one-query (:id msg))]
-      (let [update (merge query msg)]
-        (state/update-query! update)
-        (broadcast! output-q [:query-change (state/all-queries)]))
-      (broadcast! output-q [:http-error 404]))
-
-    :query-create
-    (let [{:keys [sql description]} msg]
-      (state/create-query! sql description)
-      (broadcast! output-q [:query-change (state/all-queries)]))
-
-    :query-create-all
-    (do (doseq [q msg]
-          (let [{:keys [sql description]} q]
-            (state/create-query! sql description)))
-        (broadcast! output-q [:query-change (state/all-queries)]))
-
-    :query-delete
-    (do (state/delete-query! msg)
-        (broadcast! output-q [:query-change (state/all-queries)]))
-
-    :noop))
+    :app-init         (do-app-init! output-q)
+    :archive-state    (do-archive! output-q)
+    (do-noop! topic msg)))
 
 (defn- event-loop!
   [input-q output-q]
@@ -147,7 +173,7 @@
 
 (defn get-event-q
   "Return a queue you can use to consume events published by the event
-  manager."
+   manager."
   [this]
   (:output-q @this))
 
