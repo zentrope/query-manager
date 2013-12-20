@@ -19,7 +19,7 @@
                  [me.raynes/fs "1.4.5"]
 
                  ;; Database
-                 [org.clojure/java.jdbc "0.3.0-rc1"]       ;; jdbc
+                 [org.clojure/java.jdbc "0.3.0"]           ;; jdbc
                  [mysql/mysql-connector-java "5.1.27"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database
@@ -28,10 +28,10 @@
 
                  ;; ClojureScript
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                 [org.clojure/clojurescript "0.0-2120"]
+                 [org.clojure/clojurescript "0.0-2127"]
                  [prismatic/dommy "0.1.2"]]
 
-  :plugins [[lein-cljsbuild "1.0.0"]]
+  :plugins [[lein-cljsbuild "1.0.1"]]
 
   :hooks [leiningen.cljsbuild]
 
