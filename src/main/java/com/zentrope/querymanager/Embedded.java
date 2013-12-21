@@ -2,8 +2,6 @@ package com.zentrope.querymanager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import clojure.lang.RT;
-import clojure.lang.Var;
 
 public class Embedded {
 
@@ -12,8 +10,8 @@ public class Embedded {
 
   public static boolean start() {
     try {
-      RT.loadResourceScript("query_manager/main.clj", failIfNotFound);
-      RT.var("query-manager.main", "startEmbedded").invoke();
+      clojure.lang.RT.loadResourceScript("query_manager/main.clj", failIfNotFound);
+      clojure.lang.RT.var("query-manager.main", "start-embedded!").invoke();
       return true;
     }
 
@@ -25,8 +23,8 @@ public class Embedded {
 
   public static boolean stop() {
     try {
-      RT.loadResourceScript("query_manager/main.clj", failIfNotFound);
-      RT.var("query-manager.main", "stopEmbedded").invoke();
+      clojure.lang.RT.loadResourceScript("query_manager/main.clj", failIfNotFound);
+      clojure.lang.RT.var("query-manager.main", "stop-embedded!").invoke();
       return true;
     }
 

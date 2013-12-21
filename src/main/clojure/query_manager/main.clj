@@ -78,13 +78,13 @@
   (state/load-queries-from-disk!)
   (state/load-jobs-from-disk!))
 
-(defn startEmbedded
+(defn start-embedded!
   []
   (load-db!)
   (on-jvm-shutdown (fn [] (stop!)))
   (start!))
 
-(defn stopEmbedded
+(defn stop-embedded!
   []
   (stop!))
 
