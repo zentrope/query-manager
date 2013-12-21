@@ -193,5 +193,6 @@
   "Stop the event manager. Note: closes all put/get queues."
   [this]
   (log/info "Stopping event manager.")
-  (async/close! (:input-q @this) (:output-q @this))
-  (reset! this (make (:job-state @this))))
+  (async/close! (:input-q @this))
+  (async/close! (:output-q @this))
+  (reset! this (make)))

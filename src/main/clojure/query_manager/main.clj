@@ -78,6 +78,16 @@
   (state/load-queries-from-disk!)
   (state/load-jobs-from-disk!))
 
+(defn startEmbedded
+  []
+  (load-db!)
+  (on-jvm-shutdown (fn [] (stop!)))
+  (start!))
+
+(defn stopEmbedded
+  []
+  (stop!))
+
 (defn -main
   [& args]
   (let [lock (promise)]

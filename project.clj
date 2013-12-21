@@ -36,19 +36,24 @@
   :hooks [leiningen.cljsbuild]
 
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src-cljs"]
-                        :compiler {:output-to "resources/public/qman/main.js"
+                       {:source-paths ["src/main/cljs"]
+                        :compiler {:output-to "src/main/resources/public/qman/main.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        :prod
-                       {:source-paths ["src-cljs"]
-                        :compiler {:output-to "resources/public/qman/main.js"
+                       {:source-paths ["src/main/cljs"]
+                        :compiler {:output-to "src/main/resources/public/qman/main.js"
                                    :optimizations :advanced
-                                   :externs ["resources/externs.js"]
+                                   :externs ["src/main/resources/externs.js"]
                                    :pretty-print false}}}}
 
   :jvm-opts ["-Dapple.awt.UIElement=true"]
+  :javac-options ["-Xlint"]
+  :source-paths ["src/main/clojure"]
+  :java-source-paths ["src/main/java"]
+  :test-paths [""]
+  :resource-paths ["src/main/resources"]
   :min-lein-version "2.3.4"
-  :profiles {:offline {:offline? true}
+  :profiles {:base {:resource-paths ["src/main/resources"]}
              :uberjar {:aot [query-manager.main]}}
   :main query-manager.main)
