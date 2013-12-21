@@ -14,6 +14,7 @@ be a good idea.
 
  - [ ] all state should be in an "instance" var in main
  - [ ] scrub database password from archive database
+ - [ ] make query manager embeddable for Java apps
 
 ## Done
 
