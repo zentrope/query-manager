@@ -1,11 +1,11 @@
-(defproject query-manager "2"
+(defproject com.zentrope/query-manager "2.0.0"
 
   :description "Submitting, monitoring and viewing the results of long-running queries."
 
   :dependencies [[org.clojure/clojure "1.5.1"]
 
                  ;; Web
-                 [http-kit "2.1.13"]
+                 [http-kit "2.1.14"]
                  [compojure "1.1.6"]
                  [hiccup "1.0.4"]
                  [org.clojure/data.json "0.2.3"]
@@ -20,7 +20,7 @@
 
                  ;; Database
                  [org.clojure/java.jdbc "0.3.0"]           ;; jdbc
-                 [mysql/mysql-connector-java "5.1.27"]     ;; mysql
+                 [mysql/mysql-connector-java "5.1.28"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database
                  [postgresql/postgresql "9.1-901-1.jdbc4"] ;; postgresql
@@ -47,6 +47,8 @@
                                    :externs ["src/main/resources/externs.js"]
                                    :pretty-print false}}}}
 
+  :scm {:name "git"
+        :url "https://github.com/zentrope/query-manager"}
   :jvm-opts ["-Dapple.awt.UIElement=true"]
   :javac-options ["-Xlint"]
   :source-paths ["src/main/clojure"]
