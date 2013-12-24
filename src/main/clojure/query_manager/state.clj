@@ -146,9 +146,20 @@
 (declare put-db!)
 
 (defn load-database!
-  []
-  (when-let [db (read-from! (file-> @root-dir "database.clj"))]
-    (put-db! db)))
+  ([]
+     (when-let [db (read-from! (file-> @root-dir "database.clj"))]
+       (put-db! db)))
+  ([^java.util.Properties p]
+     (let [spec {:updated  true
+                 :type     (.getProperty p "db.type" "mysql")
+                 :host     (.getProperty p "db.host" "localhost")
+                 :port     (.getProperty p "db.port" "3306")
+                 :user     (.getProperty p "db.user" "root")
+                 :password (.getProperty p "db.password" "services")
+                 :database (.getProperty p "db.database" "te")}]
+       (if-let [domain (.getProperty p "db.domain" nil)]
+         (put-db! (assoc spec :domain domain))
+         (put-db! spec)))))
 
 ;;-----
 
@@ -359,13 +370,16 @@
 
 (defmethod db-specialize :sqlserver
   [spec]
-  {:type (:type spec)
-   :host (:host spec)
-   :port (:port spec)
-   :user (:user spec)
-   :password (:password spec)
-   :subname (str "//" (:host spec) ":" (:port spec) "/" (:database spec))
-   :subprotocol "jtds:sqlserver"})
+  (let [db {:type (:type spec)
+            :host (:host spec)
+            :port (:port spec)
+            :user (:user spec)
+            :password (:password spec)
+            :subname (str "//" (:host spec) ":" (:port spec) "/" (:database spec))
+            :subprotocol "jtds:sqlserver"}]
+    (if-let [domain (:domain spec)]
+      (assoc db :domain domain)
+      db)))
 
 (defmethod db-specialize :oracle
   [spec]

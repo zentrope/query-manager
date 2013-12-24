@@ -69,20 +69,20 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- load-db!
-  []
-  ;;
-  ;; Temporary, until I work out proper state management for this
-  ;; whole thing.
-  ;;
-  (state/load-database!)
+  [db-props]
+  (if db-props
+    (state/load-database! db-props)
+    (state/load-database!))
   (state/load-queries-from-disk!)
   (state/load-jobs-from-disk!))
 
 (defn start-embedded!
-  []
-  (load-db!)
-  (on-jvm-shutdown (fn [] (stop!)))
-  (start!))
+  ([properties]
+     (load-db! properties)
+     (on-jvm-shutdown (fn [] (stop!)))
+     (start!))
+  ([]
+     (start-embedded! nil)))
 
 (defn stop-embedded!
   []
