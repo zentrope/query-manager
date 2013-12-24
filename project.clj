@@ -1,5 +1,7 @@
-(defproject com.zentrope/query-manager "2.0.0"
+(defproject com.zentrope/query-manager "2.0.1"
 
+  :url "https://github.com/zentrope/query-manager"
+  :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
   :description "Submitting, monitoring and viewing the results of long-running queries."
 
   :dependencies [[org.clojure/clojure "1.5.1"]
