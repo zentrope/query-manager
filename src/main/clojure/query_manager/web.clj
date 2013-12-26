@@ -154,7 +154,7 @@
 
 (defn make
   [port request-q response-q]
-  (atom {:port port
+  (atom {:port (if (string? port) (Integer/parseInt port) port)
          :request-q request-q
          :response-q response-q
          :hub (atom {})

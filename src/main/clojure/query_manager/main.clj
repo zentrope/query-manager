@@ -81,9 +81,9 @@
   ([port properties]
      (load-db! properties)
      (on-jvm-shutdown (fn [] (stop!)))
-     (start!))
+     (start! port))
   ([port]
-     (start-embedded! nil)))
+     (start-embedded! port nil)))
 
 (defn stop-embedded!
   []

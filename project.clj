@@ -1,4 +1,4 @@
-(defproject com.zentrope/query-manager "2.0.2"
+(defproject com.zentrope/query-manager "2.0.3"
 
   :url "https://github.com/zentrope/query-manager"
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
