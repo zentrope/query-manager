@@ -46,16 +46,17 @@
 ;;-----------------------------------------------------------------------------
 
 (defn- start!
-  []
-  (log/info "Starting query manager application.")
-  ;;
-  (let [port (evar "PORT" "8081")
-        event-manager (events/make)
-        request-q (events/put-event-q event-manager)
-        response-q (events/get-event-q event-manager)
-        web-app (web/make port request-q response-q)]
-    (start-svc! +evt-mgr+ event-manager events/start!)
-    (start-svc! +web-app+ web-app web/start!)))
+  ([port]
+     (log/info "Starting query manager application.")
+     ;;
+     (let [event-manager (events/make)
+           request-q (events/put-event-q event-manager)
+           response-q (events/get-event-q event-manager)
+           web-app (web/make port request-q response-q)]
+       (start-svc! +evt-mgr+ event-manager events/start!)
+       (start-svc! +web-app+ web-app web/start!)))
+  ([]
+     (start! (evar "PORT" "8081"))))
 
 (defn- stop!
   []
@@ -77,11 +78,11 @@
   (state/load-jobs-from-disk!))
 
 (defn start-embedded!
-  ([properties]
+  ([port properties]
      (load-db! properties)
      (on-jvm-shutdown (fn [] (stop!)))
      (start!))
-  ([]
+  ([port]
      (start-embedded! nil)))
 
 (defn stop-embedded!
@@ -91,7 +92,7 @@
 (defn -main
   [& args]
   (let [lock (promise)]
-    (load-db!)
+    (load-db! nil)
     (on-jvm-shutdown (fn [] (stop!)))
     (on-jvm-shutdown (fn [] (release-lock lock)))
     (start!)

@@ -162,11 +162,11 @@
 
 (defn start!
   [this]
-  (log/info "Starting web application on port:" (str (:port @this) "."))
+  (log/info (format "Starting web application: http://localhost:%s/qman." (:port @this)))
   ;;
   (let [port (:port @this)
         app (mk-app @this)
-        params {:port port :worker-name-prefix "httpkit-"}
+        params {:port port :worker-name-prefix "http-"}
         server (httpd/run-server app params)
         delegate (delegate-ch (:response-q @this))]
     (response-loop! (:hub @this) delegate)

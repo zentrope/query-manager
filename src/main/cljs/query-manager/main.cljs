@@ -257,12 +257,13 @@
   (try
     (do-process! state queue data)
     (catch js/Error e
-      (.log js/console "ERROR:" (str e))
+      (.log js/console "ERROR:" (str e) " msg:" (str data))
       state)))
 
 (defn- log-event!
   [[topic data]]
-  (let [skips #{:query-change :job-change :queries-poke :jobs-poke}]
+  (let [;;skips #{:query-change :job-change :queries-poke :jobs-poke}
+        skips #{}]
     (when (contains? skips topic)
       (let [s (str [topic data])]
         (if (> (count s) 70)

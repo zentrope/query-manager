@@ -1,4 +1,4 @@
-(defproject com.zentrope/query-manager "2.0.1"
+(defproject com.zentrope/query-manager "2.0.2"
 
   :url "https://github.com/zentrope/query-manager"
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -31,7 +31,7 @@
                  ;; ClojureScript
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
                  [org.clojure/clojurescript "0.0-2127"]
-                 [prismatic/dommy "0.1.2"]]
+                 [prismatic/dommy "0.1.2" :exclusions [crate prismatic/cljs-test]]]
 
   :plugins [[lein-cljsbuild "1.0.1"]]
 
@@ -49,8 +49,7 @@
                                    :externs ["src/main/resources/externs.js"]
                                    :pretty-print false}}}}
 
-  :scm {:name "git"
-        :url "https://github.com/zentrope/query-manager"}
+  :scm {:name "git" :url "https://github.com/zentrope/query-manager"}
   :jvm-opts ["-Dapple.awt.UIElement=true"]
   :javac-options ["-Xlint"]
   :source-paths ["src/main/clojure"]
@@ -58,6 +57,8 @@
   :test-paths [""]
   :resource-paths ["src/main/resources"]
   :min-lein-version "2.3.4"
-  :profiles {:base {:resource-paths ["src/main/resources"]}
+  :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.3"]
+                                  [clojure-complete "0.2.3"]]}
+             :base {:resource-paths ["src/main/resources"]}
              :uberjar {:aot [query-manager.main]}}
   :main query-manager.main)
