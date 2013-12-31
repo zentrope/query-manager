@@ -9,11 +9,14 @@ be a good idea.
  - [ ] some way to display error messages?
  - [ ] modal screen thing for when server is down
  - [ ] when server returns, refresh?
+ - [ ] drag/drop alternative?
+ - [ ] test on windows/linux browsers
 
 ## Server
 
  - [ ] all state should be in an "instance" var in main
  - [ ] scrub database password from archive database
+ - [ ] sometimes data comes back with invalid (for keyword) column names
 
 ## Done
 
