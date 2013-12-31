@@ -14,7 +14,7 @@
             [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.java.jdbc :as jdbc]
-            [ me.raynes.fs.compression :as compress]))
+            [me.raynes.fs.compression :as compress]))
 
 ;;-----------------------------------------------------------------------------
 
@@ -80,7 +80,7 @@
     (when (.exists f)
       (edn/read-string (slurp f)))
     (catch Throwable t
-      (log/error "unable to read from" (path-of f))
+      (log/error "unable to read from" (path-of f) ", because:" t)
       nil)))
 
 (defn- file-name
@@ -109,7 +109,9 @@
         files (file-type-only-seq "clj" place)]
     (doseq [f files]
       (let [q (read-from! f)]
-        (load-fn q)))))
+        (if (map? q)
+          (load-fn q)
+          (log/warn (format "in file [%s], non-map data: %s" f q)))))))
 
 (defn- archive-name
   [^File f stamp]
@@ -320,7 +322,7 @@
 (defn all-jobs
   []
   (if-let [results (vals (deref +jobs+))]
-    (map #(dissoc % :results) results)
+    (mapv #(dissoc % :results) results)
     []))
 
 (defn one-job
