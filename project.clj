@@ -30,7 +30,7 @@
 
                  ;; ClojureScript
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                 [org.clojure/clojurescript "0.0-2134"]
+                 [org.clojure/clojurescript "0.0-2138"]
                  [prismatic/dommy "0.1.2" :exclusions [crate prismatic/cljs-test]]]
 
   :plugins [[lein-cljsbuild "1.0.1"]]
