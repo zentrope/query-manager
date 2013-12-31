@@ -83,7 +83,7 @@
      (on-jvm-shutdown (fn [] (stop!)))
      (start! app-title port))
   ([app-title port]
-     (start-embedded! port nil))
+     (start-embedded! app-title port nil))
   ([port]
      (start-embedded! "Query Manager" port)))
 
