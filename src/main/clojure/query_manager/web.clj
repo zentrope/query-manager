@@ -100,7 +100,7 @@
   [(keyword topic) msg])
 
 (defn- main-routes
-  [request-q response-q hub]
+  [request-q response-q hub app-title]
   (routes
 
    (GET "/qman/api/messages"
@@ -138,7 +138,7 @@
        []
      (html/html5
       [:head
-       [:title "Query Manager"]
+       [:title app-title]
        [:link {:rel "shortcut icon" :href "/qman/favicon.ico"}]
        (html/include-css "qman/styles.css")
        (html/include-js "qman/main.js")]
@@ -148,9 +148,9 @@
    (route/not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
 (defn- mk-app
-  [{:keys [request-q response-q hub]}]
+  [{:keys [request-q response-q hub app-title]}]
   (fn [request]
-    ((-> (main-routes request-q response-q hub)
+    ((-> (main-routes request-q response-q hub app-title)
          (wrap-params)
          (wrap-keyword-params)
          (no-cache))
@@ -161,11 +161,12 @@
 ;;-----------------------------------------------------------------------------
 
 (defn make
-  [port request-q response-q]
+  [app-title port request-q response-q]
   (atom {:port (if (string? port) (Integer/parseInt port) port)
          :request-q request-q
          :response-q response-q
          :hub (atom {})
+         :app-title app-title
          :httpd nil}))
 
 (defn start!
