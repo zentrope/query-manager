@@ -38,27 +38,22 @@
   :hooks [leiningen.cljsbuild]
 
   :cljsbuild {:builds {:dev
-                       {:source-paths ["src/main/cljs"]
-                        :compiler {:output-to "src/main/resources/public/qman/main.js"
+                       {:source-paths ["src-cljs"]
+                        :compiler {:output-to "resources/public/qman/main.js"
                                    :optimizations :whitespace
                                    :pretty-print true}}
                        :prod
-                       {:source-paths ["src/main/cljs"]
-                        :compiler {:output-to "src/main/resources/public/qman/main.js"
+                       {:source-paths ["src-cljs"]
+                        :compiler {:output-to "resources/public/qman/main.js"
                                    :optimizations :advanced
-                                   :externs ["src/main/resources/externs.js"]
+                                   :externs ["resources/externs.js"]
                                    :pretty-print false}}}}
 
   :scm {:name "git" :url "https://github.com/zentrope/query-manager"}
   :jvm-opts ["-Dapple.awt.UIElement=true"]
-  :javac-options ["-Xlint"]
-  :source-paths ["src/main/clojure"]
-  :java-source-paths ["src/main/java"]
-  :test-paths [""]
-  :resource-paths ["src/main/resources"]
   :min-lein-version "2.3.4"
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.3"]
                                   [clojure-complete "0.2.3"]]}
-             :base {:resource-paths ["src/main/resources"]}
+             ;;:base {:resource-paths ["src/main/resources"]}
              :uberjar {:aot [query-manager.main]}}
   :main query-manager.main)
