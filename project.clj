@@ -1,4 +1,4 @@
-(defproject com.zentrope/query-manager "2.0.3"
+(defproject com.zentrope/query-manager "2.0.4"
 
   :url "https://github.com/zentrope/query-manager"
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -21,7 +21,7 @@
                  [me.raynes/fs "1.4.5"]
 
                  ;; Database
-                 [org.clojure/java.jdbc "0.3.0"]           ;; jdbc
+                 [org.clojure/java.jdbc "0.3.2"]           ;; jdbc
                  [mysql/mysql-connector-java "5.1.28"]     ;; mysql
                  [net.sourceforge.jtds/jtds "1.2.8"]       ;; sql-server (java.6 compat)
                  [com.h2database/h2 "1.3.174"]             ;; h2 database
@@ -30,7 +30,7 @@
 
                  ;; ClojureScript
                  [org.clojure/core.async "0.1.267.0-0d7780-alpha"]
-                 [org.clojure/clojurescript "0.0-2127"]
+                 [org.clojure/clojurescript "0.0-2134"]
                  [prismatic/dommy "0.1.2" :exclusions [crate prismatic/cljs-test]]]
 
   :plugins [[lein-cljsbuild "1.0.1"]]

@@ -88,6 +88,13 @@
 ;; Routing
 ;;-----------------------------------------------------------------------------
 
+(defn- no-cache
+  [handler]
+  (fn [request]
+    (-> (handler request)
+        (header "cache-control" "no-cache")
+        (header "expires" "-1"))))
+
 (defn- normalize
   [[topic msg]]
   [(keyword topic) msg])
@@ -145,7 +152,8 @@
   (fn [request]
     ((-> (main-routes request-q response-q hub)
          (wrap-params)
-         (wrap-keyword-params))
+         (wrap-keyword-params)
+         (no-cache))
      request)))
 
 ;;-----------------------------------------------------------------------------

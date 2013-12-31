@@ -14,10 +14,11 @@ be a good idea.
 
  - [ ] all state should be in an "instance" var in main
  - [ ] scrub database password from archive database
- - [ ] make query manager embeddable for Java apps
+ - [ ] property for app title in embedded mode
 
 ## Done
 
+ - [x] make query manager embeddable for Java apps
  - [x] separate event logic from event delagation
  - [x] fix web.clj go-blocks to be simpler
  - [x] port jobs to be core.async
