@@ -1,4 +1,4 @@
-(defproject com.zentrope/query-manager "2.0.6"
+(defproject com.zentrope/query-manager "2.0.7"
 
   :url "https://github.com/zentrope/query-manager"
   :license {:name "Eclipse Public License" :url "http://www.eclipse.org/legal/epl-v10.html"}
@@ -55,4 +55,4 @@
   :profiles {:dev {:dependencies [[org.clojure/tools.nrepl "0.2.3"]
                                   [clojure-complete "0.2.3"]]}
              :uberjar {:aot [query-manager.main]}}
-  :main query-manager.main)
+  :main ^:skip-aot query-manager.main)
