@@ -11,6 +11,8 @@ be a good idea.
  - [ ] when server returns, refresh?
  - [ ] drag/drop alternative?
  - [ ] test on windows/linux browsers
+ - [ ] pressing return when viewing query results re-displays results,
+       hit outside the window, then enter, it works okay.
 
 ## Server
 
