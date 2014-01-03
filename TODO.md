@@ -11,8 +11,6 @@ be a good idea.
  - [ ] when server returns, refresh?
  - [ ] drag/drop alternative?
  - [ ] test on windows/linux browsers
- - [ ] pressing return when viewing query results re-displays results,
-       hit outside the window, then enter, it works okay.
 
 ## Server
 
@@ -22,6 +20,7 @@ be a good idea.
 
 ## Done
 
+ - [x] proper return/escape keys on job-viewer form
  - [x] property for app title in embedded mode
  - [x] make query manager embeddable for Java apps
  - [x] separate event logic from event delagation
