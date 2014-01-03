@@ -1,11 +1,13 @@
 (ns query-manager.view.job-viewer
-  (:use-macros [dommy.macros :only [sel1 node]])
-  (:require [dommy.core :as dom]
-            [cljs.core.async :as async]))
+  (:use-macros
+     [dommy.macros :only [sel1 node]])
+  (:require
+     [dommy.core :as dom]
+     [cljs.core.async :refer [put!]]))
 
 (defn- template
   []
-  (node [:div#job-view-container ;;{:style {:display "none"}}
+  (node [:div#job-view-container
          [:div.job-view
           [:h2#jv-desc "-"]
           [:p#jv-title.sub-title "Job Results Viewer"]
@@ -35,7 +37,7 @@
 (defn- on-done-button-clicked
   [queue]
   (fn [e]
-    (async/put! queue [:job-view-hide {}])))
+    (put! queue [:job-view-hide {}])))
 
 (defn- on-show!
   []
@@ -62,15 +64,38 @@
     (dom/listen! [body :#jv-done] :click (on-done-button-clicked queue))
     body))
 
+(def ^:private interceptor (atom nil))
+
+(defn- register-key-handler!
+  [queue]
+  (let [keyhandler (fn [e]
+                     (let [keycode (.-keyCode e)]
+                       (when (or (= keycode 27)
+                                 (= keycode 13))
+                         (put! queue [:job-view-hide {}]))
+                       (.stopPropagation e)
+                       (.preventDefault e)))]
+    (reset! interceptor keyhandler)
+    (dom/listen! js/document :keydown keyhandler)))
+
+(defn- unregister-key-handler!
+  []
+  (when-let [handler @interceptor]
+    (dom/unlisten! js/document :keydown handler)
+    (reset! interceptor nil)))
+
 ;;-----------------------------------------------------------------------------
 
 (defn show!
   [queue]
   (let [body (mk-template queue)]
-    (dom/append! (sel1 :body) body)))
+    (dom/append! (sel1 :body) body)
+    (.focus (sel1 :#jv-done))
+    (register-key-handler! queue)))
 
 (defn hide!
   []
+  (unregister-key-handler!)
   (when-let [place (sel1 :#job-view-container)]
     (dom/remove! place)))
 
