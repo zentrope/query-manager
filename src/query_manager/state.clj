@@ -6,25 +6,30 @@
   ;; (for now), I can take a look at all the concerns here and
   ;; refactor appropriately. How's that for defensiveness?
   ;;
-  (:import (java.io File))
-  (:require [clojure.core.async :refer [put! timeout alts!! go thread-call chan]]
-            [clojure.tools.logging :as log]
-            [clojure.pprint :refer [pprint]]
-            [clojure.string :refer [lower-case trim join]]
-            [clojure.edn :as edn]
-            [clojure.java.io :as io]
-            [clojure.java.jdbc :as jdbc]
-            [me.raynes.fs.compression :as compress]))
+  (:import
+    (java.io File))
+  (:require
+    [clojure.core.async :refer [put! timeout alts!! go thread-call chan]]
+    [clojure.tools.logging :as log]
+    [clojure.pprint :refer [pprint]]
+    [clojure.string :refer [lower-case trim join split]]
+    [clojure.edn :as edn]
+    [clojure.java.io :as io]
+    [clojure.java.jdbc :as jdbc]
+    [me.raynes.fs.compression :as compress]))
 
 ;;-----------------------------------------------------------------------------
-
-(defn- id-gen
-  []
-  (clojure.string/replace (str (java.util.UUID/randomUUID)) #"-" ""))
 
 (defn- now
   []
   (System/currentTimeMillis))
+
+(defn- id-gen
+  []
+  (str (now) "-" (-> (java.util.UUID/randomUUID)
+                     (str)
+                     (split #"-" 2)
+                     (first))))
 
 (defn- ends-with?
   [s1 s2]
@@ -217,8 +222,9 @@
   (swap! query-db assoc (:id query) query))
 
 (defn create-query!
-  [sql description]
-  (let [q {:id (id-gen) :sql sql :description description}]
+  [id sql description]
+  (let [id (if (empty? id) (id-gen) id) ;; preserve id if present
+        q {:id id :sql sql :description description}]
     (save-query-to-disk! q)
     (swap! query-db assoc (:id q) q)))
 
@@ -235,10 +241,6 @@
 ;;-----------------------------------------------------------------------------
 ;; Job Stuff
 ;;-----------------------------------------------------------------------------
-
-(defn- now
-  []
-  (System/currentTimeMillis))
 
 (defn- mk-job
   [query]

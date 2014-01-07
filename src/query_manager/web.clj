@@ -117,8 +117,9 @@
      (log/info " [[ exporting queries ]]")
      (-> (state/all-queries)
          (as-> queries
-               (mapv #(dissoc % :id) queries)
-               (with-out-str (clojure.pprint/pprint queries))
+               (sort-by :id queries)
+               (for [q queries] (with-out-str (clojure.pprint/pprint q)))
+               (str "[\n" (clojure.string/join ",\n" queries) "\n]")
                (clojure.string/replace (str queries) #"\\n" "\n"))
          (response)
          (status 200)

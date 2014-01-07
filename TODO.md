@@ -11,12 +11,14 @@ be a good idea.
  - [ ] when server returns, refresh?
  - [ ] drag/drop alternative?
  - [ ] test on windows/linux browsers
+ - [ ] send unique client-id in header
 
 ## Server
 
  - [ ] all state should be in an "instance" var in main
  - [ ] scrub database password from archive database
  - [ ] sometimes data comes back with invalid (for keyword) column names
+ - [ ] fix one-browser-per-instance limitation
 
 ## Done
 

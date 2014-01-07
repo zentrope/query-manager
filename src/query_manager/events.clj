@@ -94,15 +94,15 @@
 
 (defn- do-query-create!
   [output-q query]
-  (let [{:keys [sql description]} query]
-    (state/create-query! sql description)
+  (let [{:keys [id sql description]} query]
+    (state/create-query! id sql description)
     (broadcast! output-q [:query-change (state/all-queries)])))
 
 (defn- do-query-create-all!
   [output-q queries]
   (doseq [q queries]
-    (let [{:keys [sql description]} q]
-      (state/create-query! sql description)))
+    (let [{:keys [id sql description]} q]
+      (state/create-query! id sql description)))
   (broadcast! output-q [:query-change (state/all-queries)]))
 
 (defn- do-query-delete!
