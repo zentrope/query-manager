@@ -1,15 +1,16 @@
 (ns query-manager.web
-  (:require [org.httpkit.server :as httpd]
-            [clojure.tools.logging :as log]
-            [clojure.data.json :as json]
-            [compojure.route :as route]
-            [hiccup.page :as html]
-            [clojure.core.async :refer [go-loop <! timeout go put! chan close!]]
-            [compojure.core :refer [routes GET POST]]
-            [ring.util.response :refer [redirect status response header]]
-            [ring.middleware.params :refer [wrap-params]]
-            [ring.middleware.keyword-params :refer [wrap-keyword-params]]
-            [query-manager.state :as state]))
+  (:require
+    [org.httpkit.server :as httpd]
+    [clojure.tools.logging :as log]
+    [clojure.data.json :as json]
+    [compojure.route :as route]
+    [hiccup.page :as html]
+    [clojure.core.async :refer [go-loop <! timeout go put! chan close! mult tap untap]]
+    [compojure.core :refer [routes GET POST]]
+    [ring.util.response :refer [redirect status response header]]
+    [ring.middleware.params :refer [wrap-params]]
+    [ring.middleware.keyword-params :refer [wrap-keyword-params]]
+    [query-manager.state :as state]))
 
 ;;-----------------------------------------------------------------------------
 ;; Utilities
@@ -56,6 +57,34 @@
     delegate))
 
 ;;-----------------------------------------------------------------------------
+;; Sessions
+;;-----------------------------------------------------------------------------
+
+;; (def plexer (mult response-q))
+
+(defn- drop-session!
+  [sessions client-id]
+  (when-let [c (client-id @sessions)]
+    (close! c)
+    (log/info "[session] dropping session for" client-id)
+    (swap! sessions dissoc client-id)))
+
+(defn- create-session!
+  [sessions client-id]
+  (when (nil? (client-id @sessions))
+    (log/info "[session] creating session for" client-id)
+    (let [c (chan)]
+      (swap! sessions assoc client-id c)
+      c)))
+
+(defn- get-session
+  "Returns a specific channel."
+  [sessions client-id]
+  (if-let [c (client-id @sessions)]
+    c
+    (create-session! sessions client-id)))
+
+;;-----------------------------------------------------------------------------
 ;; Response Handling
 ;;-----------------------------------------------------------------------------
 
@@ -67,22 +96,38 @@
       (recur))))
 
 (defn- response-loop!
-  [hub event-queue]
+  [sessions hub event-queue]
+  ;;
+  ;; Wait for incoming messages from the event queue, then distribute
+  ;; them to all the available sessions.
+  ;;
   (go-loop []
     (when-let [msg (<! event-queue)]
-      (<! (wait-until-client-connected! hub))
-      (doseq [[web-chan req] @hub]
-       (if (= (first msg) (:http-error msg))
-         (httpd/send! web-chan (mk-response (second msg)))
-         (httpd/send! web-chan (mk-response 200 (jwrite msg)))))
+      (doseq [[client-id ch] @sessions]
+        (put! ch msg))
       (recur))))
 
+(defn- fulfill-request
+  [sessions web-chan client-id queue]
+  ;;
+  ;; For every request that comes in, set up a go block to response
+  ;; when something comes in on the event queue.
+  ;;
+  (go
+    (when-let [msg (<! queue)]
+      (if (= (first msg) (:http-error msg))
+        (httpd/send! web-chan (mk-response (second msg)))
+        (httpd/send! web-chan (mk-response 200 (jwrite msg)))))))
+
 (defn- message-handler
-  [hub event-queue]
+  [sessions event-queue client-id]
   (fn [request]
     (httpd/with-channel request web-chan
-      (swap! hub assoc web-chan request)
-      (httpd/on-close web-chan (fn [status] (swap! hub dissoc web-chan))))))
+      (httpd/on-close web-chan
+        (fn [status]
+          (when (= status :client-close)
+            (drop-session! sessions client-id))))
+      (fulfill-request sessions web-chan client-id (get-session sessions client-id)))))
 
 ;;-----------------------------------------------------------------------------
 ;; Routing
@@ -100,15 +145,16 @@
   [(keyword topic) msg])
 
 (defn- main-routes
-  [request-q response-q hub app-title]
+  [request-q sessions app-title]
   (routes
 
-   (GET "/qman/api/messages"
-       []
-     (message-handler hub response-q))
+   (GET "/qman/api/messages" [:as r]
+     (let [client-id (keyword (get-in r [:headers "client-id"]))]
+       (message-handler sessions request-q client-id)))
 
-   (POST "/qman/api/messages"
-       [:as r]
+   (POST "/qman/api/messages" [:as r]
+     (when-let [client-id (keyword (get-in r [:headers "client-id"]))]
+       (create-session! sessions client-id))
      (put! request-q (normalize (jread r)))
      {:status 201 :headers {"content-type" "application/json"} :body "{}"})
 
@@ -140,6 +186,8 @@
      (html/html5
       [:head
        [:title app-title]
+       [:meta {:charset "utf-8"}]
+       [:meta {:http-quiv "X-UA-Compatible" :content "IE=edge"}]
        [:link {:rel "shortcut icon" :href "/qman/favicon.ico"}]
        (html/include-css "qman/styles.css")
        (html/include-js "qman/main.js")]
@@ -149,9 +197,9 @@
    (route/not-found "<h1>Oops. Try <a href='/qman'>here</a>.</h1>")))
 
 (defn- mk-app
-  [{:keys [request-q response-q hub app-title]}]
+  [{:keys [request-q app-title sessions]}]
   (fn [request]
-    ((-> (main-routes request-q response-q hub app-title)
+    ((-> (main-routes request-q sessions app-title)
          (wrap-params)
          (wrap-keyword-params)
          (no-cache))
@@ -166,7 +214,7 @@
   (atom {:port (if (string? port) (Integer/parseInt port) port)
          :request-q request-q
          :response-q response-q
-         :hub (atom {})
+         :sessions (atom {})
          :app-title app-title
          :httpd nil}))
 
@@ -179,7 +227,7 @@
         params {:port port :worker-name-prefix "http-"}
         server (httpd/run-server app params)
         delegate (delegate-ch (:response-q @this))]
-    (response-loop! (:hub @this) delegate)
+    (response-loop! (:sessions @this) (:hub @this) delegate)
     (swap! this assoc :httpd server :delegate delegate)))
 
 (defn stop!

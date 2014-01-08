@@ -11,17 +11,18 @@ be a good idea.
  - [ ] when server returns, refresh?
  - [ ] drag/drop alternative?
  - [ ] test on windows/linux browsers
- - [ ] send unique client-id in header
 
 ## Server
 
  - [ ] all state should be in an "instance" var in main
  - [ ] scrub database password from archive database
  - [ ] sometimes data comes back with invalid (for keyword) column names
- - [ ] fix one-browser-per-instance limitation
+ - [ ] all clients get all data, maybe filter by client id?
 
 ## Done
 
+ - [x] send unique client-id in header
+ - [x] fix one-browser-per-instance limitation
  - [x] proper return/escape keys on job-viewer form
  - [x] property for app title in embedded mode
  - [x] make query manager embeddable for Java apps

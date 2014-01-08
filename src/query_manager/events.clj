@@ -123,7 +123,7 @@
     (broadcast! output-q [:archive-created name])))
 
 (defn- do-noop!
-  [output-q topic msg]
+  [topic msg]
   (log/info "Unable to process message: " [topic msg]))
 
 ;;-----------------------------------------------------------------------------
