@@ -5,7 +5,7 @@
     [clojure.data.json :as json]
     [compojure.route :as route]
     [hiccup.page :as html]
-    [clojure.core.async :refer [go-loop <! timeout go put! chan close! mult tap untap]]
+    [clojure.core.async :refer [go-loop <! timeout go put! chan close!]]
     [compojure.core :refer [routes GET POST]]
     [ring.util.response :refer [redirect status response header]]
     [ring.middleware.params :refer [wrap-params]]
@@ -60,8 +60,6 @@
 ;; Sessions
 ;;-----------------------------------------------------------------------------
 
-;; (def plexer (mult response-q))
-
 (defn- drop-session!
   [sessions client-id]
   (when-let [c (client-id @sessions)]
@@ -88,15 +86,8 @@
 ;; Response Handling
 ;;-----------------------------------------------------------------------------
 
-(defn- wait-until-client-connected!
-  [hub]
-  (go-loop []
-    (when (zero? (count @hub))
-      (<! (timeout 10))
-      (recur))))
-
 (defn- response-loop!
-  [sessions hub event-queue]
+  [sessions event-queue]
   ;;
   ;; Wait for incoming messages from the event queue, then distribute
   ;; them to all the available sessions.
@@ -110,7 +101,7 @@
 (defn- fulfill-request
   [sessions web-chan client-id queue]
   ;;
-  ;; For every request that comes in, set up a go block to response
+  ;; For every request that comes in, set up a go block to respond
   ;; when something comes in on the event queue.
   ;;
   (go
@@ -227,7 +218,7 @@
         params {:port port :worker-name-prefix "http-"}
         server (httpd/run-server app params)
         delegate (delegate-ch (:response-q @this))]
-    (response-loop! (:sessions @this) (:hub @this) delegate)
+    (response-loop! (:sessions @this) delegate)
     (swap! this assoc :httpd server :delegate delegate)))
 
 (defn stop!
